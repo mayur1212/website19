@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Remove horizontal & vertical scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+
+
+
+
+/* Hide the round N button */
+#__next-dev-bubble,
+.nextjs-dev-bubble,
+.nextjs-floating-toolbar {
+  display: none !important;
+}
