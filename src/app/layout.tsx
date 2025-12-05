@@ -27,15 +27,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get language, region, and user from Iron Session before rendering
+  // getSession ab null bhi ho sakta hai, isliye optional chaining use karenge
   const session = await getSession();
-  const language = session.language || "en";
-  const region = session.region || {
-    country: undefined,
-    city: undefined,
-    cinema: undefined,
-  };
-  const user = session.user || null;
+
+  const language = session?.language ?? "en";
+
+  const region =
+    session?.region ?? {
+      country: undefined,
+      city: undefined,
+      cinema: undefined,
+    };
+
+  const user = session?.user ?? null;
 
   return (
     <html lang={language}>
@@ -45,9 +49,7 @@ export default async function RootLayout({
         <StructuredData />
         <LanguageProvider initialLanguage={language}>
           <RegionProvider initialRegion={region}>
-            <AuthProvider initialUser={user}>
-              {children}
-            </AuthProvider>
+            <AuthProvider initialUser={user}>{children}</AuthProvider>
           </RegionProvider>
         </LanguageProvider>
       </body>

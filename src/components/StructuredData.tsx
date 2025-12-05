@@ -6,12 +6,15 @@ export function StructuredData() {
 
   return (
     <>
+      {/* Organization Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(organizationSchema),
         }}
       />
+
+      {/* Navigation Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -21,4 +24,3 @@ export function StructuredData() {
     </>
   );
 }
-
