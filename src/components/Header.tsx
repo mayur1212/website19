@@ -32,7 +32,8 @@ const NAV_ITEMS = [
   { label: "Stores", href: "/stores" },
 ];
 
-export default function Header() {
+export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
+
   const pathname = usePathname();
 
   const [isScrolled, setIsScrolled] = useState(false);
