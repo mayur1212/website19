@@ -1,51 +1,56 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const EVENT_CATEGORIES = [
-  { title: "Music", image: "/movies/githar.png" },
-  { title: "Nightlife", image: "/movies/githar.png" },
-  { title: "Comedy", image: "/movies/githar.png" },
-  { title: "Sports", image: "/movies/githar.png" },
-  { title: "Performances", image: "/movies/githar.png" },
-  { title: "Food & Drinks", image: "/movies/githar.png" },
-  { title: "Fests & Fairs", image: "/movies/githar.png" },
-  { title: "Social Mixers", image: "/movies/githar.png" },
-  { title: "Fitness", image: "/movies/githar.png" },
-  { title: "Pets", image: "/movies/githar.png" },
-  { title: "Art Exhibitions", image: "/movies/githar.png" },
-  { title: "Conferences", image: "/movies/githar.png" },
-  { title: "Expos", image: "/movies/githar.png" },
-  { title: "Open Mics", image: "/movies/githar.png" },
+  { title: "Music", slug: "music", image: "/movies/githar.png" },
+  { title: "Nightlife", slug: "nightlife", image: "/movies/githar.png" },
+  { title: "Comedy", slug: "comedy", image: "/movies/githar.png" },
+  { title: "Sports", slug: "sports", image: "/movies/githar.png" },
+  { title: "Performances", slug: "performances", image: "/movies/githar.png" },
+  { title: "Food & Drinks", slug: "food-drinks", image: "/movies/githar.png" },
+  { title: "Fests & Fairs", slug: "fests-fairs", image: "/movies/githar.png" },
+  { title: "Social Mixers", slug: "social-mixers", image: "/movies/githar.png" },
 ];
 
 export default function ExploreEvents() {
   return (
-    <section className="w-full py-10 flex justify-center">
-      <div className="w-[80%]">
-        {/* 🔹 Left aligned title */}
-        <h2 className="mb-6 text-lg sm:text-xl md:text-2xl font-semibold text-zinc-900">
-          Explore Events
-        </h2>
+    <section className="w-[100%] py-10 flex flex-col items-center mx-auto">
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-8">
-          {EVENT_CATEGORIES.map((item, index) => (
-            <div
-              key={index}
-              className="rounded-3xl p-5 bg-gradient-to-b from-[#fff9db] to-[#ffeaa7] shadow-md border border-yellow-200 flex flex-col items-center justify-center hover:shadow-xl transition cursor-pointer"
-            >
-              <div className="h-29 w-29 relative mb-3">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-contain"
-                />
-              </div>
+      {/* ⭐ Explore Events heading */}
+      <h2 className="w-[80%] text-left text-2xl sm:text-3xl font-bold text-black mb-6">
+        Explore Events
+      </h2>
+
+      {/* CATEGORY CARDS */}
+      <div
+        className="w-[80%] 
+                   grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 
+                   lg:grid-cols-6 xl:grid-cols-8 gap-4 mx-auto"
+      >
+        {EVENT_CATEGORIES.map((item, index) => (
+          <Link
+            key={index}
+            href={`/events/category/${item.slug}`}
+            className="rounded-3xl p-5 bg-gradient-to-b from-[#fff9db] to-[#ffeaa7]
+                       shadow-md border border-yellow-200 flex flex-col items-center justify-center
+                       hover:shadow-xl transition cursor-pointer"
+          >
+            <div className="h-29 w-29 relative mb-3">
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                className="object-contain"
+              />
             </div>
-          ))}
-        </div>
+
+            <p className="mt-1 text-sm font-semibold text-black">
+              {item.title}
+            </p>
+          </Link>
+        ))}
       </div>
     </section>
   );

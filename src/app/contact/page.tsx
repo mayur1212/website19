@@ -37,16 +37,20 @@ export default function ContactPage() {
         <div className="flex flex-col gap-5">
 
           <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
-          >
-            <option value="">Movies / Events / Dining / Other</option>
-            <option value="movies">Movies</option>
-            <option value="events">Events</option>
-            <option value="dining">Dining</option>
-            <option value="other">Other</option>
-          </select>
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+  className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
+>
+  {/* Placeholder — disabled + hidden from selection */}
+  <option value="" disabled>
+    Select Category (Movies / Events / Dining / Other)
+  </option>
+
+  <option value="movies">Movies</option>
+  <option value="events">Events</option>
+  <option value="dining">Dining</option>
+  <option value="other">Other</option>
+</select>
 
           <input
             value={name}

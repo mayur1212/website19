@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const ARTISTS = [
   { id: 1, name: "A. R. Rahman", image: "/movies/a1.jpg" },
@@ -15,8 +16,9 @@ const ARTISTS = [
   { id: 8, name: "Diljit Dosanjh", image: "/movies/a8.jpg" },
 ];
 
-const CARD_SIZE = 180; // card width in px
-const GAP = 40; // gap in px
+// CARD layout
+const CARD_SIZE = 150;
+const GAP = 40;
 const TOTAL_WIDTH = CARD_SIZE + GAP;
 
 export default function ArtistsInYourDistrict() {
@@ -28,15 +30,18 @@ export default function ArtistsInYourDistrict() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const next = () => setIndex((i) => (i + 1) % ARTISTS.length);
-  const prev = () =>
-    setIndex((i) => (i === 0 ? ARTISTS.length - 1 : i - 1));
+  const prev = () => setIndex((i) => (i === 0 ? ARTISTS.length - 1 : i - 1));
 
-  // Auto-advance every 3s
+  // Auto-advance every 3.5s
   useEffect(() => {
-    if (autoRef.current) window.clearInterval(autoRef.current);
+    // clear first just in case
+    if (autoRef.current) {
+      window.clearInterval(autoRef.current);
+      autoRef.current = null;
+    }
     autoRef.current = window.setInterval(() => {
       setIndex((i) => (i + 1) % ARTISTS.length);
-    }, 3000);
+    }, 3500);
 
     return () => {
       if (autoRef.current) {
@@ -69,111 +74,91 @@ export default function ArtistsInYourDistrict() {
     if (!autoRef.current) {
       autoRef.current = window.setInterval(() => {
         setIndex((i) => (i + 1) % ARTISTS.length);
-      }, 3000);
+      }, 3500);
     }
   };
 
   return (
-    <section className="py-14 bg-white select-none">
-      <div className="mx-auto w-full max-w-7xl px-4">
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-3xl font-bold text-zinc-900">
-            Artists in your District
-          </h2>
+    <section
+      className="py-12 bg-white select-none"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <h2 className="text-3xl font-bold text-zinc-900 mb-10">
+          Artists in your District
+        </h2>
 
-          <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={prev}
-              aria-label="Previous"
-              className="h-12 w-12 rounded-full bg-white flex items-center justify-center hover:bg-zinc-100 transition"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none">
-                <path d="M15 18l-6-6 6-6" strokeLinejoin="round" strokeLinecap="round" />
-              </svg>
-            </button>
+        {/* SLIDER */}
+        <div className="relative flex items-center gap-6">
+          {/* LEFT ARROW */}
+          <button
+            onClick={prev}
+            aria-label="Previous"
+            className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm hover:bg-zinc-100 transition"
+            title="Previous"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
 
-            <button
-              onClick={next}
-              aria-label="Next"
-              className="h-12 w-12 rounded-full bg-white flex items-center justify-center hover:bg-zinc-100 transition"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none">
-                <path d="M9 18l6-6-6-6" strokeLinejoin="round" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop: centered motion carousel */}
-        <div
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          className="relative hidden md:block"
-        >
-          <div className="overflow-hidden">
+          {/* CAROUSEL */}
+          <div
+            className="overflow-hidden w-full"
+            ref={scrollRef}
+            role="region"
+            aria-label="Artists carousel"
+          >
             <motion.div
               className="flex items-center"
               animate={{ x: -index * TOTAL_WIDTH }}
-              transition={{ type: "spring", stiffness: 70, damping: 20 }}
-              style={{ willChange: "transform" }}
+              transition={{ type: "spring", stiffness: 60, damping: 16 }}
             >
-              {extended.map((artist, i) => {
-                const centerIndex = index % ARTISTS.length;
-                const isCenter = i % ARTISTS.length === centerIndex;
-
-                return (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center"
-                    style={{ width: CARD_SIZE, marginRight: GAP }}
-                  >
-                    <div className="relative h-44 w-44 rounded-full overflow-hidden bg-white">
-                      <Image
-                        src={artist.image}
-                        alt={artist.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    <p
-                      className={`mt-4 text-lg font-semibold text-zinc-800 whitespace-nowrap ${isCenter ? "scale-105" : "scale-100"}`}
-                    >
-                      {artist.name}
-                    </p>
+              {extended.map((artist, i) => (
+                <Link
+                  key={`${artist.id}-${i}`}
+                  href={`/artist/${artist.id}`}
+                  className="flex flex-col items-center cursor-pointer"
+                  style={{ width: CARD_SIZE, marginRight: GAP }}
+                >
+                  {/* CIRCLE IMAGE */}
+                  <div className="relative w-[172px] h-[172px] rounded-full overflow-hidden shadow bg-white">
+                    <Image
+                      src={artist.image}
+                      alt={artist.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                );
-              })}
+
+                  {/* NAME */}
+                  <p className="mt-4 text-base font-semibold text-zinc-900 text-center">
+                    {artist.name}
+                  </p>
+                </Link>
+              ))}
             </motion.div>
           </div>
-        </div>
 
-        {/* Mobile / touch: smooth horizontal scroll */}
-        <div className="md:hidden relative">
-          <div
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto scroll-smooth pb-4 no-scrollbar"
+          {/* RIGHT ARROW */}
+          <button
+            onClick={next}
+            aria-label="Next"
+            className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm hover:bg-zinc-100 transition"
+            title="Next"
           >
-            {ARTISTS.map((artist) => (
-              <div key={artist.id} className="flex flex-col items-center flex-shrink-0 px-1">
-                <div className="relative h-36 w-36 rounded-full overflow-hidden shadow-md">
-                  <Image src={artist.image} alt={artist.name} fill className="object-cover" />
-                </div>
-                <p className="mt-3 text-base font-medium text-zinc-900">
-                  {artist.name}
-                </p>
-              </div>
-            ))}
-
-            {/* padding spacer to allow last card to center nicely */}
-            <div style={{ width: 24 }} />
-          </div>
+            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
 
           {/* mobile next button (overlay) */}
           <button
             onClick={() => scrollRef.current?.scrollBy({ left: 220, behavior: "smooth" })}
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-zinc-100"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-zinc-100 sm:hidden"
             aria-label="Scroll next"
+            title="Scroll next"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6" />

@@ -17,10 +17,19 @@ export default function EventFilterModal({
   const [selectedSort, setSelectedSort] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"sort" | "genre">("sort");
 
-  // Load previously applied filters into modal
+  // Load filters into modal when opened
   useEffect(() => {
     if (open) {
-      setTempFilters(selectedFilters.filter((f) => !f.includes("Price") && !f.includes("Date") && !f.includes("Popularity") && !f.includes("Near")));
+      setTempFilters(
+        selectedFilters.filter(
+          (f) =>
+            !f.includes("Price") &&
+            !f.includes("Date") &&
+            !f.includes("Popularity") &&
+            !f.includes("Near")
+        )
+      );
+
       const foundSort = selectedFilters.find(
         (f) =>
           f.includes("Price") ||
@@ -28,6 +37,7 @@ export default function EventFilterModal({
           f.includes("Popularity") ||
           f.includes("Near")
       );
+
       setSelectedSort(foundSort || null);
       setActiveTab("sort");
     }
@@ -55,14 +65,14 @@ export default function EventFilterModal({
     "Career Fairs",
   ];
 
-  // Toggle genre items
   const toggleGenre = (item: string) => {
     setTempFilters((prev) =>
-      prev.includes(item) ? prev.filter((x) => x !== item) : [...prev, item]
+      prev.includes(item)
+        ? prev.filter((x) => x !== item)
+        : [...prev, item]
     );
   };
 
-  // Apply filters → send to parent component
   const applyFilters = () => {
     const combined = [
       ...(selectedSort ? [selectedSort] : []),
@@ -90,33 +100,41 @@ export default function EventFilterModal({
 
           {/* LEFT TABS */}
           <div className="w-[140px] flex flex-col gap-2">
+
+            {/* SORT BY TAB */}
             <button
               onClick={() => setActiveTab("sort")}
-              className={`px-3 py-2 rounded-lg text-sm font-medium text-black 
-                ${activeTab === "sort" ? "bg-purple-100" : "bg-zinc-200"}`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium 
+                ${activeTab === "sort" ? "bg-purple-100" : "bg-zinc-200"}
+                text-black`}
             >
               Sort By
             </button>
 
+            {/* GENRE TAB */}
             <button
               onClick={() => setActiveTab("genre")}
-              className={`px-3 py-2 rounded-lg text-sm font-medium text-black 
-                ${activeTab === "genre" ? "bg-purple-100" : "bg-zinc-200"}`}
+              className={`px-3 py-2 rounded-lg text-sm font-medium 
+                ${activeTab === "genre" ? "bg-purple-100" : "bg-zinc-200"}
+                text-black`}
             >
               Genre
             </button>
+
           </div>
 
-          {/* RIGHT CONTENT PANEL */}
+          {/* RIGHT PANEL */}
           <div className="flex-1 bg-zinc-100 rounded-xl p-6 h-[350px] overflow-y-auto">
 
             {/* SORT OPTIONS */}
             {activeTab === "sort" && (
               <div className="space-y-4">
                 {SORT_OPTIONS.map((item) => (
-                  <label key={item} className="flex items-center gap-3 cursor-pointer">
-
-                    {/* RADIO BUTTON */}
+                  <label
+                    key={item}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    {/* RADIO */}
                     <span
                       onClick={() => setSelectedSort(item)}
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center cursor-pointer
@@ -131,6 +149,7 @@ export default function EventFilterModal({
                       )}
                     </span>
 
+                    {/* ALWAYS BLACK TEXT */}
                     <span className="text-black text-sm">{item}</span>
                   </label>
                 ))}
@@ -141,8 +160,10 @@ export default function EventFilterModal({
             {activeTab === "genre" && (
               <div className="space-y-3">
                 {GENRES.map((item) => (
-                  <label key={item} className="flex items-center gap-3 cursor-pointer">
-
+                  <label
+                    key={item}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
                       checked={tempFilters.includes(item)}
@@ -150,6 +171,7 @@ export default function EventFilterModal({
                       className="w-4 h-4 accent-purple-600"
                     />
 
+                    {/* ALWAYS BLACK TEXT */}
                     <span className="text-black text-sm">{item}</span>
                   </label>
                 ))}
@@ -161,25 +183,24 @@ export default function EventFilterModal({
 
         {/* ACTION BUTTONS */}
         <div className="flex justify-between items-center mt-6">
-          
-          {/* CLEAR */}
+
           <button
             onClick={() => {
               setTempFilters([]);
               setSelectedSort(null);
             }}
-            className="text-sm underline text-zinc-700"
+            className="text-sm underline text-zinc-800"
           >
             Clear filters
           </button>
 
-          {/* APPLY */}
           <button
             onClick={applyFilters}
             className="px-8 py-2 bg-black text-white rounded-xl text-sm font-medium"
           >
             Apply Filters
           </button>
+
         </div>
 
       </div>
