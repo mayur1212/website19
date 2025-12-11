@@ -11,6 +11,9 @@ import ProfileLoginModal from "@/components/ProfileLogin";
 import ProfileDrawer from "@/components/ProfileDrawer";
 import LocationModal from "@/components/LocationModal";
 
+// ⭐ SEARCH POPUP (NEW)
+import SearchPopup from "@/components/SearchPopup";
+
 // ⭐ ICONS (matching District UI)
 import {
   Utensils,
@@ -33,7 +36,6 @@ const NAV_ITEMS = [
 ];
 
 export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
-
   const pathname = usePathname();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -50,8 +52,9 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
     country: "UAE",
   });
 
+  // ⭐ SEARCH POPUP STATE
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  
   // Persist login
   useEffect(() => {
     const saved = localStorage.getItem("logged_in");
@@ -62,7 +65,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 40);
-      setShowIcons(window.scrollY < 40); // icons disappear when scrolled
+      setShowIcons(window.scrollY < 40);
     };
 
     window.addEventListener("scroll", onScroll);
@@ -105,7 +108,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
     <header className="w-full border-b border-zinc-200 bg-white">
 
       {/* ========================================================= */}
-      {/* 📱 MOBILE NAVBAR (District style) */}
+      {/* 📱 MOBILE NAVBAR */}
       {/* ========================================================= */}
       <div className="md:hidden w-full bg-white border-b border-zinc-200">
 
@@ -118,32 +121,21 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
             className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-zinc-100"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-4 w-4 text-purple-600"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="2"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 7a4 4 0 100 8 4 4 0 000-8z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 3a9 9 0 019 9c0 6-9 12-9 12S3 18 3 12a9 9 0 019-9z"
-    />
-  </svg>
-</span>
-
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 text-purple-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7a4 4 0 100 8 4 4 0 000-8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a9 9 0 019 9c0 6-9 12-9 12S3 18 3 12a9 9 0 019-9z" />
+              </svg>
+            </span>
 
             <span className="flex flex-col text-left leading-tight">
-              <span className="text-sm font-semibold text-black">
-                {location.city}
-              </span>
+              <span className="text-sm font-semibold text-black">{location.city}</span>
               <span className="text-[11px] text-zinc-500">{location.country}</span>
             </span>
           </button>
@@ -161,19 +153,20 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
 
         {/* SEARCH BAR */}
         <div className="px-4 pb-2">
-          <div className="flex items-center gap-2 bg-zinc-100 px-4 py-2 rounded-xl border border-zinc-300">
-            <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" className="text-zinc-600">
+          <div
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 bg-zinc-100 px-4 py-2 rounded-xl border border-zinc-300"
+          >
+            <svg width="18" height="18" stroke="currentColor" className="text-zinc-600">
               <circle cx="11" cy="11" r="7" fill="none" strokeWidth="2" />
               <path d="M16 16l4 4" strokeWidth="2" />
             </svg>
-            <input
-              className="flex-1 bg-transparent text-sm focus:outline-none text-black"
-              placeholder="Search for events, movies and restaurants"
-            />
+
+            <span className="text-sm text-zinc-500">Search for events, movies and restaurants</span>
           </div>
         </div>
 
-        {/* NAV TABS WITH ICON SCROLL LOGIC */}
+        {/* NAV ICON TABS */}
         <div className="flex overflow-x-auto no-scrollbar px-2 pb-2 gap-3">
           {NAV_ITEMS.map(({ label, href }) => {
             const active = isItemActive(href);
@@ -188,7 +181,6 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
                   ${active ? "bg-purple-600 text-white" : "bg-zinc-100 text-zinc-700"}
                 `}
               >
-                {/* ICON */}
                 <div
                   className={`
                     transition-all duration-200 
@@ -198,11 +190,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
                   {getIcon(label)}
                 </div>
 
-                {/* LABEL */}
-                <span className={`${showIcons ? "mt-1" : ""} whitespace-nowrap`}>
-  {label}
-</span>
-
+                <span className={`${showIcons ? "mt-1" : ""} whitespace-nowrap`}>{label}</span>
               </Link>
             );
           })}
@@ -210,7 +198,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
       </div>
 
       {/* ========================================================= */}
-      {/* DESKTOP NAVBAR */}
+      {/* 🖥️ DESKTOP NAVBAR */}
       {/* ========================================================= */}
       <div className="hidden md:flex w-full items-center justify-between px-10 py-2">
 
@@ -228,31 +216,23 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
             className="group flex items-center gap-3 px-3 py-2 border border-zinc-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all"
           >
             <span className="flex h-8 w-8 items-center justify-center overflow-visible">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-12 w-12 text-red-600"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="2"
-    stroke="currentColor"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5a3 3 0 100 6 3 3 0 000-6z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M18 10.5c0 5.25-6 10-6 10s-6-4.75-6-10a6 6 0 1112 0z" />
-  </svg>
-</span>
-
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 text-red-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5a3 3 0 100 6 3 3 0 000-6z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 10.5c0 5.25-6 10-6 10s-6-4.75-6-10a6 6 0 1112 0z" />
+              </svg>
+            </span>
 
             <span className="flex flex-col leading-tight">
-  <span className="text-[15px] font-semibold text-black">
-    {location.city}
-  </span>
-
-  {/* Increase gap here */}
-  <span className="text-[12px] text-zinc-500 mt-0.5">
-    {location.country}
-  </span>
-</span>
-
+              <span className="text-[15px] font-semibold text-black">{location.city}</span>
+              <span className="text-[12px] text-zinc-500 mt-0.5">{location.country}</span>
+            </span>
 
             <svg className="h-4 w-4 text-zinc-500 group-hover:text-black transition">
               <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" />
@@ -264,14 +244,13 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
         <nav className="hidden md:flex items-center gap-4 text-sm">
           {NAV_ITEMS.map(({ label, href }) => {
             const active = isItemActive(href);
+
             return (
               <Link
                 key={label}
                 href={href}
                 className={`px-4 py-1.5 rounded-full transition ${
-                  active
-                    ? "bg-red-600 text-white"
-                    : "text-zinc-900 hover:bg-purple-100"
+                  active ? "bg-red-600 text-white" : "text-zinc-900 hover:bg-purple-100"
                 }`}
               >
                 {label}
@@ -280,12 +259,15 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
           })}
         </nav>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT */}
         <div className="flex items-center gap-4">
 
-          {/* SEARCH */}
-          <button className="h-10 w-10 flex items-center justify-center rounded-full bg-white border shadow-sm">
-            <svg className="h-5 w-5 text-purple-600" fill="none">
+          {/* SEARCH BUTTON — DESKTOP */}
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-white"
+          >
+            <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <circle cx="11" cy="11" r="5.5" stroke="currentColor" />
               <path d="m15.5 15.5 3.5 3.5" stroke="currentColor" />
             </svg>
@@ -308,7 +290,9 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
 
           {/* PROFILE */}
           <button
-            onClick={() => (isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true))}
+            onClick={() =>
+              isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+            }
             className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white font-semibold shadow-sm"
           >
             U
@@ -324,20 +308,22 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
       />
 
       <ProfileDrawer
-  open={openDrawer}
-  onClose={() => setOpenDrawer(false)}
-  onLoggedOut={() => {
-    setIsLoggedIn(false);   // 👈 very important
-    setOpenDrawer(false);   // close drawer if still open
-  }}
-/>
-
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        onLoggedOut={() => {
+          setIsLoggedIn(false);
+          setOpenDrawer(false);
+        }}
+      />
 
       <LocationModal
         open={openLocation}
         onClose={() => setOpenLocation(false)}
         onSelect={(loc) => setLocation({ city: loc.city, country: loc.country })}
       />
+
+      {/* ⭐ SEARCH POPUP RENDER */}
+      {isSearchOpen && <SearchPopup onClose={() => setIsSearchOpen(false)} />}
 
     </header>
   );

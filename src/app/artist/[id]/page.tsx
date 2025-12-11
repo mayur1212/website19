@@ -144,44 +144,49 @@ export default function ArtistPage(props: { params: Promise<{ id: string }> }) {
       <Header />
 
       {/* ========================== HERO ========================== */}
-      <section className="px-6 lg:px-20 py-10 w-300 flex flex-col lg:flex-row gap-10">
-        
-        {/* Artist Image */}
-        <div className="relative w-full lg:w-1/2 h-[340px] lg:h-[500px] rounded-3xl overflow-hidden shadow-lg">
-          <Image src={artist.image} alt={artist.name} fill className="object-cover" />
-        </div>
+<section className="px-6 lg:px-20 py-10 w-full max-w-screen-xl mx-auto 
+                    flex flex-col lg:flex-row gap-10">
 
-        {/* Artist Info */}
-<div className="flex flex-col justify-center lg:w-1/2">
-  <h1 className="text-3xl font-bold text-black">{artist.name}</h1>
+  {/* Artist Image */}
+  <div className="relative w-full lg:w-1/2 
+                  h-[260px] sm:h-[320px] lg:h-[500px] 
+                  rounded-3xl overflow-hidden shadow-lg">
+    <Image
+      src={artist.image}
+      alt={artist.name}
+      fill
+      className="object-cover"
+    />
+  </div>
 
-  {/* ===================== BIO ===================== */}
+  {/* Artist Info */}
+  <div className="flex flex-col justify-center lg:w-1/2">
+    <h1 className="text-3xl font-bold text-black">{artist.name}</h1>
 
-  {/* ✔ Desktop → Always show full bio in ONE CLEAN PARAGRAPH */}
-  <p className="hidden lg:block text-gray-700 mt-4 leading-relaxed">
-    {artist.bio.replace(/\n+/g, " ")}
-  </p>
+    {/* Desktop Bio */}
+    <p className="hidden lg:block text-gray-700 mt-4 leading-relaxed">
+      {artist.bio.replace(/\n+/g, " ")}
+    </p>
 
-  {/* ✔ Mobile → See more / See less (also cleaned paragraph) */}
-  <p className="lg:hidden text-gray-700 mt-4 leading-relaxed">
-    {expanded
-      ? artist.bio.replace(/\n+/g, " ")
-      : artist.bio.replace(/\n+/g, " ").substring(0, 180) +
-        (artist.bio.length > 180 ? "..." : "")}
-  </p>
+    {/* Mobile Bio */}
+    <p className="lg:hidden text-gray-700 mt-4 leading-relaxed">
+      {expanded
+        ? artist.bio.replace(/\n+/g, " ")
+        : artist.bio.replace(/\n+/g, " ").substring(0, 180) +
+          (artist.bio.length > 180 ? "..." : "")}
+    </p>
 
-  {/* Toggle button visible only in mobile */}
-  {artist.bio.length > 180 && (
-    <button
-      onClick={() => setExpanded(!expanded)}
-      className="lg:hidden mt-2 text-purple-700 font-semibold text-sm"
-    >
-      {expanded ? "See less" : "See more"}
-    </button>
-  )}
-</div>
+    {artist.bio.length > 180 && (
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="lg:hidden mt-2 text-purple-700 font-semibold text-sm"
+      >
+        {expanded ? "See less" : "See more"}
+      </button>
+    )}
+  </div>
+</section>
 
-      </section>
 
       {/* ========================== EVENTS ========================== */}
       <section className="px-6 lg:px-20 pb-20">

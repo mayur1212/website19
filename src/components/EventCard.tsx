@@ -201,7 +201,7 @@ export default function EventCardPage() {
             {modalFilters.map((f) => (
               <span
                 key={f}
-                className="flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm"
+                className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm"
               >
                 {f}
                 <X
