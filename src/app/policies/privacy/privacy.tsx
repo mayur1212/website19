@@ -5,164 +5,154 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import HayyaLogo from "@/assets/logored.png";
 
-const Privacy = () => {
+export default function Privacy() {
   const router = useRouter();
+
+  const handleBack = () => {
+    sessionStorage.setItem("openProfileOnce", "true");
+    router.push("/");
+  };
 
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
 
-      {/* LOGO — Centered, Big, Rounded */}
-      <div className="flex justify-center pt-6">
-        <Image
-          src={HayyaLogo}
-          alt="Hayya Logo"
-          className="h-16 w-auto rounded-2xl shadow-sm"
-        />
-      </div>
-
-      {/* TITLE BAR BELOW LOGO */}
-      <div className="w-full flex items-center justify-between px-4 mt-4">
+      {/* FIXED TOP HEADER */}
+      <div
+        className="
+          w-full flex items-center justify-between 
+          px-4 py-3 bg-white 
+          border-b shadow-sm 
+          sticky top-0 z-[999]
+        "
+      >
         <button
-          onClick={() => router.back()}
-          className="text-2xl text-zinc-700"
+          onClick={handleBack}
+          className="text-2xl text-zinc-700 cursor-pointer"
         >
           ←
         </button>
 
-        <h1 className="text-[26px] font-bold text-center flex-1 -ml-6">
-          Privacy Policy
-        </h1>
+        <Image
+          src={HayyaLogo}
+          alt="Hayya Logo"
+          className="h-12 w-auto rounded-xl"
+        />
 
-        {/* placeholder to keep title centered */}
         <span className="w-6"></span>
       </div>
 
-      {/* DIVIDER */}
-      <div className="border-b mt-3"></div>
+      {/* MAIN CONTENT — FULL WIDTH LIKE TERMS PAGE */}
+      <div className="w-full px-4 sm:px-6 lg:px-10 py-10">
 
-      {/* CONTENT AREA */}
-      <div className="w-full px-6 md:px-12 py-8 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-3">Privacy Policy</h1>
 
-        <p className="text-[15px] text-zinc-500 mb-8">
+        <p className="text-[15px] text-zinc-500 mb-10">
           Last updated on January 01, 2025
         </p>
 
-        {/* SECTION BLOCK */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Introduction</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            We value your privacy and are committed to protecting your personal information.
-            This Privacy Policy explains how we collect, use, store, and safeguard your
-            information when you access or use our services, including our website,
-            mobile app, and related platforms (“Services”).
-          </p>
-        </section>
+        <div className="space-y-10 leading-relaxed text-[16px] text-zinc-700">
+          
+          {/* INTRODUCTION */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">1. Introduction</h2>
+            <p>
+              Your privacy is extremely important to us. This Privacy Policy explains how
+              Hayya collects, uses, stores, and protects your personal information when you
+              use our website, mobile app, and services (collectively referred to as the
+              “Platform”).
+            </p>
+          </section>
 
-        {/* Information We Collect */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Information We Collect</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            We may collect the following types of information:
-          </p>
+          {/* INFORMATION WE COLLECT */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">2. Information We Collect</h2>
+            <p className="mb-3">
+              We collect information to provide better services and ensure a secure, personalized experience.
+            </p>
 
-          <ul className="list-disc pl-6 text-[16px] text-zinc-700 leading-relaxed mt-2">
-            <li><strong>Personal information:</strong> name, mobile number, email, profile details.</li>
-            <li><strong>Booking information:</strong> dining, event, movie, or activity details.</li>
-            <li><strong>Device & usage data:</strong> IP address, browser info, system logs.</li>
-            <li><strong>Location data:</strong> only with permission, used for nearby suggestions.</li>
-            <li><strong>Cookies & tracking:</strong> to personalize experience and improve performance.</li>
-          </ul>
-        </section>
+            <ul className="list-disc ml-6 space-y-2">
+              <li><strong>Personal Information:</strong> Name, email, phone number, gender, date of birth.</li>
+              <li><strong>Booking Details:</strong> Event selections, payments, preferences.</li>
+              <li><strong>Usage Data:</strong> Logs, interactions, device information, crash reports.</li>
+              <li><strong>Location Data:</strong> If you grant permission, we may access your live or approximate location.</li>
+              <li><strong>Cookies & Tracking:</strong> To improve UI, personalization, and security.</li>
+            </ul>
+          </section>
 
-        {/* How We Use Your Info */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">How We Use Your Information</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            Your information may be used for:
-          </p>
+          {/* HOW WE USE THIS INFORMATION */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">3. How We Use Your Information</h2>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>To create and manage your account.</li>
+              <li>To process bookings and payments.</li>
+              <li>To personalize your event recommendations.</li>
+              <li>To send alerts, confirmations, and updates.</li>
+              <li>To improve platform stability and user experience.</li>
+              <li>To detect fraud, prevent misuse, and maintain security.</li>
+            </ul>
+          </section>
 
-          <ul className="list-disc pl-6 text-[16px] text-zinc-700 leading-relaxed mt-2">
-            <li>Creating and managing your account.</li>
-            <li>Processing bookings, payments, and confirmations.</li>
-            <li>Sending notifications, updates, and recommendations.</li>
-            <li>Improving app experience and personalization.</li>
-            <li>Customer support and issue resolution.</li>
-            <li>Security and fraud detection.</li>
-          </ul>
-        </section>
+          {/* SHARING POLICY */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">4. Sharing of Information</h2>
+            <p>
+              Your information is <strong>never sold</strong> to third parties.  
+              We only share data with:
+            </p>
 
-        {/* Sharing Info */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Sharing of Information</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700 mb-3">
-            We do not sell your personal data. We may share information only with:
-          </p>
+            <ul className="list-disc ml-6 space-y-2 mt-2">
+              <li><strong>Event Partners:</strong> For confirming bookings.</li>
+              <li><strong>Payment Gateways:</strong> To process secure payments.</li>
+              <li><strong>Legal Authorities:</strong> Only if required by law.</li>
+            </ul>
 
-          <ul className="list-disc pl-6 text-[16px] text-zinc-700 leading-relaxed">
-            <li>Restaurant, movie, and event partners.</li>
-            <li>Payment processors.</li>
-            <li>Analytics & performance tools.</li>
-            <li>Government authorities when legally required.</li>
-          </ul>
-        </section>
+            <p className="mt-3">
+              All partners are required to follow strict confidentiality and security standards.
+            </p>
+          </section>
 
-        {/* Security */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Data Security</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            We use industry-standard security measures to protect your information.
-            However, no method is 100% secure — please keep your account details confidential.
-          </p>
-        </section>
+          {/* DATA SECURITY */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">5. Data Protection & Security</h2>
+            <p>
+              We use industry-standard encryption, secure servers, and access controls to
+              protect your data. While we follow best practices, no online system is 100%
+              secure, and we encourage users to keep their accounts protected.
+            </p>
+          </section>
 
-        {/* Rights */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Your Rights</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700 mb-2">
-            Depending on local laws, you may request to:
-          </p>
+          {/* YOUR RIGHTS */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">6. Your Rights</h2>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Right to access your data.</li>
+              <li>Right to request corrections.</li>
+              <li>Right to request deletion (where applicable).</li>
+              <li>Right to withdraw consent for location/cookies.</li>
+            </ul>
+          </section>
 
-          <ul className="list-disc pl-6 text-[16px] text-zinc-700 leading-relaxed">
-            <li>Access the information we store.</li>
-            <li>Update or correct your personal details.</li>
-            <li>Delete your data or account.</li>
-            <li>Withdraw permission for optional features.</li>
-          </ul>
-        </section>
+          {/* POLICY UPDATES */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">7. Changes to This Policy</h2>
+            <p>
+              We may revise this Privacy Policy periodically. Continued use of the Platform
+              indicates acceptance of the updated policy. We recommend reviewing it
+              regularly for changes.
+            </p>
+          </section>
 
-        {/* Children */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Children’s Privacy</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            Our services are not intended for children under 13.
-            We do not knowingly collect data from minors.
-          </p>
-        </section>
-
-        {/* Changes */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Changes to This Policy</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            This Privacy Policy may be updated occasionally.
-            Revised versions will be posted on this page.
-          </p>
-        </section>
-
-        {/* Contact */}
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-3">Contact Us</h2>
-          <p className="text-[16px] leading-relaxed text-zinc-700">
-            For questions or concerns regarding this policy, contact us:
-          </p>
-
-          <p className="font-medium mt-2 text-black text-[16px]">
-            support@yourwebsite.com
-          </p>
-        </section>
+          {/* CONTACT */}
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold mb-2">8. Contact Us</h2>
+            <p>
+              For privacy-related queries, reach us at:<br />
+              <strong>support@hayya.com</strong>
+            </p>
+          </section>
+        </div>
 
       </div>
     </div>
   );
-};
-
-export default Privacy;
+}

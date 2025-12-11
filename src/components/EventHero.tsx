@@ -63,7 +63,7 @@ export default function EventHero() {
       {/* ========================================================= */}
       {/* ⭐ DESKTOP HERO (unchanged) */}
       {/* ========================================================= */}
-      <div className="hidden lg:block relative w-full h-[520px] overflow-hidden rounded-b-[40px]">
+      <div className="hidden lg:block relative w-full h-[520px] overflow-hidden ]">
 
         {/* BLURRED BACKGROUND */}
         <AnimatePresence mode="wait">

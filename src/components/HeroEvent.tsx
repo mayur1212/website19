@@ -52,7 +52,7 @@ export default function HeroEvent({
             src={image}
             alt={title}
             fill
-            className="rounded-3xl object-cover shadow-xl"
+            className="rounded-none object-cover shadow-xl"
           />
         </motion.div>
       </div>
