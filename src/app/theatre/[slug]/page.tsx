@@ -128,15 +128,29 @@ function slugify(text: string) {
 export default function TheatrePage() {
   const cinema = SAMPLE_DATA;
 
-  const dates = [
-    { day: "Thu", date: 4 },
-    { day: "Fri", date: 5 },
-    { day: "Sat", date: 6 },
-    { day: "Sun", date: 7 },
-    { day: "Mon", date: 8 },
-  ];
+  // DATE STRIP: today + next 3 days (compact)
+  const [selectedDateIndex, setSelectedDateIndex] = useState(0);
+  const dateOptions = React.useMemo(() => {
+    const today = new Date();
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const monthNames = [
+      "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"
+    ];
 
-  const [selectedDate, setSelectedDate] = useState<number>(6);
+    return Array.from({ length: 4 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      return {
+        key: d.toISOString().slice(0, 10),
+        date: d,
+        dayNum: d.getDate().toString(),
+        dayLabel: dayNames[d.getDay()],
+        month: monthNames[d.getMonth()],
+      };
+    });
+  }, []);
+
+  const [selectedDate, setSelectedDate] = useState<number | null>(null); // keep if needed elsewhere
   const [showAllAmenities, setShowAllAmenities] = useState<boolean>(false);
 
   const [visibleMovies, setVisibleMovies] = useState<Movie[]>(cinema.movies);
@@ -423,6 +437,62 @@ export default function TheatrePage() {
     };
   }, []);
 
+  // ---------------------------
+  // Build activeFilterChips from modal selections (exclude items that are represented
+  // by quick-toggles to avoid duplicates).
+  // ---------------------------
+  const QUICK_LANGUAGE_IDS = ["Hindi", "Gujarati", "Malayalam"];
+  const QUICK_SHOWTIME_IDS = ["Morning", "Evening", "Night"]; // Morning & After 5 PM use these
+  const QUICK_OTHERS_IDS = ["3D", "New Release"];
+
+  const activeFilterChips: { key: string; group: "LANG" | "SHOW" | "PRICE" | "OTHERS"; id: string; label: string }[] = [];
+
+  // languages (exclude quick language pills)
+  selectedLanguages.forEach((lang) => {
+    if (QUICK_LANGUAGE_IDS.includes(lang)) return; // shown as quick toggle — skip chip
+    activeFilterChips.push({ key: `LANG-${lang}`, group: "LANG", id: lang, label: lang });
+  });
+
+  // showtime ranges (exclude Morning/Evening/Night quick controls)
+  selectedShowtimeRanges.forEach((sr) => {
+    if (QUICK_SHOWTIME_IDS.includes(sr)) return;
+    activeFilterChips.push({ key: `SHOW-${sr}`, group: "SHOW", id: sr, label: sr });
+  });
+
+  // price ranges
+  selectedPriceRanges.forEach((pr) => {
+    activeFilterChips.push({ key: `PRICE-${pr}`, group: "PRICE", id: pr, label: `₹${pr.replace("-", " - ₹")}` });
+  });
+
+  // others (exclude quick others like 3D and New Release)
+  selectedOthers.forEach((o) => {
+    if (QUICK_OTHERS_IDS.includes(o)) return;
+    activeFilterChips.push({ key: `OTHERS-${o}`, group: "OTHERS", id: o, label: o });
+  });
+
+  // remove handler for chips (maps chip back to correct Set)
+  function handleRemoveChip(group: "LANG" | "SHOW" | "PRICE" | "OTHERS", id: string) {
+    if (group === "LANG") {
+      const s = new Set(selectedLanguages);
+      s.delete(id);
+      setSelectedLanguages(s);
+    } else if (group === "SHOW") {
+      const s = new Set(selectedShowtimeRanges);
+      s.delete(id);
+      setSelectedShowtimeRanges(s);
+    } else if (group === "PRICE") {
+      const s = new Set(selectedPriceRanges);
+      s.delete(id);
+      setSelectedPriceRanges(s);
+    } else if (group === "OTHERS") {
+      const s = new Set(selectedOthers);
+      s.delete(id);
+      setSelectedOthers(s);
+    }
+    // re-run filters after removal
+    setTimeout(runFilters, 0);
+  }
+
   return (
     <>
       <Header />
@@ -510,50 +580,91 @@ export default function TheatrePage() {
         <section className="mt-10">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex flex-col items-center">
-                <div
-                  className="px-3 py-3 rounded-full bg-zinc-100 text-xs font-semibold tracking-wider"
-                  style={{ transform: "rotate(-90deg)" }}
-                >
-                  DEC
-                </div>
+              {/* Left vertical month pill */}
+              <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
+                <span className="uppercase">
+                  {dateOptions[selectedDateIndex]?.month || ""}
+                </span>
               </div>
 
-              <div className="flex gap-3 items-center">
-                {dates.map((d) => (
-                  <div
-                    key={d.date}
-                    onClick={() => setSelectedDate(d.date)}
-                    role="button"
-                    tabIndex={0}
-                    className={`cursor-pointer text-center w-20 rounded-lg py-3 border transition-all select-none ${
-                      selectedDate === d.date ? "bg-zinc-900 text-white border-zinc-900 shadow-lg" : "bg-white text-zinc-800 border-zinc-200"
-                    }`}
-                  >
-                    <p className="text-xs text-zinc-400">DEC</p>
-                    <p className="text-lg font-bold leading-tight">{d.date}</p>
-                    <p className="text-xs">{d.day}</p>
-                  </div>
-                ))}
+              {/* Dates: today + next 3 days */}
+              <div className="flex flex-1 items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
+                {dateOptions.map((d, idx) => {
+                  const active = idx === selectedDateIndex;
+                  return (
+                    <React.Fragment key={d.key}>
+                      <button
+                        onClick={() => {
+                          setSelectedDateIndex(idx);
+                          setSelectedDate(d.date.getDate());
+                        }}
+                        className={
+                          active
+                            ? "flex h-[64px] w-[60px] flex-shrink-0 flex-col items-center justify-center rounded-2xl bg-black text-white"
+                            : "flex flex-shrink-0 flex-col items-center justify-center px-1"
+                        }
+                      >
+                        <span
+                          className={`text-[17px] font-semibold ${
+                            active ? "text-white" : "text-zinc-900"
+                          }`}
+                        >
+                          {d.dayNum}
+                        </span>
+                        <span
+                          className={`text-[11px] font-medium ${
+                            active ? "text-zinc-300" : "text-zinc-500"
+                          }`}
+                        >
+                          {d.dayLabel}
+                        </span>
+                      </button>
+
+                      {/* vertical divider between days (except last) */}
+                      {idx < dateOptions.length - 1 && (
+                        <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           <div className="mt-6">
-            <div className="flex flex-wrap gap-3 items-center">
+            {/* SINGLE HORIZONTAL STRIP: Filters button → chips from popup → quick toggles */}
+            <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
+              {/* Filters button */}
               <button
                 onClick={() => setShowFilterModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm bg-white"
+                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-white text-sm font-medium text-zinc-800"
               >
                 <SlidersHorizontal className="w-4 h-4" />
-                Filters
+                <span>Filters</span>
               </button>
 
+              {/* Active chips from popup filters — styled like quick toggles (black bg / white text) */}
+              {activeFilterChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  onClick={() => handleRemoveChip(chip.group, chip.id)}
+                  className="flex-shrink-0 rounded-full border border-black bg-black px-4 py-2 text-sm font-medium text-white"
+                >
+                  <span>{chip.label}</span>
+                </button>
+              ))}
+
+              {/* Small divider */}
+              <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
+
+              {/* Quick toggles */}
               {["Hindi", "Gujarati", "Malayalam", "3D", "Morning", "After 5 PM", "New Release"].map((f, idx) => (
                 <button
                   key={idx}
                   onClick={() => toggleQuickFilter(f)}
-                  className={`px-4 py-2 rounded-full border text-sm ${quickFilterActive(f) ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-800"}`}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full border text-sm font-medium ${
+                    quickFilterActive(f) ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-800 border-zinc-200"
+                  }`}
                 >
                   {f}
                 </button>
@@ -711,7 +822,7 @@ export default function TheatrePage() {
                   <div className="space-y-4">
                     {showtimeOptions.map((opt) => (
                       <label key={opt} className="flex items-start gap-3">
-                        <input type="checkbox" checked={selectedShowtimeRanges.has(opt)} onChange={() => { toggleInSet(selectedShowtimeRanges, opt, setSelectedShowtimeRanges); setTimeout(runFilters, 0); }} className="w-5 h-5 rounded border mt-1" />
+                        <input type="checkbox" checked={selectedShowtimeRanges.has(opt)} onChange={() => { toggleInSet(selectedShowtimeRanges, opt, setSelectedShowtimeRanges); setTimeout(runFilters, 0); }} className="mt-1 h-5 w-5 rounded border" />
                         <div>
                           <div className="font-medium">{opt}</div>
                           <div className="text-xs text-zinc-500">

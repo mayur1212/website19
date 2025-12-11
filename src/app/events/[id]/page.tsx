@@ -1,4 +1,3 @@
-// src/app/events/[id]/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -9,14 +8,8 @@ import Footer from "@/components/Footer";
 import { EVENTS } from "@/components/EventCard";
 import EventGuideModal from "@/components/EventGuideModal";
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
-export default function EventDetails({ params }: Props) {
-  const { id } = params;
+export default function EventDetails({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const event = EVENTS.find((e) => e.id === Number(id));
 
   const [guideOpen, setGuideOpen] = useState(false);
@@ -41,17 +34,49 @@ culture, entertainment, learning, and creativity under one roof!
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
   };
 
-  if (!event) {
+  if (!event)
     return <p className="p-10 text-center text-xl text-black">Event not found</p>;
-  }
 
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
 
-      {/* HERO */}
-      <div className="w-[86%] mx-auto pt-10 flex flex-col gap-8 lg:flex-row">
-        <div className="w-full lg:w-[70%] rounded-2xl overflow-hidden shadow-lg">
+      {/* ===================================================== */}
+      {/* ⭐ MOBILE HERO (District Style) */}
+      {/* ===================================================== */}
+      <div className="md:hidden w-full mt-4">
+        <Image
+          src={event.image}
+          alt={event.title}
+          width={1000}
+          height={600}
+          className="w-full h-[260px] object-cover rounded-xl"
+        />
+
+        <div className="px-5 mt-4">
+          <h1 className="text-xl font-bold leading-snug">{event.title}</h1>
+
+          <div className="mt-3 text-[14px] space-y-1 text-zinc-700">
+            <p>📅 {event.dateTime}</p>
+            <p>📍 {event.location}</p>
+            <p>🎭 Category: {event.category}</p>
+          </div>
+
+          <p className="mt-4 text-lg font-semibold">
+            Starts from <span className="text-black">{event.price}</span>
+          </p>
+
+          <button className="mt-4 w-full bg-black text-white py-3 rounded-xl text-sm font-semibold">
+            BOOK TICKETS
+          </button>
+        </div>
+      </div>
+
+      {/* ===================================================== */}
+      {/* ⭐ DESKTOP HERO (unchanged) */}
+      {/* ===================================================== */}
+      <div className="w-[86%] mx-auto pt-10 gap-10 hidden md:flex">
+        <div className="w-[70%] rounded-2xl overflow-hidden shadow-lg">
           <Image
             src={event.image}
             alt={event.title}
@@ -61,13 +86,13 @@ culture, entertainment, learning, and creativity under one roof!
           />
         </div>
 
-        <div className="w-full lg:w-[30%] bg-white rounded-2xl shadow-md p-6 h-fit">
+        <div className="w-[30%] bg-white rounded-2xl shadow-md p-6 h-fit">
           <h1 className="text-2xl font-bold">{event.title}</h1>
 
           <div className="mt-4 space-y-3 text-[14px] text-zinc-700">
             <p>📅 {event.dateTime}</p>
             <p>📍 {event.location}</p>
-            <p>🎭 Category: {event.category ?? "General"}</p>
+            <p>🎭 Category: {event.category}</p>
           </div>
 
           <p className="mt-6 text-lg font-semibold">
@@ -80,8 +105,10 @@ culture, entertainment, learning, and creativity under one roof!
         </div>
       </div>
 
-      {/* ABOUT */}
-      <div className="w-[86%] mx-auto mt-14">
+      {/* ===================================================== */}
+      {/* ⭐ ABOUT SECTION */}
+      {/* ===================================================== */}
+      <div className="w-[90%] md:w-[86%] mx-auto mt-10">
         <h2 className="text-xl font-semibold mb-2">About the Event</h2>
 
         <p className="text-[15px] text-zinc-700 leading-relaxed inline">
@@ -91,14 +118,13 @@ culture, entertainment, learning, and creativity under one roof!
         <button
           onClick={() => setShowMore(!showMore)}
           className="ml-2 text-blue-600 font-medium text-sm hover:underline"
-          aria-expanded={showMore}
         >
           {showMore ? "See less" : "See more"}
         </button>
       </div>
 
-      {/* EVENT GUIDE */}
-      <div className="w-[86%] mx-auto mt-10 flex items-center justify-between">
+      {/* EVENT GUIDE HEADER */}
+      <div className="w-[90%] md:w-[86%] mx-auto mt-10 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Event Guide</h2>
         <button
           onClick={() => setGuideOpen(true)}
@@ -108,18 +134,21 @@ culture, entertainment, learning, and creativity under one roof!
         </button>
       </div>
 
-      <div className="w-[86%] mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 text-[14px]">
+      {/* EVENT GUIDE CARDS */}
+      <div className="w-[90%] md:w-[86%] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4 text-[14px]">
         <div className="p-4 bg-zinc-100 rounded-xl text-black">Language: English</div>
         <div className="p-4 bg-zinc-100 rounded-xl text-black">Duration: 6 Hours</div>
-        <div className="p-4 bg-zinc-100 rounded-xl text-black">Tickets Needed: 16 yrs+</div>
+        <div className="p-4 bg-zinc-100 rounded-xl text-black">
+          Tickets Needed: 16 yrs+
+        </div>
       </div>
 
-      {/* ARTIST */}
-      <div className="w-[86%] mx-auto mt-14">
+      {/* ARTIST SECTION */}
+      <div className="w-[90%] md:w-[86%] mx-auto mt-14">
         <h2 className="text-xl font-semibold">Artist</h2>
 
-        <div className="flex flex-col gap-6 mt-6 md:flex-row md:items-center">
-          <div className="h-40 w-40 rounded-full overflow-hidden flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-center gap-6 mt-6">
+          <div className="h-32 w-32 rounded-full overflow-hidden">
             <Image
               src="/movies/a1.jpg"
               alt="Artist"
@@ -132,15 +161,16 @@ culture, entertainment, learning, and creativity under one roof!
           <div>
             <h3 className="text-lg font-semibold">John Doe</h3>
             <p className="text-zinc-600 text-sm">Singer, Performer</p>
-            <p className="text-zinc-600 text-sm max-w-md mt-1">
-              A renowned performer known for creating immersive musical experiences and energetic live shows.
+            <p className="text-zinc-600 text-sm max-w-md mt-1 leading-relaxed">
+              A renowned performer known for creating immersive musical
+              experiences and energetic live shows.
             </p>
           </div>
         </div>
       </div>
 
-      {/* VENUE */}
-      <div className="w-[86%] mx-auto mt-14">
+      {/* VENUE SECTION */}
+      <div className="w-[90%] md:w-[86%] mx-auto mt-14">
         <h2 className="text-xl font-semibold mb-2">Venue</h2>
 
         <div className="bg-white p-4 rounded-xl shadow text-black">
@@ -156,19 +186,19 @@ culture, entertainment, learning, and creativity under one roof!
       </div>
 
       {/* FAQ & TERMS */}
-      <div className="w-[86%] mx-auto mt-14 space-y-4">
+      <div className="w-[90%] md:w-[86%] mx-auto mt-14 space-y-4 pb-20">
         <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
           <summary className="font-semibold">Frequently Asked Questions</summary>
-          <p className="mt-3 text-zinc-700">
+          <p className="mt-3 text-zinc-700 leading-relaxed">
             • Parking is available onsite. <br />
             • Outside food is not allowed. <br />
             • Gates open 2 hours before the event.
           </p>
         </details>
 
-        <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer mb-8">
+        <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
           <summary className="font-semibold">Terms & Conditions</summary>
-          <p className="mt-3 text-zinc-700">
+          <p className="mt-3 text-zinc-700 leading-relaxed">
             • Tickets are non-refundable. <br />
             • Entry closes 30 minutes before showtime. <br />
             • Security check is mandatory.
@@ -176,9 +206,7 @@ culture, entertainment, learning, and creativity under one roof!
         </details>
       </div>
 
-      {/* Event Guide Modal */}
       {guideOpen && <EventGuideModal onClose={() => setGuideOpen(false)} />}
-
       <Footer />
     </div>
   );

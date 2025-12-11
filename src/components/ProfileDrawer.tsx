@@ -3,14 +3,21 @@
 import React, { useState } from "react";
 
 /* ---------------------------------------
-   LOGOUT CONFIRM MODAL (Built-In)
+   LOGOUT CONFIRM MODAL
 --------------------------------------- */
-function LogoutModal({ open, onCancel, onConfirm }: any) {
+function LogoutModal({
+  open,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center">
-      
       {/* BACKDROP */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -27,7 +34,6 @@ function LogoutModal({ open, onCancel, onConfirm }: any) {
           <button
             onClick={onCancel}
             className="px-5 py-2 rounded-lg bg-zinc-200 hover:bg-zinc-300 text-sm font-medium text-black"
-
           >
             Cancel
           </button>
@@ -47,30 +53,45 @@ function LogoutModal({ open, onCancel, onConfirm }: any) {
 /* ---------------------------------------
    MAIN PROFILE DRAWER
 --------------------------------------- */
-export default function ProfileDrawer({ open, onClose }: any) {
+type DrawerProps = {
+  open: boolean;
+  onClose: () => void;
+  onLoggedOut: () => void; // 👈 NEW: tell Header when logout is done
+};
+
+export default function ProfileDrawer({ open, onClose, onLoggedOut }: DrawerProps) {
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   if (!open) return null;
 
-  /* Perform actual logout */
+  const handleCloseDrawer = () => {
+    // ensure logout modal is always reset when drawer closes
+    setLogoutOpen(false);
+    onClose();
+  };
+
+  const handleNavigate = (href: string) => {
+    setLogoutOpen(false);
+    onClose();
+    window.location.href = href;
+  };
+
   const handleLogout = () => {
     // Clear any stored user session
     localStorage.removeItem("logged_in");
-    localStorage.clear();
     sessionStorage.clear();
 
-    // Close drawer + redirect to home
+    setLogoutOpen(false);
     onClose();
-    window.location.href = "/";
+    onLoggedOut(); // 👈 tell Header "I am logged out now"
   };
 
   return (
     <div className="fixed inset-0 z-[999] flex justify-end">
-
       {/* BACKDROP */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={handleCloseDrawer}
       />
 
       {/* RIGHT DRAWER */}
@@ -81,11 +102,10 @@ export default function ProfileDrawer({ open, onClose }: any) {
           animate-slideLeft
         "
       >
-
         {/* TOP BAR */}
         <div className="flex items-center gap-4 px-6 py-4 bg-white border-b">
           <button
-            onClick={onClose}
+            onClick={handleCloseDrawer}
             className="text-2xl font-light text-zinc-700"
           >
             ←
@@ -109,9 +129,11 @@ export default function ProfileDrawer({ open, onClose }: any) {
 
         {/* MENU OPTIONS */}
         <div className="px-4 flex flex-col gap-3">
-
-          {/* Bookings */}
-          <div className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50">
+          {/* View bookings */}
+          <div
+            onClick={() => handleNavigate("/bookings")}
+            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
+          >
             <span className="text-zinc-800 font-medium">View all bookings</span>
             <span className="text-xl text-zinc-500">›</span>
           </div>
@@ -119,9 +141,12 @@ export default function ProfileDrawer({ open, onClose }: any) {
           {/* Support header */}
           <p className="text-xs text-zinc-500 mt-2 ml-1">Support</p>
 
-          {/* Chat */}
-          <div className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50">
-            <span className="text-zinc-800 font-medium">💬 Chat with us</span>
+          {/* Contact Us */}
+          <div
+            onClick={() => handleNavigate("/contact")}
+            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
+          >
+            <span className="text-zinc-800 font-medium">Contact Us</span>
             <span className="text-xl text-zinc-500">›</span>
           </div>
 
@@ -129,23 +154,29 @@ export default function ProfileDrawer({ open, onClose }: any) {
           <p className="text-xs text-zinc-500 mt-2 ml-1">More</p>
 
           {/* Terms */}
-          <div className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50">
+          <div
+            onClick={() => handleNavigate("/policies/terms-of-service")}
+            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
+          >
             <span className="text-zinc-800 font-medium">Terms & Conditions</span>
             <span className="text-xl text-zinc-500">›</span>
           </div>
 
           {/* Privacy */}
-          <div className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50">
+          <div
+            onClick={() => handleNavigate("/policies/privacy")}
+            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
+          >
             <span className="text-zinc-800 font-medium">Privacy Policy</span>
             <span className="text-xl text-zinc-500">›</span>
           </div>
 
-          {/* LOGOUT BUTTON — triggers modal */}
+          {/* LOGOUT */}
           <div
             onClick={() => setLogoutOpen(true)}
             className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
           >
-            <span className="text-zinc-800 font-medium text-red-600">Logout</span>
+            <span className="text-red-600 font-medium">Logout</span>
             <span className="text-xl text-zinc-500">›</span>
           </div>
 
