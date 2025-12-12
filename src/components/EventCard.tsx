@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, X } from "lucide-react";
 import React, { useState } from "react";
-import EventFilterModal from "./EventFilterModal"; // <-- IMPORTANT
+import EventFilterModal from "./EventFilterModal";
 
 // QUICK FILTER CHIP OPTIONS
 const FILTER_CHIPS = [
@@ -16,7 +16,7 @@ const FILTER_CHIPS = [
   "Music",
 ];
 
-// ⭐ FINAL EVENTS DATA
+// ⭐ FINAL EVENTS DATA (UPDATED WITH ARTIST)
 export const EVENTS = [
   {
     id: 1,
@@ -29,6 +29,15 @@ export const EVENTS = [
     distance: 12,
     popularity: 88,
     date: new Date("2025-12-06"),
+
+    // ⭐ ADDED ARTIST
+    artist: {
+      id: 1,
+      name: "A. R. Rahman",
+      image: "/movies/a1.jpg",
+      role: "Music Composer",
+      shortBio: "Legendary Indian composer known for soulful global music."
+    },
   },
   {
     id: 2,
@@ -41,6 +50,15 @@ export const EVENTS = [
     distance: 8,
     popularity: 94,
     date: new Date("2025-01-11"),
+
+    // ⭐ ADDED ARTIST
+    artist: {
+      id: 2,
+      name: "Sunidhi Chauhan",
+      image: "/movies/a2.jpg",
+      role: "Singer",
+      shortBio: "Powerful Bollywood playback singer with energetic performances."
+    },
   },
   {
     id: 3,
@@ -53,6 +71,15 @@ export const EVENTS = [
     distance: 6,
     popularity: 98,
     date: new Date("2025-11-29"),
+
+    // ⭐ ADDED ARTIST
+    artist: {
+      id: 3,
+      name: "Masoom Sharma",
+      image: "/movies/a3.jpg",
+      role: "Folk Singer",
+      shortBio: "Popular Haryanvi singer known for energetic performances."
+    },
   },
   {
     id: 4,
@@ -65,6 +92,15 @@ export const EVENTS = [
     distance: 9,
     popularity: 86,
     date: new Date("2025-01-14"),
+
+    // ⭐ ADDED ARTIST
+    artist: {
+      id: 4,
+      name: "Satinder Sartaaj",
+      image: "/movies/a4.jpg",
+      role: "Sufi Singer",
+      shortBio: "International Punjabi Sufi singer and poet."
+    },
   },
   {
     id: 5,
@@ -77,9 +113,17 @@ export const EVENTS = [
     distance: 7,
     popularity: 92,
     date: new Date("2025-02-12"),
+
+    // ⭐ ADDED ARTIST
+    artist: {
+      id: 5,
+      name: "Jubin Nautiyal",
+      image: "/movies/a5.jpg",
+      role: "Singer",
+      shortBio: "Romantic Bollywood playback singer with soothing voice."
+    },
   },
 ];
-
 
 // ⭐ QUICK FILTER LOGIC
 function filterByQuick(event: any, quick: string | null) {
@@ -92,38 +136,18 @@ function filterByQuick(event: any, quick: string | null) {
   return true;
 }
 
-
-// ⭐ APPLY MODAL FILTERS (Sort + Genres)
+// ⭐ APPLY MODAL FILTERS
 function applyModalFilters(events: any[], modalFilters: string[]) {
   let output = [...events];
 
-  // Sorting
-  if (modalFilters.includes("Price Low to High")) {
-    output.sort((a, b) => a.price - b.price);
-  }
-  if (modalFilters.includes("Price High to Low")) {
-    output.sort((a, b) => b.price - a.price);
-  }
-  if (modalFilters.includes("Popularity")) {
-    output.sort((a, b) => b.popularity - a.popularity);
-  }
-  if (modalFilters.includes("Near to Far")) {
-    output.sort((a, b) => a.distance - b.distance);
-  }
-  if (modalFilters.includes("Date")) {
-    output.sort((a, b) => a.date - b.date);
-  }
+  if (modalFilters.includes("Price Low to High")) output.sort((a, b) => a.price - b.price);
+  if (modalFilters.includes("Price High to Low")) output.sort((a, b) => b.price - a.price);
+  if (modalFilters.includes("Popularity")) output.sort((a, b) => b.popularity - a.popularity);
+  if (modalFilters.includes("Near to Far")) output.sort((a, b) => a.distance - b.distance);
+  if (modalFilters.includes("Date")) output.sort((a, b) => a.date - b.date);
 
-  // Genre Filters
   const genres = modalFilters.filter(
-    (f) =>
-      ![
-        "Price Low to High",
-        "Price High to Low",
-        "Popularity",
-        "Near to Far",
-        "Date",
-      ].includes(f)
+    (f) => !["Price Low to High", "Price High to Low", "Popularity", "Near to Far", "Date"].includes(f)
   );
 
   if (genres.length > 0) {
@@ -135,26 +159,22 @@ function applyModalFilters(events: any[], modalFilters: string[]) {
   return output;
 }
 
-
-
 // ⭐ MAIN COMPONENT
 export default function EventCardPage() {
   const [quickFilter, setQuickFilter] = useState<string | null>(null);
   const [modalFilters, setModalFilters] = useState<string[]>([]);
   const [openModal, setOpenModal] = useState(false);
 
-  // Remove a filter chip when clicked
-  const removeFilter = (filter: string) => {
-    setModalFilters((prev) => prev.filter((f) => f !== filter));
+  // remove a selected modal filter
+  const removeFilter = (f: string) => {
+    setModalFilters((prev) => prev.filter((p) => p !== f));
   };
 
-  // APPLY ALL FILTERS
   let filtered = EVENTS.filter((event) => filterByQuick(event, quickFilter));
   filtered = applyModalFilters(filtered, modalFilters);
 
   return (
     <>
-      {/* ---------------- MODAL ---------------- */}
       <EventFilterModal
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -162,17 +182,12 @@ export default function EventCardPage() {
         onApply={(filters) => setModalFilters(filters)}
       />
 
-      {/* ---------------- MAIN PAGE ---------------- */}
       <section className="w-full py-10">
         <div className="w-[80%] mx-auto">
-          <h2 className="text-2xl font-semibold mb-6 text-black">
-            All events
-          </h2>
+          <h2 className="text-2xl font-semibold mb-6 text-black">All events</h2>
 
-          {/* ---------------- FILTER CHIP BAR ---------------- */}
           <div className="mb-8 flex items-center gap-3 overflow-x-auto no-scrollbar">
-
-            {/* FILTER MODAL BUTTON */}
+            {/* FILTER BUTTON */}
             <button
               onClick={() => setOpenModal(true)}
               className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
@@ -197,22 +212,18 @@ export default function EventCardPage() {
               </button>
             ))}
 
-            {/* ---------------- SELECTED MODAL FILTERS ---------------- */}
             {modalFilters.map((f) => (
               <span
                 key={f}
                 className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm"
               >
                 {f}
-                <X
-                  className="w-4 h-4 cursor-pointer"
-                  onClick={() => removeFilter(f)}
-                />
+                <X className="w-4 h-4 cursor-pointer" onClick={() => removeFilter(f)} />
               </span>
             ))}
           </div>
 
-          {/* ---------------- EVENT CARDS ---------------- */}
+          {/* EVENT CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {filtered.map((event) => (
               <Link
@@ -221,26 +232,17 @@ export default function EventCardPage() {
                 className="bg-white rounded-2xl shadow-[0_6px_24px_rgba(0,0,0,0.12)] overflow-hidden hover:scale-[1.02] transition-transform"
               >
                 <div className="relative w-full h-[260px]">
-                  <Image
-                    src={event.image}
-                    alt={event.title}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={event.image} alt={event.title} fill className="object-cover" />
                 </div>
 
                 <div className="px-4 py-4 text-black">
                   <p className="text-xs text-black">{event.dateTime}</p>
 
-                  <h3 className="text-sm font-semibold mt-1 text-black">
-                    {event.title}
-                  </h3>
+                  <h3 className="text-sm font-semibold mt-1 text-black">{event.title}</h3>
 
                   <p className="text-xs text-black">{event.location}</p>
 
-                  <p className="text-sm font-semibold mt-1 text-black">
-                    ₹{event.price} onwards
-                  </p>
+                  <p className="text-sm font-semibold mt-1 text-black">₹{event.price} onwards</p>
                 </div>
               </Link>
             ))}

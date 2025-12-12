@@ -4,11 +4,12 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import HayyaLogo from "@/assets/logored.png";
+import Footer from "@/components/Footer"; // <-- ADDED
 
 export default function Privacy() {
   const router = useRouter();
 
-  const handleBack = () => {
+  const goHome = () => {
     sessionStorage.setItem("openProfileOnce", "true");
     router.push("/");
   };
@@ -16,35 +17,35 @@ export default function Privacy() {
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
 
-      {/* FIXED TOP HEADER */}
+      {/* ⭐ FIXED TOP HEADER */}
       <div
         className="
-          w-full flex items-center justify-between 
-          px-4 py-3 bg-white 
+          w-full flex items-center justify-center
+          px-4 py-4 bg-white 
           border-b shadow-sm 
           sticky top-0 z-[999]
+          relative
         "
       >
-        <button
-          onClick={handleBack}
-          className="text-2xl text-zinc-700 cursor-pointer"
-        >
-          ←
-        </button>
-
+        {/* ⭐ BIGGER LOGO AT TOP LEFT */}
         <Image
           src={HayyaLogo}
           alt="Hayya Logo"
-          className="h-12 w-auto rounded-xl"
+          onClick={goHome}
+          className="
+            h-14 w-auto rounded-xl cursor-pointer
+            absolute left-4 sm:left-6 md:left-10
+          "
         />
 
-        <span className="w-6"></span>
+        {/* ⭐ CENTERED PAGE TITLE */}
+        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold">
+          Privacy Policy
+        </h1>
       </div>
 
-      {/* MAIN CONTENT — FULL WIDTH LIKE TERMS PAGE */}
-      <div className="w-full px-4 sm:px-6 lg:px-10 py-10">
-
-        <h1 className="text-3xl font-bold mb-3">Privacy Policy</h1>
+      {/* ⭐ MAIN CONTENT */}
+      <div className="w-full px-4 sm:px-6 lg:px-10 py-10 flex-grow">
 
         <p className="text-[15px] text-zinc-500 mb-10">
           Last updated on January 01, 2025
@@ -151,8 +152,10 @@ export default function Privacy() {
             </p>
           </section>
         </div>
-
       </div>
+
+      {/* ⭐ FOOTER ADDED HERE */}
+      <Footer />
     </div>
   );
 }

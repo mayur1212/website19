@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 type Category = "All" | "Dining" | "Events" | "Movies" | "Activities";
@@ -32,7 +32,6 @@ const SAMPLE_DATA: Record<Category, SearchItem[]> = {
   All: [],
 };
 
-// Merge all categories into All
 SAMPLE_DATA.All = [
   ...SAMPLE_DATA.Dining,
   ...SAMPLE_DATA.Movies,
@@ -40,10 +39,24 @@ SAMPLE_DATA.All = [
   ...SAMPLE_DATA.Activities,
 ];
 
-export default function SearchPopup({ onClose }: { onClose: () => void }) {
-  const [activeTab, setActiveTab] = useState<Category>("All");
+export default function SearchPopup({
+  onClose,
+  activeTab: initialTab = "All",
+}: {
+  onClose: () => void;
+  activeTab: Category;
+}) {
+  // ⭐ Active Tab Controlled by Header
+  const [activeTab, setActiveTab] = useState<Category>(initialTab);
+
+  // When header sends a new tab, update popup tab
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Filter results based on tab + search text
   const filteredList: SearchItem[] = SAMPLE_DATA[activeTab].filter((item) =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -53,18 +66,30 @@ export default function SearchPopup({ onClose }: { onClose: () => void }) {
 
       {/* POPUP CARD */}
       <div
-        className="w-full max-w-lg md:max-w-3xl bg-white rounded-3xl shadow-xl p-5 md:p-6 animate-fadeIn flex flex-col"
+        className="
+          w-full max-w-lg md:max-w-3xl 
+          bg-white rounded-3xl shadow-xl 
+          p-5 md:p-6 pt-14
+          animate-fadeIn flex flex-col relative
+        "
         style={{
-          height: "78vh",          
-          maxHeight: "620px",     
+          height: "78vh",
+          maxHeight: "620px",
         }}
       >
+        {/* CLOSE BUTTON */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 text-black text-2xl font-bold hover:scale-110 transition"
+        >
+          ×
+        </button>
 
         {/* SEARCH BAR */}
         <div className="mb-3 md:mb-4">
           <input
             className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-black text-sm focus:outline-none"
-            placeholder="Search for 'Rohit Roy'"
+            placeholder="Search…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -78,11 +103,7 @@ export default function SearchPopup({ onClose }: { onClose: () => void }) {
               onClick={() => setActiveTab(cat)}
               className={`
                 px-3 py-1.5 rounded-full text-sm font-semibold transition-all
-                ${
-                  activeTab === cat
-                    ? "bg-purple-600 text-white"
-                    : "text-gray-600"
-                }
+                ${activeTab === cat ? "bg-red-500 text-white" : "text-gray-600"}
               `}
             >
               {cat}
@@ -90,7 +111,7 @@ export default function SearchPopup({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        {/* MAIN SCROLL AREA */}
+        {/* RESULTS AREA */}
         <div className="flex-1 overflow-y-auto pr-1 md:pr-2">
           <h3 className="font-semibold text-black mb-2">Trending in Mumbai</h3>
 
@@ -101,37 +122,21 @@ export default function SearchPopup({ onClose }: { onClose: () => void }) {
               {filteredList.map((item: SearchItem, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   
-                  {/* Image */}
+                  {/* IMAGE */}
                   <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src={item.image} alt={item.title} fill className="object-cover" />
                   </div>
 
-                  {/* Text */}
+                  {/* TEXT */}
                   <div>
-                    <p className="font-semibold text-black text-sm md:text-base">
-                      {item.title}
-                    </p>
+                    <p className="font-semibold text-black text-sm md:text-base">{item.title}</p>
                     <p className="text-sm text-gray-500">{item.type}</p>
                   </div>
+
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* CLOSE BUTTON */}
-        <div className="pt-3">
-          <button
-            onClick={onClose}
-            className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold"
-          >
-            Close
-          </button>
         </div>
 
       </div>
