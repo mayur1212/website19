@@ -3,35 +3,49 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import HayyaLogo from "@/assets/logored.png";
+import Footer from "@/components/Footer"; // <-- ADDED
 
 export default function TermsPage() {
   const router = useRouter();
 
+  const goHome = () => {
+    sessionStorage.setItem("openProfileOnce", "true");
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
 
-      {/* HEADER */}
-      <div className="w-full flex items-center justify-between px-4 py-4 border-b shadow-sm sticky top-0 bg-white z-50">
-        <button
-          onClick={() => router.push("/?openProfile=true")}
-          className="text-2xl text-zinc-700"
-        >
-          ←
-        </button>
-
+      {/* ⭐ FIXED TOP HEADER (same as Privacy Page) */}
+      <div
+        className="
+          w-full flex items-center justify-center
+          px-4 py-4 bg-white 
+          border-b shadow-sm 
+          sticky top-0 z-[999]
+          relative
+        "
+      >
+        {/* ⭐ BIGGER LOGO ON LEFT (CLICKABLE) */}
         <Image
           src={HayyaLogo}
           alt="Hayya Logo"
-          className="h-12 w-auto mx-auto rounded-xl"
+          onClick={goHome}
+          className="
+            h-14 w-auto rounded-xl cursor-pointer
+            absolute left-4 sm:left-6 md:left-10
+          "
         />
 
-        <span className="w-6" />
+        {/* ⭐ CENTER TITLE */}
+        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold">
+          Terms & Conditions
+        </h1>
       </div>
 
-      {/* MAIN CONTENT — FULL WIDTH, NO LEFT GAP */}
-      <div className="px-4 sm:px-6 lg:px-10 py-10 w-full">
+      {/* ⭐ MAIN CONTENT */}
+      <div className="px-4 sm:px-6 lg:px-10 py-10 w-full flex-grow">
 
-        <h1 className="text-3xl font-bold mb-3">Terms & Conditions</h1>
         <p className="text-sm text-zinc-500 mb-10">
           Last updated on January 01, 2025
         </p>
@@ -139,11 +153,13 @@ export default function TermsPage() {
               <strong>support@hayya.com</strong>
             </p>
           </section>
-
         </div>
 
         <div className="h-16" />
       </div>
+
+      {/* ⭐ FOOTER (same as Privacy Page) */}
+      <Footer />
     </div>
   );
 }

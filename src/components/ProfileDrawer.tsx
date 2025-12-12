@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 /* ---------------------------------------
    LOGOUT CONFIRM MODAL
@@ -18,13 +19,11 @@ function LogoutModal({
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center">
-      {/* BACKDROP */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onCancel}
       />
 
-      {/* POPUP BOX */}
       <div className="relative z-[2001] bg-white w-[90%] max-w-sm rounded-2xl shadow-xl p-6">
         <h2 className="text-lg font-semibold text-zinc-800 text-center">
           Are you sure you want to logout?
@@ -51,69 +50,53 @@ function LogoutModal({
 }
 
 /* ---------------------------------------
-   MAIN PROFILE DRAWER
+   PROFILE DRAWER
 --------------------------------------- */
-type DrawerProps = {
+export default function ProfileDrawer({
+  open,
+  onClose,
+  onLoggedOut,
+}: {
   open: boolean;
   onClose: () => void;
-  onLoggedOut: () => void; // 👈 NEW: tell Header when logout is done
-};
-
-export default function ProfileDrawer({ open, onClose, onLoggedOut }: DrawerProps) {
+  onLoggedOut: () => void;
+}) {
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [userNumber, setUserNumber] = useState<string>("");
+
+  // 🔥 Load phone number from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("hayya_user_number");
+    if (saved) setUserNumber(saved);
+  }, []);
 
   if (!open) return null;
 
-  const handleCloseDrawer = () => {
-    // ensure logout modal is always reset when drawer closes
-    setLogoutOpen(false);
-    onClose();
-  };
-
-  const handleNavigate = (href: string) => {
-    setLogoutOpen(false);
-    onClose();
-    window.location.href = href;
-  };
-
   const handleLogout = () => {
-    // Clear any stored user session
+    localStorage.removeItem("hayya_user_number");
     localStorage.removeItem("logged_in");
     sessionStorage.clear();
 
     setLogoutOpen(false);
     onClose();
-    onLoggedOut(); // 👈 tell Header "I am logged out now"
+    onLoggedOut();
   };
 
   return (
     <div className="fixed inset-0 z-[999] flex justify-end">
-      {/* BACKDROP */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={handleCloseDrawer}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* RIGHT DRAWER */}
-      <div
-        className="
-          relative z-[1000] w-full max-w-sm h-full 
-          bg-[#f3f3f3] shadow-2xl overflow-y-auto
-          animate-slideLeft
-        "
-      >
-        {/* TOP BAR */}
+      <div className="relative z-[1000] w-full max-w-sm h-full bg-[#f3f3f3] shadow-2xl overflow-y-auto animate-slideLeft">
+
+        {/* Top bar */}
         <div className="flex items-center gap-4 px-6 py-4 bg-white border-b">
-          <button
-            onClick={handleCloseDrawer}
-            className="text-2xl font-light text-zinc-700"
-          >
+          <button onClick={onClose} className="text-2xl font-light text-zinc-700">
             ←
           </button>
           <h2 className="text-lg font-semibold text-zinc-800">Profile</h2>
         </div>
 
-        {/* USER INFO */}
+        {/* User info */}
         <div className="p-4">
           <div className="rounded-xl bg-white p-4 shadow-sm flex items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-purple-200 flex items-center justify-center text-2xl font-bold text-purple-700">
@@ -122,56 +105,49 @@ export default function ProfileDrawer({ open, onClose, onLoggedOut }: DrawerProp
 
             <div>
               <p className="text-base font-semibold text-zinc-900">User</p>
-              <p className="text-sm text-zinc-500">+91 9152045667</p>
+              <p className="text-sm text-zinc-500">
+                {userNumber || "Not logged in"}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* MENU OPTIONS */}
+        {/* Menu options */}
         <div className="px-4 flex flex-col gap-3">
-          {/* View bookings */}
-          <div
-            onClick={() => handleNavigate("/bookings")}
-            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
-          >
-            <span className="text-zinc-800 font-medium">View all bookings</span>
-            <span className="text-xl text-zinc-500">›</span>
+
+          <div className="rounded-xl bg-white p-4 shadow-sm hover:bg-zinc-50 cursor-pointer">
+            <Link href="/bookings" className="flex justify-between items-center w-full">
+              <span className="text-zinc-800 font-medium">View all bookings</span>
+              <span className="text-xl text-zinc-500">›</span>
+            </Link>
           </div>
 
-          {/* Support header */}
           <p className="text-xs text-zinc-500 mt-2 ml-1">Support</p>
 
-          {/* Contact Us */}
-          <div
-            onClick={() => handleNavigate("/contact")}
-            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
-          >
-            <span className="text-zinc-800 font-medium">Contact Us</span>
-            <span className="text-xl text-zinc-500">›</span>
+          <div className="rounded-xl bg-white p-4 shadow-sm hover:bg-zinc-50 cursor-pointer">
+            <Link href="/contact" className="flex justify-between w-full">
+              <span className="text-zinc-800 font-medium">Contact Us</span>
+              <span className="text-xl text-zinc-500">›</span>
+            </Link>
           </div>
 
-          {/* More header */}
           <p className="text-xs text-zinc-500 mt-2 ml-1">More</p>
 
-          {/* Terms */}
-          <div
-            onClick={() => handleNavigate("/policies/terms-of-service")}
-            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
-          >
-            <span className="text-zinc-800 font-medium">Terms & Conditions</span>
-            <span className="text-xl text-zinc-500">›</span>
+          <div className="rounded-xl bg-white p-4 shadow-sm hover:bg-zinc-50 cursor-pointer">
+            <Link href="/policies/terms-of-service" className="flex justify-between items-center w-full">
+              <span className="text-zinc-800 font-medium">Terms & Conditions</span>
+              <span className="text-xl text-zinc-500">›</span>
+            </Link>
           </div>
 
-          {/* Privacy */}
-          <div
-            onClick={() => handleNavigate("/policies/privacy")}
-            className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
-          >
-            <span className="text-zinc-800 font-medium">Privacy Policy</span>
-            <span className="text-xl text-zinc-500">›</span>
+          <div className="rounded-xl bg-white p-4 shadow-sm hover:bg-zinc-50 cursor-pointer">
+            <Link href="/policies/privacy" className="flex justify-between items-center w-full">
+              <span className="text-zinc-800 font-medium">Policies & Privacy</span>
+              <span className="text-xl text-zinc-500">›</span>
+            </Link>
           </div>
 
-          {/* LOGOUT */}
+          {/* Logout */}
           <div
             onClick={() => setLogoutOpen(true)}
             className="rounded-xl bg-white p-4 flex justify-between items-center shadow-sm cursor-pointer hover:bg-zinc-50"
@@ -184,7 +160,7 @@ export default function ProfileDrawer({ open, onClose, onLoggedOut }: DrawerProp
         </div>
       </div>
 
-      {/* LOGOUT MODAL */}
+      {/* Logout modal */}
       <LogoutModal
         open={logoutOpen}
         onCancel={() => setLogoutOpen(false)}

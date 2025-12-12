@@ -148,19 +148,25 @@ export default function ArtistPage(props: { params: Promise<{ id: string }> }) {
                     flex flex-col lg:flex-row gap-10">
 
   {/* Artist Image */}
-  <div className="relative w-full lg:w-1/2 
-                  h-[260px] sm:h-[320px] lg:h-[500px] 
-                  rounded-3xl overflow-hidden shadow-lg">
-    <Image
-      src={artist.image}
-      alt={artist.name}
-      fill
-      className="object-cover"
-    />
-  </div>
+<div 
+  className="
+    relative w-full lg:w-1/2 
+    h-[260px] sm:h-[320px] lg:h-[500px] 
+    rounded-3xl overflow-hidden shadow-lg
+    lg:-translate-x-21   /* ⭐ move left on desktop */
+  "
+>
+  <Image
+    src={artist.image}
+    alt={artist.name}
+    fill
+    className="object-cover"
+  />
+</div>
+
 
   {/* Artist Info */}
-  <div className="flex flex-col justify-center lg:w-1/2">
+  <div className="flex flex-col lg:-translate-x-21 justify-center lg:w-1/2">
     <h1 className="text-3xl font-bold text-black">{artist.name}</h1>
 
     {/* Desktop Bio */}

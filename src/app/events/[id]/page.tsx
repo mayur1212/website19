@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";   // ⭐ ADDED
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -73,7 +74,7 @@ culture, entertainment, learning, and creativity under one roof!
       </div>
 
       {/* ===================================================== */}
-      {/* ⭐ DESKTOP HERO (unchanged) */}
+      {/* ⭐ DESKTOP HERO */}
       {/* ===================================================== */}
       <div className="w-[86%] mx-auto pt-10 gap-10 hidden md:flex">
         <div className="w-[70%] rounded-2xl overflow-hidden shadow-lg">
@@ -143,15 +144,20 @@ culture, entertainment, learning, and creativity under one roof!
         </div>
       </div>
 
-      {/* ARTIST SECTION */}
+      {/* ===================================================== */}
+      {/* ⭐ ARTIST SECTION (UPDATED) */}
+      {/* ===================================================== */}
       <div className="w-[90%] md:w-[86%] mx-auto mt-14">
         <h2 className="text-xl font-semibold">Artist</h2>
 
-        <div className="flex flex-col sm:flex-row items-center gap-6 mt-6">
+        <Link
+          href={`/artist/${event.artist.id}`}   // ⭐ CLICKABLE
+          className="flex flex-col sm:flex-row items-center gap-6 mt-6 cursor-pointer"
+        >
           <div className="h-32 w-32 rounded-full overflow-hidden">
             <Image
-              src="/movies/a1.jpg"
-              alt="Artist"
+              src={event.artist.image}
+              alt={event.artist.name}
               width={500}
               height={500}
               className="object-cover"
@@ -159,17 +165,18 @@ culture, entertainment, learning, and creativity under one roof!
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold">John Doe</h3>
-            <p className="text-zinc-600 text-sm">Singer, Performer</p>
+            <h3 className="text-lg font-semibold">{event.artist.name}</h3>
+            <p className="text-zinc-600 text-sm">{event.artist.role}</p>
             <p className="text-zinc-600 text-sm max-w-md mt-1 leading-relaxed">
-              A renowned performer known for creating immersive musical
-              experiences and energetic live shows.
+              {event.artist.shortBio}
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
+      {/* ===================================================== */}
       {/* VENUE SECTION */}
+      {/* ===================================================== */}
       <div className="w-[90%] md:w-[86%] mx-auto mt-14">
         <h2 className="text-xl font-semibold mb-2">Venue</h2>
 

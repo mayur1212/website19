@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Logo from "@/assets/logored.png"; // ← your hayya logo path
+import Link from "next/link";
+import Logo from "@/assets/logored.png";
+import Footer from "@/components/Footer";
 
 export default function ContactPage() {
   const [category, setCategory] = useState("");
@@ -12,89 +14,148 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="max-h-screen bg-white text-black px-6 md:px-20 py-10">
+    <div className="bg-white text-black min-h-screen flex flex-col">
 
-      {/* LOGO */}
-      <div className="flex justify-center mb-6">
-        <Image
-          src={Logo}
-          alt="Hayya Logo"
-          width={120}
-          height={40}
-          className="rounded-xl"
-        />
-      </div>
-
-      {/* PAGE TITLE */}
-      <h1 className="text-center text-3xl font-semibold mb-10">
-        How can we help you?
-      </h1>
-
-      {/* FORM + INFO GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-
-        {/* LEFT SIDE FORM */}
-        <div className="flex flex-col gap-5">
-
-          <select
-  value={category}
-  onChange={(e) => setCategory(e.target.value)}
-  className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
->
-  {/* Placeholder — disabled + hidden from selection */}
-  <option value="" disabled>
-    Select Category (Movies / Events / Dining / Other)
-  </option>
-
-  <option value="movies">Movies</option>
-  <option value="events">Events</option>
-  <option value="dining">Dining</option>
-  <option value="other">Other</option>
-</select>
-
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full name *"
-            className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
+      {/* 🔥 HEADER OUTSIDE CONTAINER SO LOGO TOUCHES LEFT SCREEN */}
+      <header className="relative w-full py-6 flex items-center justify-center">
+        {/* Logo — NOW TRULY LEFT EDGE */}
+        <Link href="/" className="absolute left-4 sm:left-6 md:left-10 lg:left-16">
+          <Image
+            src={Logo}
+            alt="Hayya Logo"
+            width={120}
+            height={40}
+            className="rounded-xl cursor-pointer"
           />
+        </Link>
 
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address *"
-            className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
-          />
+        {/* Title Center */}
+        <h1 className="text-center text-2xl sm:text-3xl font-semibold">
+          How can we help you?
+        </h1>
+      </header>
 
-          <input
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            placeholder="Mobile number *"
-            className="border border-zinc-300 rounded-lg px-4 py-3 text-black"
-          />
+      {/* MAIN CONTENT */}
+      <main className="w-full flex-grow">
+        <div className="max-w-5xl mx-auto px-6 sm:px-8 md:px-12 lg:px-20 py-4">
 
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Briefly describe your issue here *"
-            className="border border-zinc-300 rounded-lg px-4 py-3 text-black h-36"
-          />
+          {/* GRID: Form + Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
 
-          <button className="bg-zinc-200 text-black px-6 py-3 rounded-lg font-medium hover:bg-zinc-300 transition">
-            Submit
-          </button>
+            {/* LEFT: FORM */}
+            <section className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5 sm:p-7">
+              <form className="flex flex-col gap-4">
+
+                <label className="block">
+                  <span className="text-xs text-zinc-600">Category</span>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="mt-1 w-full border border-zinc-300 rounded-lg px-4 py-3"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Category (Movies / Events / Dining / Other)
+                    </option>
+                    <option value="movies">Movies</option>
+                    <option value="events">Events</option>
+                    <option value="dining">Dining</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-xs text-zinc-600">Full name *</span>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full name"
+                    className="mt-1 block w-full border border-zinc-300 rounded-lg px-4 py-3"
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-xs text-zinc-600">Email *</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="mt-1 block w-full border border-zinc-300 rounded-lg px-4 py-3"
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-xs text-zinc-600">Mobile *</span>
+                  <input
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="mt-1 block w-full border border-zinc-300 rounded-lg px-4 py-3"
+                    required
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-xs text-zinc-600">Describe your issue *</span>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Describe your issue briefly..."
+                    className="mt-1 block w-full border border-zinc-300 rounded-lg px-4 py-3 h-36"
+                    required
+                  />
+                </label>
+
+                <button
+                  type="submit"
+                  className="w-full md:w-auto bg-black text-white px-6 py-3 rounded-lg hover:opacity-90"
+                >
+                  Submit
+                </button>
+              </form>
+            </section>
+
+            {/* RIGHT: INFO CARD */}
+            <aside className="space-y-4">
+              <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5 sm:p-7">
+                <h3 className="text-lg font-semibold mb-2">Need quick help?</h3>
+                <p className="text-sm text-zinc-600 mb-4">Contact our support team:</p>
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg">📞</span>
+                    <div>
+                      <div className="text-sm">Support</div>
+                      <a href="tel:+911234567890" className="text-sm font-semibold">
+                        +91 12345 67890
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <span className="text-lg">✉️</span>
+                    <div>
+                      <div className="text-sm">Email</div>
+                      <a href="mailto:support@gethayya.com" className="text-sm font-semibold">
+                        support@gethayya.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-100 text-sm text-zinc-600">
+                    <strong className="text-zinc-800">Office Hours:</strong> Mon–Sat, 9 AM – 7 PM
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
+      </main>
 
-        {/* RIGHT SIDE INFO */}
-        <div className="text-zinc-700 text-sm leading-relaxed">
-          <h2 className="text-lg font-semibold mb-3">Issue with your booking?</h2>
-          <p>
-            Open the Hayya app → Go to your profile → Tap ‘Chat with us’
-            under the Support section to connect with our customer support team
-            for faster assistance.
-          </p>
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 }

@@ -54,6 +54,18 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
 
   // ⭐ SEARCH POPUP STATE
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [defaultTab, setDefaultTab] = useState("All");
+
+  // ⭐ AUTO-SELECT SEARCH TAB BASED ON PAGE
+    const openSearchWithCorrectTab = () => {
+      if (pathname?.includes("/events")) setDefaultTab("Events");
+      else if (pathname?.includes("/dining")) setDefaultTab("Dining");
+      else if (pathname?.includes("/movies")) setDefaultTab("Movies");
+      else if (pathname?.toLowerCase()?.includes("/activities")) setDefaultTab("Activities");
+      else setDefaultTab("All");
+  
+      setIsSearchOpen(true);
+    };
 
   // Persist login
   useEffect(() => {
@@ -154,7 +166,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
         {/* SEARCH BAR */}
         <div className="px-4 pb-2">
           <div
-            onClick={() => setIsSearchOpen(true)}
+            onClick={openSearchWithCorrectTab}
             className="flex items-center gap-2 bg-zinc-100 px-4 py-2 rounded-xl border border-zinc-300"
           >
             <svg width="18" height="18" stroke="currentColor" className="text-zinc-600">
@@ -250,7 +262,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
                 key={label}
                 href={href}
                 className={`px-4 py-1.5 rounded-full transition ${
-                  active ? "bg-red-600 text-white" : "text-zinc-900 hover:bg-purple-100"
+                  active ? "bg-red-500 font-bold text-white" : "text-zinc-900 hover:bg-purple-100"
                 }`}
               >
                 {label}
@@ -264,7 +276,7 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
 
           {/* SEARCH BUTTON — DESKTOP */}
           <button
-            onClick={() => setIsSearchOpen(true)}
+            onClick={openSearchWithCorrectTab}
             className="h-10 w-10 flex items-center justify-center rounded-full bg-white"
           >
             <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -323,7 +335,12 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
       />
 
       {/* ⭐ SEARCH POPUP RENDER */}
-      {isSearchOpen && <SearchPopup onClose={() => setIsSearchOpen(false)} />}
+      {isSearchOpen && (
+        <SearchPopup
+          onClose={() => setIsSearchOpen(false)}
+          activeTab={defaultTab as any}
+        />
+      )}
 
     </header>
   );
