@@ -6,7 +6,6 @@ import { SlidersHorizontal, ChevronDown, X } from "lucide-react";
 import React, { useState } from "react";
 import EventFilterModal from "./EventFilterModal";
 
-// QUICK FILTER CHIP OPTIONS
 const FILTER_CHIPS = [
   "Today",
   "Tomorrow",
@@ -16,7 +15,6 @@ const FILTER_CHIPS = [
   "Music",
 ];
 
-// ⭐ FINAL EVENTS DATA (UPDATED WITH ARTIST)
 export const EVENTS = [
   {
     id: 1,
@@ -29,15 +27,6 @@ export const EVENTS = [
     distance: 12,
     popularity: 88,
     date: new Date("2025-12-06"),
-
-    // ⭐ ADDED ARTIST
-    artist: {
-      id: 1,
-      name: "A. R. Rahman",
-      image: "/movies/a1.jpg",
-      role: "Music Composer",
-      shortBio: "Legendary Indian composer known for soulful global music."
-    },
   },
   {
     id: 2,
@@ -50,15 +39,6 @@ export const EVENTS = [
     distance: 8,
     popularity: 94,
     date: new Date("2025-01-11"),
-
-    // ⭐ ADDED ARTIST
-    artist: {
-      id: 2,
-      name: "Sunidhi Chauhan",
-      image: "/movies/a2.jpg",
-      role: "Singer",
-      shortBio: "Powerful Bollywood playback singer with energetic performances."
-    },
   },
   {
     id: 3,
@@ -71,101 +51,43 @@ export const EVENTS = [
     distance: 6,
     popularity: 98,
     date: new Date("2025-11-29"),
-
-    // ⭐ ADDED ARTIST
-    artist: {
-      id: 3,
-      name: "Masoom Sharma",
-      image: "/movies/a3.jpg",
-      role: "Folk Singer",
-      shortBio: "Popular Haryanvi singer known for energetic performances."
-    },
-  },
-  {
-    id: 4,
-    image: "/movies/event2.jpg",
-    dateTime: "Sun, 14 Jan, 8:00 PM",
-    title: "Bollywood Retro Night",
-    location: "CyberHub Amphitheatre",
-    price: 899,
-    category: "Music",
-    distance: 9,
-    popularity: 86,
-    date: new Date("2025-01-14"),
-
-    // ⭐ ADDED ARTIST
-    artist: {
-      id: 4,
-      name: "Satinder Sartaaj",
-      image: "/movies/a4.jpg",
-      role: "Sufi Singer",
-      shortBio: "International Punjabi Sufi singer and poet."
-    },
-  },
-  {
-    id: 5,
-    image: "/movies/event2.jpg",
-    dateTime: "Fri, 12 Feb, 7:00 PM",
-    title: "Zakir Khan Live",
-    location: "Kamani Auditorium, Delhi",
-    price: 499,
-    category: "Comedy",
-    distance: 7,
-    popularity: 92,
-    date: new Date("2025-02-12"),
-
-    // ⭐ ADDED ARTIST
-    artist: {
-      id: 5,
-      name: "Jubin Nautiyal",
-      image: "/movies/a5.jpg",
-      role: "Singer",
-      shortBio: "Romantic Bollywood playback singer with soothing voice."
-    },
   },
 ];
 
-// ⭐ QUICK FILTER LOGIC
 function filterByQuick(event: any, quick: string | null) {
   if (!quick) return true;
-
   if (quick === "Comedy") return event.category === "Comedy";
   if (quick === "Music") return event.category === "Music";
   if (quick === "Under 10 km") return event.distance <= 10;
-
   return true;
 }
 
-// ⭐ APPLY MODAL FILTERS
 function applyModalFilters(events: any[], modalFilters: string[]) {
-  let output = [...events];
+  let out = [...events];
 
-  if (modalFilters.includes("Price Low to High")) output.sort((a, b) => a.price - b.price);
-  if (modalFilters.includes("Price High to Low")) output.sort((a, b) => b.price - a.price);
-  if (modalFilters.includes("Popularity")) output.sort((a, b) => b.popularity - a.popularity);
-  if (modalFilters.includes("Near to Far")) output.sort((a, b) => a.distance - b.distance);
-  if (modalFilters.includes("Date")) output.sort((a, b) => a.date - b.date);
+  if (modalFilters.includes("Popularity"))
+    out.sort((a, b) => b.popularity - a.popularity);
 
-  const genres = modalFilters.filter(
-    (f) => !["Price Low to High", "Price High to Low", "Popularity", "Near to Far", "Date"].includes(f)
-  );
+  if (modalFilters.includes("Price Low to High"))
+    out.sort((a, b) => a.price - b.price);
 
-  if (genres.length > 0) {
-    output = output.filter((e) =>
-      genres.some((g) => e.category.toLowerCase().includes(g.toLowerCase()))
-    );
-  }
+  if (modalFilters.includes("Price High to Low"))
+    out.sort((a, b) => b.price - a.price);
 
-  return output;
+  if (modalFilters.includes("Near to Far"))
+    out.sort((a, b) => a.distance - b.distance);
+
+  if (modalFilters.includes("Date"))
+    out.sort((a, b) => a.date - b.date);
+
+  return out;
 }
 
-// ⭐ MAIN COMPONENT
 export default function EventCardPage() {
   const [quickFilter, setQuickFilter] = useState<string | null>(null);
   const [modalFilters, setModalFilters] = useState<string[]>([]);
   const [openModal, setOpenModal] = useState(false);
 
-  // remove a selected modal filter
   const removeFilter = (f: string) => {
     setModalFilters((prev) => prev.filter((p) => p !== f));
   };
@@ -179,14 +101,16 @@ export default function EventCardPage() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         selectedFilters={modalFilters}
-        onApply={(filters) => setModalFilters(filters)}
+        onApply={setModalFilters}
       />
 
       <section className="w-full py-10">
         <div className="w-[80%] mx-auto">
           <h2 className="text-2xl font-semibold mb-6 text-black">All events</h2>
 
+          {/* ⭐ CHIP BAR */}
           <div className="mb-8 flex items-center gap-3 overflow-x-auto no-scrollbar">
+
             {/* FILTER BUTTON */}
             <button
               onClick={() => setOpenModal(true)}
@@ -196,6 +120,23 @@ export default function EventCardPage() {
               Filters
               <ChevronDown className="w-4 h-4" />
             </button>
+
+            {/* ⭐ SELECTED FILTERS COME FIRST */}
+            {/* SELECTED FILTER CHIPS — DISTRICT STYLE */}
+{modalFilters.map((f) => (
+  <button
+    key={f}
+    onClick={() => {
+      // toggle this filter OFF when clicked again
+      setModalFilters((prev) =>
+        prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
+      );
+    }}
+    className="rounded-full px-4 py-2 text-sm bg-red-100 text-black border border-red-500"
+  >
+    {f}
+  </button>
+))}
 
             {/* QUICK FILTER CHIPS */}
             {FILTER_CHIPS.map((chip) => (
@@ -210,16 +151,6 @@ export default function EventCardPage() {
               >
                 {chip}
               </button>
-            ))}
-
-            {modalFilters.map((f) => (
-              <span
-                key={f}
-                className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm"
-              >
-                {f}
-                <X className="w-4 h-4 cursor-pointer" onClick={() => removeFilter(f)} />
-              </span>
             ))}
           </div>
 
@@ -237,11 +168,8 @@ export default function EventCardPage() {
 
                 <div className="px-4 py-4 text-black">
                   <p className="text-xs text-black">{event.dateTime}</p>
-
                   <h3 className="text-sm font-semibold mt-1 text-black">{event.title}</h3>
-
                   <p className="text-xs text-black">{event.location}</p>
-
                   <p className="text-sm font-semibold mt-1 text-black">₹{event.price} onwards</p>
                 </div>
               </Link>

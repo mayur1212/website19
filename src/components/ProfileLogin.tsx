@@ -112,18 +112,7 @@ export default function ProfileLoginModal({ open, onClose, onSuccess }: any) {
                     max-h-72 overflow-y-auto
                     z-[999999]
                   ">
-                    {/* SEARCH */}
-                    <div className="px-3 text-black py-2">
-                      <input
-                        type="text"
-                        placeholder="Search"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="
-                          w-full border rounded-lg px-3 py-2 text-sm outline-none
-                        "
-                      />
-                    </div>
+                    
 
                     {/* COUNTRY OPTIONS */}
                     {filtered.map((c) => (

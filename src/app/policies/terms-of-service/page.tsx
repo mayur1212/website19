@@ -20,7 +20,7 @@ export default function TermsPage() {
       <div
         className="
           w-full flex items-center justify-center
-          px-4 py-4 bg-white 
+          px-6 py-6 bg-white 
           border-b shadow-sm 
           sticky top-0 z-[999]
           relative
@@ -32,7 +32,7 @@ export default function TermsPage() {
           alt="Hayya Logo"
           onClick={goHome}
           className="
-            h-14 w-auto rounded-xl cursor-pointer
+            h-17 mt-1 w-27 rounded-xl cursor-pointer
             absolute left-4 sm:left-6 md:left-10
           "
         />

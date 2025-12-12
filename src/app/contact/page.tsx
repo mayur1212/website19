@@ -23,8 +23,8 @@ export default function ContactPage() {
           <Image
             src={Logo}
             alt="Hayya Logo"
-            width={120}
-            height={40}
+            width={110}
+            height={33}
             className="rounded-xl cursor-pointer"
           />
         </Link>

@@ -264,7 +264,7 @@ const Book = () => {
           {/* left: logo */}
           <div className="flex items-center">
             <Link href="/">
-              <Image src={Logo} alt="Hayya Logo" width={110} height={36} className="rounded-xl" />
+              <Image src={Logo} alt="Hayya Logo" width={110} height={33} className="rounded-xl" />
             </Link>
           </div>
 
