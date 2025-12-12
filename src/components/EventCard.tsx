@@ -114,7 +114,7 @@ export default function EventCardPage() {
             {/* FILTER BUTTON */}
             <button
               onClick={() => setOpenModal(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
+              className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filters
@@ -132,7 +132,7 @@ export default function EventCardPage() {
         prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
       );
     }}
-    className="rounded-full px-4 py-2 text-sm bg-red-100 text-black border border-red-500"
+    className="rounded-md px-4 py-2 text-sm bg-red-100 text-black border border-red-500"
   >
     {f}
   </button>
@@ -143,9 +143,9 @@ export default function EventCardPage() {
               <button
                 key={chip}
                 onClick={() => setQuickFilter(chip)}
-                className={`rounded-full px-4 py-2 text-sm border ${
+                className={`rounded-md px-4 py-2 text-sm border ${
                   quickFilter === chip
-                    ? "bg-black text-white border-black"
+                    ? "bg-red-100 text-black border-red-500"
                     : "bg-white text-zinc-800 border-zinc-200"
                 }`}
               >

@@ -83,8 +83,8 @@ export default function EventFilterModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="relative w-[680px] rounded-2xl bg-white shadow-xl animate-slideUp p-6">
+    <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="relative w-[680px] rounded-xl bg-white shadow-xl animate-slideUp p-6">
 
         <button
           onClick={onClose}
@@ -101,7 +101,7 @@ export default function EventFilterModal({
             <button
               onClick={() => setActiveTab("sort")}
               className={`px-3 py-2 rounded-lg text-sm font-medium 
-                ${activeTab === "sort" ? "bg-purple-100" : "bg-zinc-200"} 
+                ${activeTab === "sort" ? "bg-red-50" : "bg-zinc-200"} 
                 text-black`}
             >
               Sort By
@@ -110,14 +110,14 @@ export default function EventFilterModal({
             <button
               onClick={() => setActiveTab("genre")}
               className={`px-3 py-2 rounded-lg text-sm font-medium 
-                ${activeTab === "genre" ? "bg-purple-100" : "bg-zinc-200"} 
+                ${activeTab === "genre" ? "bg-red-50" : "bg-zinc-200"} 
                 text-black`}
             >
               Genre
             </button>
           </div>
 
-          <div className="flex-1 bg-zinc-100 rounded-xl p-6 h-[350px] overflow-y-auto">
+          <div className="flex-1 bg-red-50 rounded-xl p-6 h-[350px] overflow-y-auto">
 
             {activeTab === "sort" && (
               <div className="space-y-4">

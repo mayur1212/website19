@@ -64,38 +64,36 @@ export default function BuyTicketsPage({ params }: { params: Promise<{ id: strin
       {/* ---------------------------------------------------------------------- */}
       {/* TOP HEADER (LOGO + EVENT TITLE + PROFILE BUTTON) */}
       {/* ---------------------------------------------------------------------- */}
-      <header className="w-full border-b bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+      <header className="w-full border-b bg-white shadow-sm px-6 py-2 flex items-center justify-between">
 
-        {/* LEFT — LOGO */}
-        <Image 
-          src={Logo}
-          alt="Hayya"
-          width={110}
-          height={40}
-          className="cursor-pointer rounded-2xl"
-          onClick={() => (window.location.href = "/")}
-        />
+  {/* LEFT — LOGO */}
+  <Image
+    src={Logo}
+    alt="Hayya"
+    width={110}
+    height={40}
+    className="cursor-pointer rounded-2xl"
+    onClick={() => (window.location.href = "/")}
+  />
 
-        {/* CENTER — EVENT INFO */}
-        <div className="text-center hidden md:block">
-          <h2 className="text-lg font-semibold truncate max-w-[350px] mx-auto">
-            {event.title}
-          </h2>
-          <p className="text-sm text-gray-600">
-            {event.dateTime} • {event.location}
-          </p>
-        </div>
+  {/* CENTER — EVENT INFO (moved UP with tighter spacing) */}
+  <div className="text-center flex flex-col leading-tight">
+    <h2 className="text-base font-semibold truncate max-w-[350px] mx-auto">
+      {event.title}
+    </h2>
+    <p className="text-xs text-gray-600 -mt-0.5">
+      {event.dateTime} • {event.location}
+    </p>
+  </div>
 
-        {/* RIGHT — SAME PROFILE BUTTON AS HEADER */}
-        <button
-          onClick={() =>
-            isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
-          }
-          className="flex items-center justify-center h-10 w-10 rounded-full bg-slate-900 text-white font-semibold"
-        >
-          U
-        </button>
-      </header>
+  {/* RIGHT — PROFILE BUTTON */}
+  <button
+    onClick={() => (isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true))}
+    className="flex items-center justify-center h-10 w-10 rounded-full bg-slate-900 text-white font-semibold"
+  >
+    U
+  </button>
+</header>
 
       {/* LOGIN MODAL */}
       <ProfileLoginModal
