@@ -2,20 +2,42 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { SlidersHorizontal, ChevronDown, X } from "lucide-react";
-import React, { useState } from "react";
-import EventFilterModal from "./EventFilterModal";
+import React from "react";
 
-const FILTER_CHIPS = [
-  "Today",
-  "Tomorrow",
-  "This Weekend",
-  "Under 10 km",
-  "Comedy",
-  "Music",
-];
+/* ===================== TYPES ===================== */
 
-export const EVENTS = [
+export type Artist = {
+  id: number;
+  name: string;
+  image: string;
+  role: string;
+  shortBio: string;
+};
+
+export type Event = {
+  id: number;
+  image: string;
+  dateTime: string;
+  title: string;
+  location: string;
+  price: number;
+  category: string;
+  distance: number;
+  popularity: number;
+  date: Date;
+  artist?: Artist;
+};
+
+type EventCardProps = {
+  quickFilter: string | null;
+  modalFilters: string[];
+  onOpenModal: () => void;
+  onQuickSelect: (chip: string) => void;
+};
+
+/* ===================== EVENTS DATA ===================== */
+
+export const EVENTS: Event[] = [
   {
     id: 1,
     image: "/movies/event2.jpg",
@@ -27,6 +49,13 @@ export const EVENTS = [
     distance: 12,
     popularity: 88,
     date: new Date("2025-12-06"),
+    artist: {
+      id: 1,
+      name: "A. R. Rahman",
+      image: "/movies/a1.jpg",
+      role: "Music Composer",
+      shortBio: "Oscar-winning composer and global music icon.",
+    },
   },
   {
     id: 2,
@@ -39,6 +68,14 @@ export const EVENTS = [
     distance: 8,
     popularity: 94,
     date: new Date("2025-01-11"),
+    artist: {
+      id: 3,
+      name: "Zakir Khan",
+      image: "/movies/a3.jpg",
+      role: "Stand-up Comedian",
+      shortBio:
+        "One of India’s most loved stand-up comedians, known for relatable storytelling and humor.",
+    },
   },
   {
     id: 3,
@@ -51,10 +88,19 @@ export const EVENTS = [
     distance: 6,
     popularity: 98,
     date: new Date("2025-11-29"),
+    artist: {
+      id: 2,
+      name: "Sunidhi Chauhan",
+      image: "/movies/a2.jpg",
+      role: "Playback Singer",
+      shortBio: "Powerhouse Bollywood singer and live performer.",
+    },
   },
 ];
 
-function filterByQuick(event: any, quick: string | null) {
+/* ===================== FILTER LOGIC ===================== */
+
+function filterByQuick(event: Event, quick: string | null) {
   if (!quick) return true;
   if (quick === "Comedy") return event.category === "Comedy";
   if (quick === "Music") return event.category === "Music";
@@ -62,7 +108,7 @@ function filterByQuick(event: any, quick: string | null) {
   return true;
 }
 
-function applyModalFilters(events: any[], modalFilters: string[]) {
+function applyModalFilters(events: Event[], modalFilters: string[]) {
   let out = [...events];
 
   if (modalFilters.includes("Popularity"))
@@ -78,111 +124,59 @@ function applyModalFilters(events: any[], modalFilters: string[]) {
     out.sort((a, b) => a.distance - b.distance);
 
   if (modalFilters.includes("Date"))
-    out.sort((a, b) => a.date - b.date);
+    out.sort((a, b) => a.date.getTime() - b.date.getTime());
 
   return out;
 }
 
-export default function EventCardPage() {
-  const [quickFilter, setQuickFilter] = useState<string | null>(null);
-  const [modalFilters, setModalFilters] = useState<string[]>([]);
-  const [openModal, setOpenModal] = useState(false);
+/* ===================== COMPONENT ===================== */
 
-  const removeFilter = (f: string) => {
-    setModalFilters((prev) => prev.filter((p) => p !== f));
-  };
-
-  let filtered = EVENTS.filter((event) => filterByQuick(event, quickFilter));
+export default function EventCard({
+  quickFilter,
+  modalFilters,
+}: EventCardProps) {
+  let filtered = EVENTS.filter((event) =>
+    filterByQuick(event, quickFilter)
+  );
   filtered = applyModalFilters(filtered, modalFilters);
 
   return (
-    <>
-      <EventFilterModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        selectedFilters={modalFilters}
-        onApply={setModalFilters}
-      />
+    <section className="w-full py-10">
+      <div className="w-[80%] mx-auto">
+        <h2 className="text-2xl font-semibold mb-6 text-black">
+          All events
+        </h2>
 
-      <section className="w-full py-10">
-        <div className="w-[80%] mx-auto">
-          <h2 className="text-2xl font-semibold mb-6 text-black">All events</h2>
-
-          {/* ⭐ CHIP BAR */}
-          <div className="mb-8 flex items-center gap-3 overflow-x-auto no-scrollbar">
-
-            {/* FILTER BUTTON */}
-            <button
-              onClick={() => setOpenModal(true)}
-              className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {filtered.map((event) => (
+            <Link
+              key={event.id}
+              href={`/events/${event.id}`}
+              className="bg-white rounded-2xl shadow hover:scale-[1.02] transition"
             >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-              <ChevronDown className="w-4 h-4" />
-            </button>
+              <div className="relative w-full h-[260px]">
+                <Image
+                  src={event.image}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
 
-            {/* ⭐ SELECTED FILTERS COME FIRST */}
-            {/* SELECTED FILTER CHIPS — DISTRICT STYLE */}
-{modalFilters.map((f) => (
-  <button
-    key={f}
-    onClick={() => {
-      // toggle this filter OFF when clicked again
-      setModalFilters((prev) =>
-        prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]
-      );
-    }}
-    className="rounded-md px-4 py-2 text-sm bg-red-100 text-black border border-red-500"
-  >
-    {f}
-  </button>
-))}
-
-            {/* QUICK FILTER CHIPS */}
-            {FILTER_CHIPS.map((chip) => (
-              <button
-                key={chip}
-                onClick={() => setQuickFilter(chip)}
-                className={`rounded-md px-4 py-2 text-sm border ${
-                  quickFilter === chip
-                    ? "bg-red-100 text-black border-red-500"
-                    : "bg-white text-zinc-800 border-zinc-200"
-                }`}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          {/* EVENT CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {filtered.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="bg-white rounded-2xl shadow-[0_6px_24px_rgba(0,0,0,0.12)] overflow-hidden hover:scale-[1.02] transition-transform"
-              >
-                <div className="relative w-full h-[260px]">
-                  <Image src={event.image} alt={event.title} fill className="object-cover" />
-                </div>
-
-                <div className="px-4 py-4 text-black">
-                  <p className="text-xs text-black">{event.dateTime}</p>
-                  <h3 className="text-sm font-semibold mt-1 text-black">{event.title}</h3>
-                  <p className="text-xs text-black">{event.location}</p>
-                  <p className="text-sm font-semibold mt-1 text-black">₹{event.price} onwards</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {filtered.length === 0 && (
-            <p className="text-center text-zinc-500 mt-10">
-              No events found for selected filters.
-            </p>
-          )}
+              <div className="px-4 py-4 text-black">
+                <p className="text-xs">{event.dateTime}</p>
+                <h3 className="text-sm font-semibold mt-1">
+                  {event.title}
+                </h3>
+                <p className="text-xs">{event.location}</p>
+                <p className="text-sm font-semibold mt-1">
+                  ₹{event.price} onwards
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

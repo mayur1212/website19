@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const AccordionData = [
+type AccordionItem = {
+  title: string;
+  content: string;
+};
+
+const AccordionData: AccordionItem[] = [
   {
     title: "Catch the Trending Blockbusters: Get Your Movie Tickets Now!",
     content: `Want to catch the biggest blockbusters? We’ve curated the Top 20 movies currently showing across theatres near you. 
@@ -48,55 +53,49 @@ const AccordionData = [
 ];
 
 export default function InfoAccordion() {
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggle = (index) => {
+  const toggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
     <div className="w-full bg-[#f1f1f2] py-10">
-  <div className="max-w-6xl mx-auto px-4 space-y-4">
-    
-    {AccordionData.map((item, index) => (
-      <div
-        key={index}
-        className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition"
-      >
-        {/* Header */}
-        <button
-          onClick={() => toggle(index)}
-          className="w-full flex justify-between items-center px-6 py-4 cursor-pointer"
-        >
-          <p className="text-lg font-semibold text-gray-900">
-            {item.title}
-          </p>
+      <div className="max-w-6xl mx-auto px-4 space-y-4">
+        {AccordionData.map((item, index: number) => (
+          <div
+            key={index}
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition"
+          >
+            <button
+              onClick={() => toggle(index)}
+              className="w-full flex justify-between items-center px-6 py-4"
+            >
+              <p className="text-lg font-semibold text-gray-900">
+                {item.title}
+              </p>
 
-          <ChevronDown
-            className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
-              openIndex === index ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
+                  openIndex === index ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-        {/* Content */}
-        <div
-          className={`px-6 transition-all duration-300 ease-in-out ${
-            openIndex === index
-              ? "max-h-[500px] opacity-100 pb-4"
-              : "max-h-0 opacity-0"
-          } overflow-hidden`}
-        >
-          <p className="text-gray-700 leading-relaxed">
-            {item.content}
-          </p>
-        </div>
+            <div
+              className={`px-6 transition-all duration-300 ease-in-out ${
+                openIndex === index
+                  ? "max-h-[500px] opacity-100 pb-4"
+                  : "max-h-0 opacity-0"
+              } overflow-hidden`}
+            >
+              <p className="text-gray-700 leading-relaxed">
+                {item.content}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
-    ))}
-
-  </div>
-</div>
-
-
+    </div>
   );
 }

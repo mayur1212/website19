@@ -163,7 +163,7 @@ export default function CategoryPage({
                   {slide.title}
                 </h1>
                 <p className="mt-3 text-[18px] text-zinc-700">{slide.location}</p>
-                <p className="mt-3 text-[20px] font-semibold text-zinc-900">
+                <p className="mt-3 text-[20px] font-semibold text-black-900">
                   {slide.price}
                 </p>
 
@@ -265,7 +265,7 @@ export default function CategoryPage({
             <p className="text-sm text-black font-medium">{slide.dateTime}</p>
             <h1 className="mt-2 text-2xl font-bold leading-snug">{slide.title}</h1>
             <p className="text-[15px] text-black/80">{slide.location}</p>
-            <p className="mt-3 text-lg font-semibold">{slide.price}</p>
+            <p className="mt-3 text-lg text-black font-semibold">{slide.price}</p>
 
             {/* STOP EVENT NAVIGATION */}
             <button
@@ -323,7 +323,7 @@ export default function CategoryPage({
                   {item.title}
                 </h3>
                 <p className="text-sm text-gray-600">{item.location}</p>
-                <p className="mt-3 text-[15px] font-bold">{item.price}</p>
+                <p className="mt-3 text-[15px] text-black font-bold">{item.price}</p>
               </div>
             </div>
           ))}

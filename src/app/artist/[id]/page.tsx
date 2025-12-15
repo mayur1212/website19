@@ -230,7 +230,7 @@ export default function ArtistPage(props: { params: Promise<{ id: string }> }) {
         )}
       </section>
 
-      <Footer />
+      <Footer />  
     </div>
   );
 }

@@ -229,3 +229,4 @@ and creative showcases from emerging artists.
     </div>
   );
 }
+
