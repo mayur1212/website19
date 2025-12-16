@@ -270,7 +270,7 @@ const Book = () => {
 
           {/* center: title (middle column) */}
           <div className="flex justify-center">
-            <h1 className="text-base md:text-lg font-semibold text-center">Review your bookings</h1>
+            <h1 className="text-base md:text-xl font-semibold text-center">Review your bookings</h1>
           </div>
 
           {/* right: placeholder/profile (keeps center perfectly centered) */}

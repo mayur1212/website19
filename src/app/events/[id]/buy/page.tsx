@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Plus, Minus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import Logo from "@/assets/logored.png";
 import { EVENTS } from "@/components/EventCard";
@@ -14,6 +15,7 @@ export default function BuyTicketsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id } = React.use(params);
   const eventId = Number(id);
   const event = EVENTS.find((e) => e.id === eventId);
@@ -39,7 +41,7 @@ export default function BuyTicketsPage({
   const priceFilters = ["3500", "4500", "7000", "10000", "15000"];
   const [selectedPrice, setSelectedPrice] = useState("15000");
 
-  const sectionColors: any = {
+  const sectionColors: Record<string, string[]> = {
     "15000": ["lounge"],
     "10000": ["gold"],
     "7000": ["platinum"],
@@ -53,6 +55,11 @@ export default function BuyTicketsPage({
 
   /* ---------------- ZOOM ---------------- */
   const [zoom, setZoom] = useState(1);
+
+  /* ---------------- NAVIGATION ---------------- */
+  const goToSection = (section: string) => {
+    router.push(`/events/${event.id}/buy/${section}`);
+  };
 
   return (
     <div className="min-h-screen bg-white text-black pb-28 md:pb-0">
@@ -99,12 +106,15 @@ export default function BuyTicketsPage({
       />
 
       {/* ================= SEAT MAP ================= */}
+      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
+        ⏱ Complete your booking in <span className="font-semibold">06:30</span> mins
+      </div>
       <div className="w-full flex justify-center mt-6 md:mt-10 relative">
-        {/* ZOOM (mobile bottom-right, desktop center-right) */}
+        {/* ZOOM */}
         <div className="fixed md:absolute bottom-24 right-4 md:right-10 md:top-1/2 z-50 flex flex-col gap-2">
           <button
             onClick={() => setZoom((z) => Math.min(z + 0.1, 1.6))}
-            className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
+            className="h-10 w-10  md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
           >
             <Plus />
           </button>
@@ -122,30 +132,50 @@ export default function BuyTicketsPage({
         >
           <div className="seat-box bg-gray-200">STAGE</div>
 
-          <div className={`seat-box ${isActive("fanpit") ? "bg-pink-300" : "bg-gray-200"}`}>
+          <button
+            onClick={() => goToSection("fanpit")}
+            className={`seat-box cursor-pointer ${
+              isActive("fanpit") ? "bg-pink-300" : "bg-gray-200"
+            }`}
+          >
             FANPIT ↑
-          </div>
+          </button>
 
-          <div className={`seat-box ${isActive("platinum") ? "bg-blue-300" : "bg-gray-200"}`}>
+          <button
+            onClick={() => goToSection("platinum")}
+            className={`seat-box cursor-pointer ${
+              isActive("platinum") ? "bg-blue-300" : "bg-gray-200"
+            }`}
+          >
             PLATINUM ↑
-          </div>
+          </button>
 
-          <div className={`seat-box ${isActive("gold") ? "bg-yellow-300" : "bg-gray-200"}`}>
+          <button
+            onClick={() => goToSection("gold")}
+            className={`seat-box cursor-pointer ${
+              isActive("gold") ? "bg-yellow-300" : "bg-gray-200"
+            }`}
+          >
             GOLD ↑
-          </div>
+          </button>
 
-          <div className={`seat-box ${isActive("silver") ? "bg-green-300" : "bg-gray-200"}`}>
+          <button
+            onClick={() => goToSection("silver")}
+            className={`seat-box cursor-pointer ${
+              isActive("silver") ? "bg-green-300" : "bg-gray-200"
+            }`}
+          >
             SILVER ↑
-          </div>
+          </button>
 
-          {/* LOUNGE — inline on mobile, side on desktop */}
-          <div
-            className={`seat-box md:side-seat ${
+          <button
+            onClick={() => goToSection("lounge")}
+            className={`seat-box md:side-seat cursor-pointer ${
               isActive("lounge") ? "bg-purple-300" : "bg-gray-200"
             }`}
           >
             LOUNGE
-          </div>
+          </button>
         </div>
       </div>
 

@@ -19,15 +19,16 @@ export default function ContactPage() {
       {/* 🔥 HEADER OUTSIDE CONTAINER SO LOGO TOUCHES LEFT SCREEN */}
       <header className="relative w-full py-6 flex items-center justify-center">
         {/* Logo — NOW TRULY LEFT EDGE */}
-        <Link href="/" className="absolute left-4 sm:left-6 md:left-10 lg:left-16">
-          <Image
-            src={Logo}
-            alt="Hayya Logo"
-            width={110}
-            height={33}
-            className="rounded-xl cursor-pointer"
-          />
-        </Link>
+        <Link href="/" className="absolute left-1 sm:left-4 md:left-4">
+  <Image
+    src={Logo}
+    alt="Hayya Logo"
+    width={110}
+    height={33}
+    className="rounded-xl cursor-pointer"
+  />
+</Link>
+
 
         {/* Title Center */}
         <h1 className="text-center text-2xl sm:text-3xl font-semibold">
