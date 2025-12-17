@@ -4,8 +4,19 @@ import { getSession } from "@/lib/session";
 export async function POST() {
   try {
     const session = await getSession();
-    session.user = undefined;
-    await session.save();
+
+    if (!session) {
+      return NextResponse.json({ success: true });
+    }
+
+    // ✅ CAST (same as login)
+    const sess = session as any;
+
+    sess.user = undefined;
+
+    if (typeof sess.save === "function") {
+      await sess.save();
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -16,4 +27,3 @@ export async function POST() {
     );
   }
 }
-

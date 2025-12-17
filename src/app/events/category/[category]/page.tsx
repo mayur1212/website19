@@ -18,6 +18,7 @@ const CATEGORY_INFO: Record<string, string> = {
   sports: "Sports Events",
   "food-drinks": "Food & Drinks Events",
   performances: "All Performances",
+  "fests-fairs": "Fests & Fairs",
 };
 
 /* ===========================================================
@@ -163,7 +164,7 @@ export default function CategoryPage({
                   {slide.title}
                 </h1>
                 <p className="mt-3 text-[18px] text-zinc-700">{slide.location}</p>
-                <p className="mt-3 text-[20px] font-semibold text-black-900">
+                <p className="mt-3 text-[20px] font-semibold text-black">
                   {slide.price}
                 </p>
 

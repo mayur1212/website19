@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import { Plus, Minus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-import Logo from "@/assets/logored.png";
 import { EVENTS } from "@/components/EventCard";
-import ProfileLoginModal from "@/components/ProfileLogin";
-import ProfileDrawer from "@/components/ProfileDrawer";
+import Header from "@/components/Header";
 
 export default function BuyTicketsPage({
   params,
@@ -20,22 +18,13 @@ export default function BuyTicketsPage({
   const eventId = Number(id);
   const event = EVENTS.find((e) => e.id === eventId);
 
-  if (!event)
+  if (!event) {
     return (
       <div className="p-10 text-center text-xl text-black">
         Event not found
       </div>
     );
-
-  /* ---------------- LOGIN ---------------- */
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [openLogin, setOpenLogin] = useState(false);
-  const [openDrawer, setOpenDrawer] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem("logged_in") === "true")
-      setIsLoggedIn(true);
-  }, []);
+  }
 
   /* ---------------- PRICE FILTER ---------------- */
   const priceFilters = ["3500", "4500", "7000", "10000", "15000"];
@@ -63,61 +52,67 @@ export default function BuyTicketsPage({
 
   return (
     <div className="min-h-screen bg-white text-black pb-28 md:pb-0">
-      {/* ================= HEADER ================= */}
-      <header className="w-full border-b bg-white shadow-sm px-4 md:px-6 py-2 flex items-center justify-between">
-        <Image
-          src={Logo}
-          alt="Hayya"
-          width={100}
-          height={36}
-          className="cursor-pointer rounded-2xl"
-          onClick={() => (window.location.href = "/")}
-        />
 
-        <div className="text-center flex flex-col leading-tight max-w-[180px] md:max-w-[350px]">
-          <h2 className="text-sm md:text-base font-semibold truncate">
+      {/* ================= MOBILE SLIM HEADER ================= */}
+      <div className="md:hidden sticky top-0 z-50 bg-white border-b">
+        <div className="flex items-center justify-between px-3 h-12">
+          {/* Logo */}
+          <div className="w-8">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={28}
+              height={28}
+              priority
+            />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-sm font-semibold text-black truncate max-w-[220px] text-center">
             {event.title}
-          </h2>
-          <p className="text-[11px] md:text-xs text-gray-600">
-            {event.dateTime} • {event.location}
-          </p>
+          </h1>
+
+          {/* Login */}
+          <button className="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center text-sm">
+            U
+          </button>
         </div>
+      </div>
 
-        <button
-          onClick={() =>
-            isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+      {/* ================= DESKTOP HEADER ================= */}
+      <div className="hidden md:block">
+        <Header
+          centerContent={
+            <>
+              <h1 className="text-[15px] font-semibold text-black truncate max-w-[420px]">
+                {event.title}
+              </h1>
+              <p className="text-[12px] text-zinc-500">
+                {event.dateTime} • {event.location}
+              </p>
+            </>
           }
-          className="h-9 w-9 rounded-full bg-black text-white text-sm font-semibold"
-        >
-          U
-        </button>
-      </header>
+        />
+      </div>
 
-      <ProfileLoginModal
-        open={openLogin}
-        onClose={() => setOpenLogin(false)}
-        onSuccess={() => setIsLoggedIn(true)}
-      />
-
-      <ProfileDrawer
-        open={openDrawer}
-        onClose={() => setOpenDrawer(false)}
-        onLoggedOut={() => setIsLoggedIn(false)}
-      />
+      {/* ================= TIMER BAR ================= */}
+      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
+        ⏱ Complete your booking in{" "}
+        <span className="font-semibold">06:30</span> mins
+      </div>
 
       {/* ================= SEAT MAP ================= */}
-      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
-        ⏱ Complete your booking in <span className="font-semibold">06:30</span> mins
-      </div>
       <div className="w-full flex justify-center mt-6 md:mt-10 relative">
-        {/* ZOOM */}
+
+        {/* ZOOM CONTROLS */}
         <div className="fixed md:absolute bottom-24 right-4 md:right-10 md:top-1/2 z-50 flex flex-col gap-2">
           <button
             onClick={() => setZoom((z) => Math.min(z + 0.1, 1.6))}
-            className="h-10 w-10  md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
+            className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
           >
             <Plus />
           </button>
+
           <button
             onClick={() => setZoom((z) => Math.max(z - 0.1, 0.6))}
             className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
@@ -126,6 +121,7 @@ export default function BuyTicketsPage({
           </button>
         </div>
 
+        {/* SEAT LAYOUT */}
         <div
           className="transition-transform"
           style={{ transform: `scale(${zoom})` }}

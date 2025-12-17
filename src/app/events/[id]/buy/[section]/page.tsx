@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-import Logo from "@/assets/logored.png";
 import { EVENTS } from "@/components/EventCard";
-import ProfileLoginModal from "@/components/ProfileLogin";
-import ProfileDrawer from "@/components/ProfileDrawer";
+import Header from "@/components/Header";
 
 const PRICE_MAP: Record<string, number> = {
   platinum: 7000,
@@ -34,32 +32,18 @@ export default function TicketQuantityPage({
     return <div className="p-10 text-center">Invalid ticket</div>;
   }
 
-  /* ---------------- LOGIN ---------------- */
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [openLogin, setOpenLogin] = useState(false);
-  const [openDrawer, setOpenDrawer] = useState(false);
+  /* ---------------- TIMER ---------------- */
   const [timeLeft, setTimeLeft] = useState(6 * 60 + 30); // 06:30
-const [timeOver, setTimeOver] = useState(false);
-
-useEffect(() => {
-  if (timeLeft <= 0) {
-    setTimeOver(true);
-    return;
-  }
-
-  const interval = setInterval(() => {
-    setTimeLeft((t) => t - 1);
-  }, 1000);
-
-  return () => clearInterval(interval);
-}, [timeLeft]);
-
 
   useEffect(() => {
-    if (localStorage.getItem("logged_in") === "true") {
-      setIsLoggedIn(true);
-    }
-  }, []);
+    if (timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((t) => t - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timeLeft]);
 
   /* ---------------- QTY ---------------- */
   const [qty, setQty] = useState(1);
@@ -76,64 +60,65 @@ useEffect(() => {
     };
 
     localStorage.setItem("cart", JSON.stringify(cartItem));
-
     router.push("/events/buy/checkout");
   };
 
   return (
-    
-    <div className="min-h-screen bg-white text-black">
-      {/* ================= HEADER ================= */}
-      <header className="w-full border-b bg-white px-6 py-3 flex items-center justify-between">
-        <Image
-          src={Logo}
-          alt="Hayya"
-          width={110}
-          height={36}
-          className="cursor-pointer rounded-2xl"
-          onClick={() => (window.location.href = "/")}
-        />
+    <div className="min-h-screen bg-white text-black pb-28">
 
-        <div className="text-center">
-          <h2 className="text-sm font-semibold truncate max-w-[300px]">
+      {/* ================= MOBILE SLIM HEADER ================= */}
+      <div className="md:hidden sticky top-0 z-50 bg-white border-b">
+        <div className="flex items-center justify-between px-3 h-12">
+          {/* Logo */}
+          <div className="w-8">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={28}
+              height={28}
+              priority
+            />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-sm font-semibold text-black truncate max-w-[220px] text-center">
             {event.title}
-          </h2>
-          <p className="text-xs text-gray-500">
-            {event.dateTime} • {event.location}
-          </p>
+          </h1>
+
+          {/* Login */}
+          <button className="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center text-sm">
+            U
+          </button>
         </div>
+      </div>
 
-        <button
-          onClick={() =>
-            isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+      {/* ================= DESKTOP HEADER ================= */}
+      <div className="hidden md:block">
+        <Header
+          centerContent={
+            <>
+              <h1 className="text-[15px] font-semibold text-black truncate max-w-[420px]">
+                {event.title}
+              </h1>
+              <p className="text-[12px] text-zinc-500">
+                {event.dateTime} • {event.location}
+              </p>
+            </>
           }
-          className="h-9 w-9 rounded-full bg-black text-white text-sm font-semibold"
-        >
-          U
-        </button>
-      </header>
+        />
+      </div>
 
-      <ProfileLoginModal
-        open={openLogin}
-        onClose={() => setOpenLogin(false)}
-        onSuccess={() => setIsLoggedIn(true)}
-      />
-      <ProfileDrawer
-        open={openDrawer}
-        onClose={() => setOpenDrawer(false)}
-        onLoggedOut={() => setIsLoggedIn(false)}
-      />
+      {/* ================= TIMER BAR ================= */}
+      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
+        ⏱ Complete your booking in{" "}
+        <span className="font-semibold">
+          {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:
+          {String(timeLeft % 60).padStart(2, "0")}
+        </span>{" "}
+        mins
+      </div>
 
       {/* ================= CONTENT ================= */}
-      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
-  ⏱ Complete your booking in{" "}
-  <span className="font-semibold">
-    {String(Math.floor(timeLeft / 60)).padStart(2, "0")}:
-    {String(timeLeft % 60).padStart(2, "0")}
-  </span>{" "}
-  mins
-</div>
-
       <div className="max-w-3xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-semibold mb-2">
           Phase 2 — {section.toUpperCase()}
@@ -149,23 +134,22 @@ useEffect(() => {
           </div>
 
           <div className="flex items-center gap-4">
-  <button
-    onClick={() => setQty((q) => Math.max(1, q - 1))}
-    className="h-10 w-10 rounded-3xl !bg-black flex items-center justify-center hover:!bg-gray-900 transition active:scale-95"
-  >
-    <Minus className="!text-white w-5 h-5" />
-  </button>
+            <button
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              className="h-10 w-10 rounded-3xl bg-black flex items-center justify-center hover:bg-gray-900 transition active:scale-95"
+            >
+              <Minus className="text-white w-5 h-5" />
+            </button>
 
-  <span className="text-lg font-semibold">{qty}</span>
+            <span className="text-lg font-semibold">{qty}</span>
 
-  <button
-    onClick={() => setQty((q) => q + 1)}
-    className="h-10 w-10 rounded-3xl !bg-black flex items-center justify-center hover:!bg-gray-900 transition active:scale-95"
-  >
-    <Plus className="!text-white w-5 h-5" />
-  </button>
-</div>
-
+            <button
+              onClick={() => setQty((q) => q + 1)}
+              className="h-10 w-10 rounded-3xl bg-black flex items-center justify-center hover:bg-gray-900 transition active:scale-95"
+            >
+              <Plus className="text-white w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 

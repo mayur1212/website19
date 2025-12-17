@@ -1,47 +1,17 @@
 "use client";
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import HayyaLogo from "@/assets/logored.png";
-import Footer from "@/components/Footer"; // <-- ADDED
+import SlimHeader from "@/components/SlimHeader";
+import Footer from "@/components/Footer";
 
 export default function TermsPage() {
-  const router = useRouter();
-
-  const goHome = () => {
-    sessionStorage.setItem("openProfileOnce", "true");
-    router.push("/");
-  };
-
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
 
-      {/* ⭐ FIXED TOP HEADER (same as Privacy Page) */}
-      <div
-        className="
-          w-full flex items-center justify-center
-          px-6 py-6 bg-white 
-          border-b shadow-sm 
-          sticky top-0 z-[999]
-          relative
-        "
-      >
-        {/* ⭐ BIGGER LOGO ON LEFT (CLICKABLE) */}
-        <Image
-          src={HayyaLogo}
-          alt="Hayya Logo"
-          onClick={goHome}
-          className="
-            h-17 mt-1 w-27 rounded-xl cursor-pointer
-            absolute left-4 sm:left-6 md:left-10
-          "
-        />
-
-        {/* ⭐ CENTER TITLE */}
-        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold">
-          Terms & Conditions
-        </h1>
-      </div>
+      {/* ✅ SLIM HEADER (IDENTICAL DIMENSIONS TO MAIN HEADER) */}
+      <SlimHeader
+        title="Terms & Conditions"
+        subtitle="Please read carefully before using Hayya"
+      />
 
       {/* ⭐ MAIN CONTENT */}
       <div className="px-4 sm:px-6 lg:px-10 py-10 w-full flex-grow">
@@ -54,7 +24,9 @@ export default function TermsPage() {
 
           {/* 1. ACCEPTANCE */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">1. Acceptance of Terms</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              1. Acceptance of Terms
+            </h2>
             <p>
               These Terms of Service (“Terms”) govern your use of the Hayya platform,
               including our website, mobile app, and all related services (“Platform”).
@@ -65,7 +37,9 @@ export default function TermsPage() {
 
           {/* 2. ELIGIBILITY */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">2. Eligibility</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              2. Eligibility
+            </h2>
             <p>
               You must be at least 18 years of age to access or use the Platform. By
               creating an account, you confirm that all the information you provide is
@@ -75,7 +49,9 @@ export default function TermsPage() {
 
           {/* 3. USER RESPONSIBILITIES */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">3. User Responsibilities</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              3. User Responsibilities
+            </h2>
             <p>
               You agree to use the Platform only for lawful purposes. You must not misuse
               the Platform, attempt to hack systems, create multiple fraudulent accounts,
@@ -85,7 +61,9 @@ export default function TermsPage() {
 
           {/* 4. SERVICES OVERVIEW */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">4. Services Overview</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              4. Services Overview
+            </h2>
             <p>
               Hayya provides an event discovery, bookings, and engagement platform.
               We act solely as an aggregator. All event details, pricing, and availability
@@ -95,7 +73,9 @@ export default function TermsPage() {
 
           {/* 5. BOOKINGS & PAYMENTS */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">5. Bookings & Payments</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              5. Bookings & Payments
+            </h2>
             <p>
               All bookings made on the Platform are final and non-transferable. Prices may
               vary depending on availability, venue rules, and partner policies. Payments
@@ -105,7 +85,9 @@ export default function TermsPage() {
 
           {/* 6. REFUND POLICY */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">6. Refund Policy</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              6. Refund Policy
+            </h2>
             <p>
               Unless explicitly mentioned, all bookings are non-refundable. Refunds, if
               applicable, will follow the policies of the event organizers or partners.
@@ -115,7 +97,9 @@ export default function TermsPage() {
 
           {/* 7. INTELLECTUAL PROPERTY */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">7. Intellectual Property</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              7. Intellectual Property
+            </h2>
             <p>
               All logos, trademarks, graphics, text, and software on the Platform belong to
               Hayya or its licensors. Users may not copy, distribute, modify, or reverse–
@@ -125,7 +109,9 @@ export default function TermsPage() {
 
           {/* 8. PROHIBITED ACTIVITIES */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">8. Prohibited Activities</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              8. Prohibited Activities
+            </h2>
             <ul className="list-disc ml-5 space-y-2">
               <li>Using fake identities or fraudulent details</li>
               <li>Attempting to hack or disrupt the Platform</li>
@@ -136,7 +122,9 @@ export default function TermsPage() {
 
           {/* 9. MODIFICATIONS */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">9. Modifications to Terms</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              9. Modifications to Terms
+            </h2>
             <p>
               Hayya may update these Terms at any time. Continued use of the Platform after
               updates means you accept the modified Terms. You are encouraged to review the
@@ -146,7 +134,9 @@ export default function TermsPage() {
 
           {/* 10. CONTACT */}
           <section>
-            <h2 className="font-semibold text-xl mb-2">10. Contact Us</h2>
+            <h2 className="font-semibold text-xl mb-2">
+              10. Contact Us
+            </h2>
             <p>
               For questions or concerns about these Terms, please contact us at:
               <br />
@@ -158,7 +148,7 @@ export default function TermsPage() {
         <div className="h-16" />
       </div>
 
-      {/* ⭐ FOOTER (same as Privacy Page) */}
+      {/* ⭐ FOOTER */}
       <Footer />
     </div>
   );

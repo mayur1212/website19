@@ -2,8 +2,6 @@
 
 import Header from "@/components/Header";
 
-
-
 import TopHindiMovies from "@/components/TopHindiMovies";
 import CrowdFavouriteActivities from "@/components/CrowdFavouriteActivities";
 
@@ -24,24 +22,25 @@ export default function HomePage() {
   return (
     <div className="min-h-screen w-full bg-white">
       <Header />
+
       <TopHindiMovies />
       <CrowdFavouriteActivities />
-      
+
       <HitsFromPreviousWeeks />
 
       <ArtistsInYourDistrict />
-      
+
       <IndiasTopEvents />
       <BestOfEnglishMovies />
       <BestInComedy />
-       <ExperienceIn4DX />
-       <BestOfNightlife />
-       <TimelessHits />
-       <BestMusicEvents />
-       <PremieringThisWeek />
-       <HappeningThisWeek />
-       <Footer />
+      <ExperienceIn4DX />
+      <BestOfNightlife />
+      <TimelessHits />
+      <BestMusicEvents />
+      <PremieringThisWeek />
+      <HappeningThisWeek />
 
+      <Footer />
     </div>
   );
 }

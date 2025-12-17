@@ -14,6 +14,10 @@ import LocationModal from "@/components/LocationModal";
 // ⭐ SEARCH POPUP (NEW)
 import SearchPopup from "@/components/SearchPopup";
 
+
+
+
+
 // ⭐ ICONS (matching District UI)
 import {
   Utensils,
@@ -35,7 +39,17 @@ const NAV_ITEMS = [
   { label: "Stores", href: "/stores" },
 ];
 
-export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
+export default function Header({
+  hideTabs = false,
+  centerContent,
+  variant = "default",
+}: {
+  hideTabs?: boolean;
+  centerContent?: React.ReactNode;
+  variant?: "default" | "slim";
+}) {
+
+
   const pathname = usePathname();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -253,23 +267,35 @@ export default function Header({ hideTabs = false }: { hideTabs?: boolean }) {
         </div>
 
         {/* CENTER NAV */}
-        <nav className="hidden md:flex items-center gap-4 text-sm">
-          {NAV_ITEMS.map(({ label, href }) => {
-            const active = isItemActive(href);
+        {/* CENTER (NAV OR EVENT DETAILS) */}
+<div className="hidden md:flex flex-1 justify-center">
+  {centerContent ? (
+    <div className="text-center leading-tight">
+      {centerContent}
+    </div>
+  ) : (
+    <nav className="flex items-center gap-4 text-sm">
+      {NAV_ITEMS.map(({ label, href }) => {
+        const active = isItemActive(href);
 
-            return (
-              <Link
-                key={label}
-                href={href}
-                className={`px-4 py-1.5 rounded-full transition ${
-                  active ? "bg-red-500 font-bold text-white" : "text-zinc-900 hover:bg-purple-100"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
+        return (
+          <Link
+            key={label}
+            href={href}
+            className={`px-4 py-1.5 rounded-full transition ${
+              active
+                ? "bg-red-500 font-bold text-white"
+                : "text-zinc-900 hover:bg-purple-100"
+            }`}
+          >
+            {label}
+          </Link>
+        );
+      })}
+    </nav>
+  )}
+</div>
+
 
         {/* RIGHT */}
         <div className="flex items-center gap-4">

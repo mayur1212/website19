@@ -1,3 +1,4 @@
+// src/app/events/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -20,27 +21,26 @@ export default function EventsPage() {
 
       <EventHero />
       <ExploreEvents />
+
+      {/* keep Shubh's placement but preserve your styling */}
       <div className="bg-red-50">
         <ArtistsInYourDistrict />
       </div>
-      
 
-      {/* EVENT CARD SECTION */}
+      {/* EVENT CARD SECTION with your interactive props */}
       <EventCard
         quickFilter={quickFilter}
         modalFilters={modalFilters}
         onOpenModal={() => setOpenFilterModal(true)}
-        onQuickSelect={(chip) =>
-          setQuickFilter(chip === quickFilter ? null : chip)
-        }
+        onQuickSelect={(chip) => setQuickFilter(chip === quickFilter ? null : chip)}
       />
 
-      {/* FILTER MODAL */}
+      {/* FILTER MODAL (your interactive modal) */}
       <EventFilterModal
         open={openFilterModal}
         onClose={() => setOpenFilterModal(false)}
         selectedFilters={modalFilters}
-        onApply={(filters) => setModalFilters(filters)} // ★ FIXED
+        onApply={(filters) => setModalFilters(filters)}
       />
 
       <Footer />

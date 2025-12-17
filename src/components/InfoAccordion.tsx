@@ -56,42 +56,41 @@ export default function InfoAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+    setOpenIndex((prev) => (prev === index ? null : index));
   };
 
   return (
     <div className="w-full bg-[#f1f1f2] py-10">
       <div className="max-w-6xl mx-auto px-4 space-y-4">
-        {AccordionData.map((item, index: number) => (
+        {AccordionData.map((item, index) => (
           <div
             key={index}
             className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition"
           >
+            {/* Header — items-start so wrapped title stays top-left */}
             <button
               onClick={() => toggle(index)}
-              className="w-full flex justify-between items-center px-6 py-4"
+              className="w-full flex justify-between items-start px-6 py-4 cursor-pointer"
+              aria-expanded={openIndex === index}
+              aria-controls={`accordion-content-${index}`}
             >
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-lg font-semibold text-gray-900 text-left leading-snug">
                 {item.title}
               </p>
 
+              {/* chevron gets a small top margin so it visually centers beside multi-line title */}
               <ChevronDown
-                className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
+                className={`w-5 h-5 text-gray-600 transition-transform duration-300 mt-1 ${openIndex === index ? "rotate-180" : ""}`}
+                aria-hidden
               />
             </button>
 
+            {/* Content */}
             <div
-              className={`px-6 transition-all duration-300 ease-in-out ${
-                openIndex === index
-                  ? "max-h-[500px] opacity-100 pb-4"
-                  : "max-h-0 opacity-0"
-              } overflow-hidden`}
+              id={`accordion-content-${index}`}
+              className={`px-6 transition-all duration-300 ease-in-out ${openIndex === index ? "max-h-[500px] opacity-100 pb-4" : "max-h-0 opacity-0"} overflow-hidden`}
             >
-              <p className="text-gray-700 leading-relaxed">
-                {item.content}
-              </p>
+              <p className="text-gray-700 leading-relaxed text-left">{item.content}</p>
             </div>
           </div>
         ))}

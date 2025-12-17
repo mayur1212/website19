@@ -8,26 +8,23 @@ import Footer from "@/components/Footer";
 export default function HomePage() {
   return (
     <main className="bg-white text-black">
-
       {/* Header */}
       <Header />
 
-      {/* Main Content Container */}
+      {/* ⭐ FULL-WIDTH BANNER */}
+      <div className="">
+        <FeaturedCarousel />
+      </div>
+
+      {/* Center Content Container */}
       <div className="max-w-[1350px] mx-auto px-1 md:px-6">
-
-        {/* Hero / Banner Carousel */}
-        <div className="mt-6">
-          <FeaturedCarousel />
-        </div>
-
-        {/* Stories Across Regions Section */}
+        {/* Stories Across Regions */}
         <div className="mt-12">
           <RegionStories />
         </div>
 
         {/* Only in Theatres */}
         <OnlyInTheatres />
-
       </div>
 
       {/* ⭐ FULL WIDTH ACCORDION SECTION */}
@@ -37,7 +34,6 @@ export default function HomePage() {
 
       {/* Footer */}
       <Footer />
-
     </main>
   );
 }

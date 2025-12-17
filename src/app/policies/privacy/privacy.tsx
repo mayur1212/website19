@@ -1,48 +1,17 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import HayyaLogo from "@/assets/logored.png";
-import Footer from "@/components/Footer"; // <-- ADDED
+import SlimHeader from "@/components/SlimHeader";
+import Footer from "@/components/Footer";
 
 export default function Privacy() {
-  const router = useRouter();
-
-  const goHome = () => {
-    sessionStorage.setItem("openProfileOnce", "true");
-    router.push("/");
-  };
-
   return (
     <div className="min-h-screen bg-white text-black flex flex-col">
 
-      {/* ⭐ FIXED TOP HEADER */}
-      <div
-        className="
-          w-full flex items-center justify-center
-          px-7 py-7 bg-white 
-          border-b shadow-sm 
-          sticky top-0 z-[999]
-          relative
-        "
-      >
-        {/* ⭐ BIGGER LOGO AT TOP LEFT */}
-        <Image
-          src={HayyaLogo}
-          alt="Hayya Logo"
-          onClick={goHome}
-          className="
-            h-17 w-27 mt-1 rounded-xl cursor-pointer
-            absolute left-4 sm:left-6 md:left-10
-          "
-        />
-
-        {/* ⭐ CENTERED PAGE TITLE */}
-        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold">
-          Privacy Policy
-        </h1>
-      </div>
+      {/* ✅ SLIM HEADER (SAME DIMENSIONS AS MAIN HEADER) */}
+      <SlimHeader
+        title="Privacy Policy"
+        subtitle="How we collect, use, and protect your data"
+      />
 
       {/* ⭐ MAIN CONTENT */}
       <div className="w-full px-4 sm:px-6 lg:px-10 py-10 flex-grow">
@@ -52,10 +21,12 @@ export default function Privacy() {
         </p>
 
         <div className="space-y-10 leading-relaxed text-[16px] text-zinc-700">
-          
-          {/* INTRODUCTION */}
+
+          {/* 1. INTRODUCTION */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">1. Introduction</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              1. Introduction
+            </h2>
             <p>
               Your privacy is extremely important to us. This Privacy Policy explains how
               Hayya collects, uses, stores, and protects your personal information when you
@@ -64,25 +35,44 @@ export default function Privacy() {
             </p>
           </section>
 
-          {/* INFORMATION WE COLLECT */}
+          {/* 2. INFORMATION WE COLLECT */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">2. Information We Collect</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              2. Information We Collect
+            </h2>
             <p className="mb-3">
-              We collect information to provide better services and ensure a secure, personalized experience.
+              We collect information to provide better services and ensure a secure,
+              personalized experience.
             </p>
 
             <ul className="list-disc ml-6 space-y-2">
-              <li><strong>Personal Information:</strong> Name, email, phone number, gender, date of birth.</li>
-              <li><strong>Booking Details:</strong> Event selections, payments, preferences.</li>
-              <li><strong>Usage Data:</strong> Logs, interactions, device information, crash reports.</li>
-              <li><strong>Location Data:</strong> If you grant permission, we may access your live or approximate location.</li>
-              <li><strong>Cookies & Tracking:</strong> To improve UI, personalization, and security.</li>
+              <li>
+                <strong>Personal Information:</strong> Name, email, phone number, gender,
+                date of birth.
+              </li>
+              <li>
+                <strong>Booking Details:</strong> Event selections, payments, preferences.
+              </li>
+              <li>
+                <strong>Usage Data:</strong> Logs, interactions, device information, crash
+                reports.
+              </li>
+              <li>
+                <strong>Location Data:</strong> If you grant permission, we may access your
+                live or approximate location.
+              </li>
+              <li>
+                <strong>Cookies & Tracking:</strong> To improve UI, personalization, and
+                security.
+              </li>
             </ul>
           </section>
 
-          {/* HOW WE USE THIS INFORMATION */}
+          {/* 3. HOW WE USE INFORMATION */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">3. How We Use Your Information</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              3. How We Use Your Information
+            </h2>
             <ul className="list-disc ml-6 space-y-2">
               <li>To create and manage your account.</li>
               <li>To process bookings and payments.</li>
@@ -93,38 +83,51 @@ export default function Privacy() {
             </ul>
           </section>
 
-          {/* SHARING POLICY */}
+          {/* 4. SHARING POLICY */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">4. Sharing of Information</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              4. Sharing of Information
+            </h2>
             <p>
-              Your information is <strong>never sold</strong> to third parties.  
+              Your information is <strong>never sold</strong> to third parties.
               We only share data with:
             </p>
 
             <ul className="list-disc ml-6 space-y-2 mt-2">
-              <li><strong>Event Partners:</strong> For confirming bookings.</li>
-              <li><strong>Payment Gateways:</strong> To process secure payments.</li>
-              <li><strong>Legal Authorities:</strong> Only if required by law.</li>
+              <li>
+                <strong>Event Partners:</strong> For confirming bookings.
+              </li>
+              <li>
+                <strong>Payment Gateways:</strong> To process secure payments.
+              </li>
+              <li>
+                <strong>Legal Authorities:</strong> Only if required by law.
+              </li>
             </ul>
 
             <p className="mt-3">
-              All partners are required to follow strict confidentiality and security standards.
+              All partners are required to follow strict confidentiality and security
+              standards.
             </p>
           </section>
 
-          {/* DATA SECURITY */}
+          {/* 5. DATA SECURITY */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">5. Data Protection & Security</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              5. Data Protection & Security
+            </h2>
             <p>
               We use industry-standard encryption, secure servers, and access controls to
               protect your data. While we follow best practices, no online system is 100%
-              secure, and we encourage users to keep their accounts protected.
+              secure.
             </p>
           </section>
 
-          {/* YOUR RIGHTS */}
+          {/* 6. YOUR RIGHTS */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">6. Your Rights</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              6. Your Rights
+            </h2>
             <ul className="list-disc ml-6 space-y-2">
               <li>Right to access your data.</li>
               <li>Right to request corrections.</li>
@@ -133,28 +136,32 @@ export default function Privacy() {
             </ul>
           </section>
 
-          {/* POLICY UPDATES */}
+          {/* 7. POLICY UPDATES */}
           <section>
-            <h2 className="text-xl font-semibold mb-2">7. Changes to This Policy</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              7. Changes to This Policy
+            </h2>
             <p>
               We may revise this Privacy Policy periodically. Continued use of the Platform
-              indicates acceptance of the updated policy. We recommend reviewing it
-              regularly for changes.
+              indicates acceptance of the updated policy.
             </p>
           </section>
 
-          {/* CONTACT */}
+          {/* 8. CONTACT */}
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-2">8. Contact Us</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              8. Contact Us
+            </h2>
             <p>
-              For privacy-related queries, reach us at:<br />
+              For privacy-related queries, reach us at:
+              <br />
               <strong>support@hayya.com</strong>
             </p>
           </section>
         </div>
       </div>
 
-      {/* ⭐ FOOTER ADDED HERE */}
+      {/* ⭐ FOOTER */}
       <Footer />
     </div>
   );

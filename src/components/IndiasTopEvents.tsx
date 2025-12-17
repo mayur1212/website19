@@ -66,6 +66,7 @@ export default function IndiasTopEvents() {
           India&apos;s Top Events
         </h2>
     
+
        {/* Left arrow */}
 <button
   type="button"

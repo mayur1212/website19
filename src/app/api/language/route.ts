@@ -7,9 +7,10 @@ type Language = "en" | "ar";
 export async function GET() {
   try {
     const session = await getSession();
+    const sess = session as any;
 
     // default "en" if not set
-    const language = (session.language as Language) || "en";
+    const language = (sess.language as Language) || "en";
 
     return NextResponse.json({ language }, { status: 200 });
   } catch (error) {
@@ -18,7 +19,6 @@ export async function GET() {
     return NextResponse.json({ language: "en" }, { status: 200 });
   }
 }
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -33,8 +33,11 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await getSession();
-    session.language = language;
-    await session.save();
+    const sess = session as any;
+    sess.language = language;
+    if (typeof sess.save === "function") {
+      await sess.save();
+    }
 
     return NextResponse.json({ success: true, language }, { status: 200 });
   } catch (error) {
@@ -45,3 +48,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
