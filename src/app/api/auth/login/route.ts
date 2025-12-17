@@ -6,7 +6,11 @@ import type { IronSession } from "iron-session";
 /* =========================
    Session typing
 ========================= */
-type SessionUser = Record<string, unknown>;
+type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 type SessionData = {
   user?: SessionUser;
@@ -24,9 +28,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ✅ validateUser returns boolean
+    // validate user payload
     const isValid = validateUser(userData);
-
     if (!isValid) {
       return NextResponse.json(
         { error: "Invalid user data" },
@@ -34,7 +37,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const session = (await getSession()) as IronSession<SessionData>;
+    // get session
+    const session = (await getSession()) as IronSession<SessionData> | null;
 
     if (!session) {
       return NextResponse.json(
@@ -43,22 +47,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ✅ userData is already an object → safe
-    session.user = userData as SessionUser;
+    // ✅ DEFINE USER PROPERLY (this was missing)
+    const user: SessionUser = {
+      id: String(userData.id),
+      name: String(userData.name),
+      email: String(userData.email),
+    };
 
-    await session.save();
+    session.user = user;
 
-    return NextResponse.json({
-      success: true,
-      user: session.user,
-    });
+    if (typeof session.save === "function") {
+      await session.save();
+    }
+
+    return NextResponse.json({ success: true, user });
   } catch (error) {
-    console.error("Error logging in:", error);
+    console.error("Login error:", error);
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Failed to login",
+        error: error instanceof Error ? error.message : "Failed to login",
       },
       { status: 500 }
     );

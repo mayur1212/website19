@@ -44,9 +44,14 @@ export default function OrderReviewPage() {
   const params = useParams<{ orderId?: string }>();
   const searchParams = useSearchParams();
 
-  const orderId = (params?.orderId as string) ?? "unknown";
+  // ✅ Guard clause (VERY IMPORTANT)
+  if (!searchParams) {
+    return null; // or loading UI
+  }
 
-  // read values from URL
+  const orderId = params?.orderId ?? "unknown";
+
+  // ✅ read values from URL (SAFE now)
   const encsessionid = searchParams.get("encsessionid") ?? "";
   const seatsParam = searchParams.get("seats") ?? "";
   const amountParam = searchParams.get("amount") ?? "0";
@@ -54,6 +59,7 @@ export default function OrderReviewPage() {
   const theatre = searchParams.get("theatre") ?? "Theatre name";
   const slot = searchParams.get("slot") ?? "04:00 PM";
   const fromdate = searchParams.get("fromdate") ?? "";
+
 
   // parse seats
   const seats = seatsParam ? seatsParam.split(",").map((s) => s.trim()) : [];

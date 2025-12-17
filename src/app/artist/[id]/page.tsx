@@ -4,6 +4,8 @@ import Image from "next/image";
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useRouter } from "next/navigation";
+
 
 // ⭐ ARTIST DATA
 const ARTIST_DATA: any = {
@@ -127,6 +129,8 @@ worldwide with his deep connection to Sufi thought, Punjabi folklore, and poetic
 };
 
 export default function ArtistPage(props: { params: Promise<{ id: string }> }) {
+
+const router = useRouter();
   const { id } = React.use(props.params);
   const artist = ARTIST_DATA[id];
 
@@ -196,41 +200,48 @@ export default function ArtistPage(props: { params: Promise<{ id: string }> }) {
 
       {/* ========================== EVENTS ========================== */}
       <section className="px-6 lg:px-20 pb-20">
-        <h2 className="text-xl text-black font-bold mb-6">All Events</h2>
+  <h2 className="text-xl text-black font-bold mb-6">All Events</h2>
 
-        {artist.events.length === 0 ? (
-          <p className="text-gray-500">No events available.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artist.events.map((ev: any, index: number) => (
-              <div
-                key={index}
-                className="rounded-2xl bg-white shadow hover:shadow-xl transition p-3 border"
-              >
-                <div className="relative h-[260px] rounded-xl overflow-hidden">
-                  <Image src={ev.image} alt={ev.title} fill className="object-cover" />
-                </div>
-
-                <div className="mt-4">
-                  <p className="text-xs text-gray-500">{ev.date}</p>
-
-                  <h3 className="text-lg font-semibold text-black mt-1">
-                    {ev.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 mt-1">{ev.location}</p>
-
-                  <p className="text-sm font-semibold text-black mt-2">
-                    {ev.price}
-                  </p>
-                </div>
-              </div>
-            ))}
+  {artist.events.length === 0 ? (
+    <p className="text-gray-500">No events available.</p>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {artist.events.map((ev: any, index: number) => (
+        <div
+          key={index}
+          onClick={() => router.push(`/events/${ev.id}`)}   // ✅ NAVIGATION
+          className="cursor-pointer rounded-2xl bg-white shadow hover:shadow-xl transition p-3 border hover:scale-[1.02]"
+        >
+          <div className="relative h-[260px] rounded-xl overflow-hidden">
+            <Image
+              src={ev.image}
+              alt={ev.title}
+              fill
+              className="object-cover"
+            />
           </div>
-        )}
-      </section>
 
-      <Footer />
+          <div className="mt-4">
+            <p className="text-xs text-gray-500">{ev.date}</p>
+
+            <h3 className="text-lg font-semibold text-black mt-1">
+              {ev.title}
+            </h3>
+
+            <p className="text-sm text-gray-600 mt-1">
+              {ev.location}
+            </p>
+
+            <p className="text-sm font-semibold text-black mt-2">
+              {ev.price}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
+      <Footer />  
     </div>
   );
 }

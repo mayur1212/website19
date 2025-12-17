@@ -123,14 +123,28 @@ export default function ArtistsInYourDistrict() {
                   style={{ width: CARD_SIZE, marginRight: GAP }}
                 >
                   {/* CIRCLE IMAGE */}
-                  <div className="relative w-[172px] h-[172px] rounded-full overflow-hidden shadow bg-white">
-                    <Image
-                      src={artist.image}
-                      alt={artist.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                  {/* CIRCLE IMAGE */}
+<div
+  className="
+    relative w-[172px] h-[172px] rounded-full overflow-hidden bg-white
+    shadow-sm
+    transition-all duration-300 ease-out
+    hover:shadow-xl hover:scale-[1.06]
+    cursor-pointer
+  "
+>
+  <Image
+    src={artist.image}
+    alt={artist.name}
+    fill
+    className="
+      object-cover
+      transition-transform duration-300 ease-out
+      hover:scale-110
+    "
+  />
+</div>
+
 
                   {/* NAME */}
                   <p className="mt-4 text-base font-semibold text-zinc-900 text-center">

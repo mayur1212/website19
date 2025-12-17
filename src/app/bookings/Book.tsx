@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import SlimHeader from "@/components/SlimHeader";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 
 /* ================= TAB TYPE ================= */
 
@@ -51,9 +51,11 @@ type MovieBooking = {
 /* ================= COMPONENT ================= */
 
 const Book = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("dining");
+  const [activeTab, setActiveTab] = useState("dining");
 
-  /* ================= DATA ================= */
+  /* -------------------------------------------------------
+   * STATIC DATA
+   * ----------------------------------------------------- */
 
   const diningBookings: DiningBooking[] = [
     {
@@ -108,21 +110,11 @@ const Book = () => {
       totalAmount: "₹1280.00",
       qr: "/qr-sample.png",
     },
-    {
-      id: 303,
-      title: "Avatar: Fire and Ash",
-      format: "English, 3D",
-      dateTime: "Wed, 27 Dec | 9:15 PM",
-      theatre: "Cinepolis: Seawoods Grand Central",
-      poster: "/movies/a3.jpg",
-      bookingId: "AVT9923Q",
-      seats: "H10, H11, H12, H13",
-      totalAmount: "₹2400.00",
-      qr: "/qr-sample.png",
-    },
   ];
 
-  /* ================= CARDS ================= */
+  /* -------------------------------------------------------
+   * CARD COMPONENTS
+   * ----------------------------------------------------- */
 
   const DiningCard = ({ item }: { item: DiningBooking }) => (
     <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-4 flex flex-col md:flex-row gap-4">
@@ -133,21 +125,25 @@ const Book = () => {
       <div className="flex flex-col justify-between flex-1">
         <div>
           <h3 className="text-lg font-semibold">{item.name}</h3>
-          <p className="text-sm text-zinc-600">{item.location}</p>
+          <p className="text-sm text-zinc-600 mt-1">{item.location}</p>
 
-          <div className="flex gap-2 mt-3 text-xs">
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.date}</span>
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.time}</span>
+          <div className="flex flex-wrap gap-2 mt-3 text-xs">
+            <span className="bg-zinc-100 px-3 py-1 rounded-full">
+              {item.date}
+            </span>
+            <span className="bg-zinc-100 px-3 py-1 rounded-full">
+              {item.time}
+            </span>
             <span className="bg-zinc-100 px-3 py-1 rounded-full">
               {item.guests} Guests
             </span>
           </div>
         </div>
 
-        <div className="flex justify-between mt-4">
+        <div className="flex items-center justify-between mt-4">
           <p className="font-semibold">{item.amount}</p>
-          <p className="text-red-600 font-semibold">{item.status}</p>
-          <button className="px-4 py-2 bg-black text-white rounded-full text-sm">
+          <span className="text-red-600 text-sm">{item.status}</span>
+          <button className="px-4 py-2 rounded-full bg-black text-white text-sm">
             View Details
           </button>
         </div>
@@ -155,7 +151,7 @@ const Book = () => {
     </div>
   );
 
-  const EventCard = ({ item }: { item: EventBooking }) => (
+  const EventCard = ({ item }: any) => (
     <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-5">
       <div className="flex gap-4">
         <div className="relative w-28 h-36 rounded-xl overflow-hidden">
@@ -168,75 +164,95 @@ const Book = () => {
         </div>
       </div>
 
-      <div className="flex justify-center my-4">
+      <div className="flex justify-center py-4">
         <Image src={item.qr} alt="QR" width={110} height={110} />
       </div>
 
-      <p className="text-sm">Booking ID: <b>{item.bookingId}</b></p>
-      <p className="text-sm">Seats: <b>{item.seats}</b></p>
-      <p className="text-sm mt-2">Amount: <b>{item.amount}</b></p>
+      <p className="text-sm">
+        Booking ID: <b>{item.bookingId}</b>
+      </p>
+      <p className="text-sm">
+        Seats: <b>{item.seats}</b>
+      </p>
+      <p className="mt-2">
+        Amount: <b>{item.amount}</b>
+      </p>
     </div>
   );
 
-  const MovieCard = ({ item }: { item: MovieBooking }) => (
-    <div className="w-full max-w-lg mx-auto mb-8 px-3">
+  const MovieCard = ({ item }: any) => (
+    <div className="w-full max-w-lg mx-auto mb-8">
       <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-        <div className="flex gap-4 p-5">
-          <div className="relative w-28 h-36 rounded-xl overflow-hidden">
-            <Image src={item.poster} alt={item.title} fill className="object-cover" />
-          </div>
-          <div>
-            <h2 className="font-bold">{item.title}</h2>
-            <p className="text-sm text-zinc-600">{item.format}</p>
-            <p className="text-sm text-zinc-600">{item.dateTime}</p>
-            <p className="text-sm">{item.theatre}</p>
-          </div>
+        <div className="p-5">
+          <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+          <p className="text-sm text-zinc-600">{item.format}</p>
+          <p className="text-sm text-zinc-600">{item.dateTime}</p>
+          <p className="text-sm text-zinc-600">{item.theatre}</p>
         </div>
 
-        <div className="flex flex-col items-center py-4">
+        <div className="flex justify-center py-4">
           <Image src={item.qr} alt="QR" width={120} height={120} />
-          <p className="mt-2 text-sm"><b>{item.seats}</b></p>
-          <p className="text-sm"><b>{item.bookingId}</b></p>
         </div>
 
-        <div className="flex justify-between px-6 py-4 font-semibold border-t">
-          <span>Total Amount</span>
+        <div className="px-5 pb-5 text-sm">
+          Seats: <b>{item.seats}</b>
+          <br />
+          Booking ID: <b>{item.bookingId}</b>
+        </div>
+
+        <div className="border-t px-5 py-4 flex justify-between font-semibold">
+          <span>Total</span>
           <span>{item.totalAmount}</span>
         </div>
       </div>
     </div>
   );
 
-  /* ================= RENDER ================= */
+  /* -------------------------------------------------------
+   * CONTENT SWITCH
+   * ----------------------------------------------------- */
 
   const renderContent = () => {
     if (activeTab === "dining")
-      return diningBookings.map((i) => <DiningCard key={i.id} item={i} />);
+      return diningBookings.map((item) => (
+        <DiningCard key={item.id} item={item} />
+      ));
+
     if (activeTab === "events")
-      return eventBookings.map((i) => <EventCard key={i.id} item={i} />);
-    return movieBookings.map((i) => <MovieCard key={i.id} item={i} />);
+      return eventBookings.map((item) => (
+        <EventCard key={item.id} item={item} />
+      ));
+
+    if (activeTab === "movies")
+      return movieBookings.map((item) => (
+        <MovieCard key={item.id} item={item} />
+      ));
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b">
-        <div className="max-w-6xl mx-auto px-4 py-3 grid grid-cols-3 items-center">
-          <Link href="/">
-            <Image src="/logored.png" alt="Logo" width={110} height={36} />
-          </Link>
-          <h1 className="text-center font-semibold">Review your bookings</h1>
-          <div />
-        </div>
-      </header>
+  /* -------------------------------------------------------
+   * FINAL UI
+   * ----------------------------------------------------- */
 
-      <div className="flex justify-center mt-6">
-        <div className="bg-zinc-100 rounded-full p-2 flex gap-2">
-          {(["dining", "events", "movies"] as TabType[]).map((tab) => (
+  return (
+    <div className="min-h-screen bg-white text-black flex flex-col">
+
+      {/* ✅ SLIM HEADER (IDENTICAL DIMENSIONS TO MAIN HEADER) */}
+      <SlimHeader
+        title="Review your bookings"
+        subtitle="Dining, events & movie tickets"
+      />
+
+      {/* TABS */}
+      <div className="flex justify-center mt-6 px-4">
+        <div className="flex gap-3 bg-zinc-100 rounded-full px-2 py-2">
+          {["dining", "events", "movies"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                activeTab === tab ? "bg-red-500 text-white" : ""
+                activeTab === tab
+                  ? "bg-red-500 text-white shadow"
+                  : "text-zinc-700"
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -245,8 +261,9 @@ const Book = () => {
         </div>
       </div>
 
-      <main className="flex-1 px-4 mt-8 max-w-4xl mx-auto">
-        {renderContent()}
+      {/* CONTENT */}
+      <main className="flex-1 px-4 mt-8">
+        <div className="max-w-3xl mx-auto">{renderContent()}</div>
       </main>
 
       <Footer />

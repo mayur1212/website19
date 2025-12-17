@@ -1,34 +1,20 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import type { IronSession } from "iron-session";
-
-type SessionData = {
-  user?: any;
-};
 
 export async function POST() {
   try {
-    // ✅ Properly typed session
-    const session = (await getSession()) as IronSession<SessionData>;
+    const session = await getSession();
 
-    if (!session) {
-      return NextResponse.json(
-        { error: "Session not initialized" },
-        { status: 500 }
-      );
+    if (session && typeof session.destroy === "function") {
+      session.destroy();
     }
-
-    // ✅ Clear user
-    session.user = undefined;
-
-    // ✅ TS now knows save() exists
-    await session.save();
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error logging out:", error);
+    console.error("Logout error:", error);
+
     return NextResponse.json(
-      { error: "Failed to logout" },
+      { success: false },
       { status: 500 }
     );
   }

@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession, RegionData } from "@/lib/session";
+import { getSession } from "@/lib/session";
+
+type RegionData = {
+  country?: string | undefined;
+  city?: string | undefined;
+  cinema?: string | undefined;
+};
 
 export async function GET() {
   try {
     const session = await getSession();
-    const region: RegionData = session.region || {
+    const region: RegionData = (session as any)?.region ?? {
       country: undefined,
       city: undefined,
       cinema: undefined,
@@ -36,7 +42,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const session = await getSession();
+    const session = await getSession() as any;
+    if (!session) {
+      return NextResponse.json(
+        { error: "No session" },
+        { status: 401 }
+      );
+    }
+
     session.region = {
       country: region.country,
       city: region.city,

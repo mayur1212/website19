@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const AccordionData = [
+type AccordionItem = {
+  title: string;
+  content: string;
+};
+
+const AccordionData: AccordionItem[] = [
   {
     title: "Catch the Trending Blockbusters: Get Your Movie Tickets Now!",
     content: `Want to catch the biggest blockbusters? We’ve curated the Top 20 movies currently showing across theatres near you. 
