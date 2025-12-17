@@ -71,7 +71,8 @@ export default function CrowdFavouriteActivities() {
 
   return (
     <section className="w-full bg-white py-10">
-      <div className="mx-auto w-full max-w-6xl px-8 relative">
+      <div className="mx-auto w-[85%] px-8 relative">
+
 
         {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">

@@ -1,9 +1,13 @@
 // src/app/movies/seat-layout/page.tsx
 "use client";
+import Link from "next/link";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
+import ProfileLoginModal from "@/components/ProfileLogin";
+import ProfileDrawer from "@/components/ProfileDrawer";
 
 /* SAMPLE DATA (unchanged) */
 const SAMPLE_DATA = {
@@ -94,7 +98,6 @@ type Seat = { id: string; number: string; status: SeatStatus };
 type Row = { label: string; seats: Seat[] };
 type Section = { id: string; name: string; price: number; rows: Row[] };
 
-// helper: create one row
 function makeRow(label: string, count: number, occupied: number[] = []): Row {
   const seats: Seat[] = Array.from({ length: count }, (_, i) => {
     const num = i + 1;
@@ -136,35 +139,57 @@ export default function TheatrePage() {
   const cinema = SAMPLE_DATA;
   const router = useRouter();
 
-  const [selectedDate] = useState<number>(5); // just used for label / fromdate
+  const [selectedDate] = useState<number>(5);
   const [activeSlotId, setActiveSlotId] = useState<string>(
     SHOW_SLOTS[1]?.id || "show-0930"
   );
   const [sections, setSections] = useState<Section[]>(INITIAL_SECTIONS);
 
-  // toggle seat selection
+  /* ===== PROFILE LOGIC (ADDED) ===== */
+  const [openLogin, setOpenLogin] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("logged_in");
+    if (saved === "true") setIsLoggedIn(true);
+  }, []);
+
+  const handleLoginSuccess = () => {
+    localStorage.setItem("logged_in", "true");
+    setIsLoggedIn(true);
+    setOpenLogin(false);
+    setOpenDrawer(true);
+  };
+  /* ================================= */
+
   function handleSeatClick(sectionId: string, rowLabel: string, seatId: string) {
     setSections((prev) =>
-      prev.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        return {
-          ...sec,
-          rows: sec.rows.map((row) => {
-            if (row.label !== rowLabel) return row;
-            return {
-              ...row,
-              seats: row.seats.map((seat) => {
-                if (seat.id !== seatId) return seat;
-                if (seat.status === "occupied") return seat;
-                return {
-                  ...seat,
-                  status: seat.status === "selected" ? "available" : "selected",
-                };
-              }),
-            };
-          }),
-        };
-      })
+      prev.map((sec) =>
+        sec.id !== sectionId
+          ? sec
+          : {
+              ...sec,
+              rows: sec.rows.map((row) =>
+                row.label !== rowLabel
+                  ? row
+                  : {
+                      ...row,
+                      seats: row.seats.map((seat) =>
+                        seat.id === seatId && seat.status !== "occupied"
+                          ? {
+                              ...seat,
+                              status:
+                                seat.status === "selected"
+                                  ? "available"
+                                  : "selected",
+                            }
+                          : seat
+                      ),
+                    }
+              ),
+            }
+      )
     );
   }
 
@@ -188,7 +213,6 @@ export default function TheatrePage() {
     0
   );
 
-  // navigate to internal order-review route
   function handlePay() {
     if (selectedSeats.length === 0) return;
 
@@ -214,54 +238,87 @@ export default function TheatrePage() {
     router.push(pathname + search);
   }
 
-  // --- HEADER DATA (for the Zomato-style header) ---
-  const activeMovie: Movie = cinema.movies[1]; // "Tere Ishk Mein"
-  const activeSlot = SHOW_SLOTS.find((s) => s.id === activeSlotId) ?? SHOW_SLOTS[0];
+  const activeMovie: Movie = cinema.movies[1];
+  const activeSlot =
+    SHOW_SLOTS.find((s) => s.id === activeSlotId) ?? SHOW_SLOTS[0];
   const headerDateLabel = `${selectedDate} Dec`;
 
   return (
     <>
-      {/* Zomato-style movie header */}
-      <header className="w-full border-b border-zinc-200 bg-white">
-  <div className="relative flex w-full items-center px-3 py-2 sm:px-4 sm:py-3">
-    {/* LEFT — Logo */}
-    <div className="shrink-0">
+      {/* HEADER */}
+      {/* HEADER — SAME AS MAIN HEADER */}
+<header className="w-full border-b border-zinc-200 bg-white">
+  <div
+    className="
+      relative flex w-full items-center justify-between
+      px-3 py-2
+      sm:px-4
+      lg:px-10
+    "
+  >
+    {/* LEFT — LOGO (CLICKABLE) */}
+    <Link href="/" className="relative shrink-0">
       <Image
         src="/movies/logored.png"
-        alt="dist"
-        width={150}
-        height={42}
-        className="h-6 w-auto object-contain sm:h-8"
+        alt="Logo"
+        width={110}
+        height={33}
+        priority
+        className="
+          rounded-xl
+          w-[80px] h-auto
+          sm:w-[95px]
+          lg:w-[110px]
+          cursor-pointer
+        "
       />
-    </div>
+    </Link>
 
-    {/* CENTER — FULL WIDTH TITLE (responsive) */}
+    {/* CENTER — TITLE */}
     <div
       className="
-        absolute inset-x-14 top-1/2 -translate-y-1/2 text-center
-        sm:inset-x-20
-        md:inset-x-0
+        absolute left-1/2 top-1/2
+        -translate-x-1/2 -translate-y-1/2
+        text-center
       "
     >
-      <h1 className="truncate text-xs font-semibold text-[#050814] sm:text-sm md:text-base">
-        {activeMovie.title}
+      <h1
+        className="
+          truncate font-semibold text-zinc-900
+          text-xs
+          sm:text-sm
+          lg:text-sm
+          max-w-[140px]
+          sm:max-w-[180px]
+          lg:max-w-none
+        "
+      >
+        Review your booking
       </h1>
-      <p className="mt-[2px] line-clamp-1 text-[9px] text-zinc-500 sm:text-[10px] md:text-xs">
-        {headerDateLabel}, {activeSlot.time}{" "}
-        <span className="text-zinc-400">at</span> {cinema.name}
-      </p>
     </div>
 
-    {/* RIGHT — User Avatar */}
-    <div className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-[#101218] text-[10px] font-semibold text-white sm:h-8 sm:w-8 sm:text-[11px] md:h-9 md:w-9">
+    {/* RIGHT — PROFILE */}
+    <button
+      onClick={() =>
+        isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+      }
+      className="
+        flex h-8 w-8 sm:h-9 sm:w-9
+        items-center justify-center
+        rounded-full bg-slate-900 text-white
+        text-xs sm:text-sm
+        font-semibold shadow-sm shrink-0
+      "
+    >
       U
-    </div>
+    </button>
   </div>
 </header>
 
 
 
-      {/* main – mobile full width, card rounded from sm+ */}
+
+
       <main className="mx-auto flex w-full max-w-7xl justify-center px-0 pb-24 pt-4 sm:px-4 sm:pb-32 sm:pt-6">
         {/* center card */}
         <div className="relative w-full max-w-[1200px] bg-white sm:rounded-[20px] sm:border sm:border-zinc-200 sm:shadow-sm">
@@ -363,8 +420,10 @@ export default function TheatrePage() {
                                   stateClasses =
                                     "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400";
                                 else if (seat.status === "selected")
-                                  stateClasses =
-                                    "border-[#9810fa] bg-[#9810fa] text-white shadow-md";
+  stateClasses =
+    "border-[#fd3f01] bg-[#fd3f01] text-white shadow-md";
+
+
 
                                 return (
                                   <button
@@ -403,19 +462,17 @@ export default function TheatrePage() {
     >
       {/* Outer trapezoid */}
       <polygon
-        points="15,15 385,15 400,45 0,45"
-        fill="#c4b5fd"
-        stroke="#a855f7"
-        strokeWidth="4"
-        opacity="0.85"
-      />
+  points="15,15 385,15 400,45 0,45"
+  fill="#e5e5e5"
+  stroke="#000000"
+  strokeWidth="3"
+/>
 
-      {/* Inner top surface */}
-      <polygon
-        points="25,17 375,17 390,40 10,40"
-        fill="#a78bfa"
-        opacity="0.9"
-      />
+<polygon
+  points="25,17 375,17 390,40 10,40"
+  fill="#d4d4d4"
+/>
+
 
       {/* Thin white-ish bottom line */}
       <path
@@ -431,51 +488,76 @@ export default function TheatrePage() {
 
           </div>
 
+          
           {/* BOTTOM BAR – selected seats summary & pay */}
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 backdrop-blur">
-            <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4 sm:py-3">
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-zinc-600">
-                {selectedSeats.length === 0 ? (
-                  <span>No seats selected</span>
-                ) : (
-                  <>
-                    <span className="font-medium text-zinc-800">
-                      {selectedSeats.length} seat
-                      {selectedSeats.length > 1 ? "s" : ""} selected:
-                    </span>
-                    <span className="flex flex-wrap gap-1">
-                      {selectedSeats.map((s: any) => (
-                        <span
-                          key={s.id}
-                          className="rounded-full bg-zinc-100 px-2 py-[2px] text-[10px] sm:text-[11px] font-medium text-zinc-700"
-                        >
-                          {s.id}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="sm:ml-3 font-semibold">
-                      ₹{totalAmount}
-                    </span>
-                  </>
-                )}
-              </div>
+<div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 backdrop-blur">
+  <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 px-3 py-4 
+      sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4 sm:py-5">
 
-              <button
-                onClick={handlePay}
-                disabled={selectedSeats.length === 0}
-                className={[
-                  "w-full rounded-full px-5 py-2 text-sm font-semibold shadow-md transition sm:w-auto",
-                  selectedSeats.length === 0
-                    ? "cursor-not-allowed bg-zinc-300 text-zinc-600"
-                    : "bg-[#9810fa] text-white hover:bg-[#7d0ccc]",
-                ].join(" ")}
+    <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-zinc-600">
+      {selectedSeats.length === 0 ? (
+        <span>No seats selected</span>
+      ) : (
+        <>
+          <span className="font-medium text-zinc-800">
+            {selectedSeats.length} seat{selectedSeats.length > 1 ? "s" : ""} selected:
+          </span>
+          <span className="flex flex-wrap gap-1">
+            {selectedSeats.map((s: any) => (
+              <span
+                key={s.id}
+                className="rounded-full bg-zinc-100 px-2 py-[2px] text-[10px] sm:text-[11px] font-medium text-zinc-700"
               >
-                Pay ₹{totalAmount}
-              </button>
-            </div>
-          </div>
+                {s.id}
+              </span>
+            ))}
+          </span>
+          <span className="sm:ml-3 font-semibold">
+            ₹{totalAmount}
+          </span>
+        </>
+      )}
+    </div>
+
+    {/* BIGGER PAY BUTTON */}
+    <button
+  onClick={handlePay}
+  disabled={selectedSeats.length === 0}
+  className={[
+    "w-full rounded-full px-5 py-2.5 text-sm font-semibold shadow-md transition transform",
+    "sm:w-auto sm:px-6 sm:py-3 sm:text-base",
+    selectedSeats.length === 0
+      ? "cursor-not-allowed bg-zinc-300 text-zinc-600 scale-100"
+      : "bg-[#fd3f00] text-white hover:bg-[red] hover:scale-[1.015]",
+  ].join(" ")}
+>
+  Pay ₹{totalAmount}
+</button>
+
+  </div>
+</div>
+
         </div>
       </main>
+
+      {/* ===== REST OF UI UNCHANGED ===== */}
+      {/* (Seats, screen, bottom bar — same as your code) */}
+
+      <ProfileLoginModal
+        open={openLogin}
+        onClose={() => setOpenLogin(false)}
+        onSuccess={handleLoginSuccess}
+      />
+
+      <ProfileDrawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        onLoggedOut={() => {
+          localStorage.removeItem("logged_in");
+          setIsLoggedIn(false);
+          setOpenDrawer(false);
+        }}
+      />
     </>
   );
 }

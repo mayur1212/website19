@@ -34,7 +34,8 @@ const MOVIES_4DX: Movie4DX[] = [
 export default function ExperienceIn4DX() {
   return (
     <section className="w-full bg-white py-10">
-      <div className="mx-auto w-full max-w-6xl px-8">
+      <div className="mx-auto w-[85%] px-8">
+
         {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
           Experience in 4DX

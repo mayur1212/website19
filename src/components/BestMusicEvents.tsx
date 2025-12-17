@@ -56,7 +56,8 @@ export default function BestMusicEvents() {
 
   return (
     <section className="w-full bg-white py-10">
-      <div className="relative mx-auto w-full max-w-6xl px-8">
+      <div className="relative mx-auto w-[85%] px-8">
+
         {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">
           Discover the best of Music Events

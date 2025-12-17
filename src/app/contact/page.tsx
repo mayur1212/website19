@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "@/assets/logored.png";
 import Footer from "@/components/Footer";
 
 export default function ContactPage() {
@@ -19,15 +18,15 @@ export default function ContactPage() {
       {/* 🔥 HEADER OUTSIDE CONTAINER SO LOGO TOUCHES LEFT SCREEN */}
       <header className="relative w-full py-6 flex items-center justify-center">
         {/* Logo — NOW TRULY LEFT EDGE */}
-        <Link href="/" className="absolute left-4 sm:left-6 md:left-10 lg:left-16">
-          <Image
-            src={Logo}
-            alt="Hayya Logo"
-            width={120}
-            height={40}
-            className="rounded-xl cursor-pointer"
-          />
-        </Link>
+       <Image
+  src="/movies/logored.png"
+  alt="Hayya Logo"
+  width={120}
+  height={40}
+  className="rounded-xl cursor-pointer"
+  priority
+/>
+
 
         {/* Title Center */}
         <h1 className="text-center text-2xl sm:text-3xl font-semibold">

@@ -1,51 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { validateUser } from "@/lib/validators";
+import type { IronSession } from "iron-session";
+
+/* =========================
+   Session typing
+========================= */
+type SessionUser = Record<string, unknown>;
+
+type SessionData = {
+  user?: SessionUser;
+};
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { user: userData } = body;
 
-    if (!userData) {
+    if (!userData || typeof userData !== "object") {
       return NextResponse.json(
         { error: "User data is required" },
         { status: 400 }
       );
     }
 
-    // Validate and create properly typed User object
-    const user = validateUser(userData);
+    // ✅ validateUser returns boolean
+    const isValid = validateUser(userData);
 
-    const session = await getSession();
+    if (!isValid) {
+      return NextResponse.json(
+        { error: "Invalid user data" },
+        { status: 400 }
+      );
+    }
 
-    // 🔒 TypeScript + runtime safety: session null असेल तर handle कर
+    const session = (await getSession()) as IronSession<SessionData>;
+
     if (!session) {
-      console.error("Error logging in: session not initialized");
       return NextResponse.json(
         { error: "Session could not be initialized" },
         { status: 500 }
       );
     }
 
-    // इथून पुढे session non-null आहे, त्यामुळे cast करून user ठेव
-    (session as any).user = user;
+    // ✅ userData is already an object → safe
+    session.user = userData as SessionUser;
+
     await session.save();
 
-    return NextResponse.json({ success: true, user: (session as any).user });
+    return NextResponse.json({
+      success: true,
+      user: session.user,
+    });
   } catch (error) {
     console.error("Error logging in:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Failed to login";
 
     return NextResponse.json(
-      { error: errorMessage },
       {
-        status:
-          error instanceof Error && errorMessage.includes("Invalid")
-            ? 400
-            : 500,
-      }
+        error:
+          error instanceof Error ? error.message : "Failed to login",
+      },
+      { status: 500 }
     );
   }
 }

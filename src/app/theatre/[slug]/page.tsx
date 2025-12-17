@@ -35,7 +35,18 @@ const SAMPLE_DATA = {
       genre: "Action",
       seatType: "RECLINERS",
       price: 250,
-      showtimes: ["08:30 AM", "09:30 AM", "10:30 AM", "11:05 AM", "11:45 AM"],
+      showtimes: [
+        "02:45 PM",
+        "04:00 PM",
+        "05:00 PM",
+        "06:00 PM",
+        "07:00 PM",
+        "08:15 PM",
+        "09:15 PM",
+        "10:15 PM",
+        "11:15 PM",
+        "11:50 PM",
+      ],
       is3D: false,
       isNewRelease: false,
     },
@@ -70,7 +81,7 @@ const SAMPLE_DATA = {
 
 type Movie = typeof SAMPLE_DATA.movies[number];
 
-/* Showtime popover (V arrow below) */
+/* Showtime popover (with V arrow), responsive width */
 function ShowtimePopover({
   tiers,
 }: {
@@ -79,42 +90,38 @@ function ShowtimePopover({
   return (
     <div
       className="
-        pointer-events-none
-        absolute bottom-full left-1/2 z-20 mb-4
+        absolute bottom-full left-1/2 z-40 mb-3
         -translate-x-1/2 transform
-        w-[340px]
+        w-[260px] sm:w-[360px]
+        pointer-events-auto
       "
       aria-hidden
     >
-      <div className="relative rounded-2xl bg-[#f5f5f6] px-6 py-4 shadow-[0_14px_40px_rgba(0,0,0,0.08)] border border-[rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-3 gap-4 text-center">
+      <div className="relative rounded-xl bg-white px-4 py-3 shadow-md border border-[rgba(0,0,0,0.06)]">
+        <div className="grid grid-cols-3 gap-3 text-center">
           {tiers.map((t) => (
-            <div key={t.label} className="px-2 py-1">
-              <div className="text-xs font-semibold text-zinc-700">{t.label.toUpperCase()}</div>
-              <div className="text-sm font-bold mt-2">₹{t.price}</div>
-              <div
-                className={`mt-2 text-[13px] font-semibold ${
-                  t.status === "available" ? "text-emerald-500" : "text-orange-500"
-                }`}
-              >
+            <div key={t.label} className="px-1 py-1">
+              <div className="text-xs font-medium text-zinc-700">{t.label.toUpperCase()}</div>
+              <div className="text-lg font-semibold mt-1">₹{t.price}</div>
+              <div className={`mt-1 text-[13px] font-semibold ${t.status === "available" ? "text-emerald-600" : "text-orange-500"}`}>
                 {t.status === "available" ? "AVAILABLE" : "ALMOST FULL"}
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="flex items-center justify-center -mt-1">
-        <svg width="56" height="18" viewBox="0 0 56 18" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <polygon points="0,0 56,0 28,18" fill="#f5f5f6" stroke="#e6e6e6" strokeWidth="1" />
-          <polygon points="6,0 50,0 28,14" fill="rgba(255,255,255,0.02)" />
-        </svg>
+        <div className="absolute left-0 right-0 -bottom-[10px] flex justify-center pointer-events-none">
+          <svg width="56" height="18" viewBox="0 0 56 18" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <polygon points="0,0 56,0 28,18" fill="rgba(0,0,0,0.04)" />
+            <polygon points="6,0 50,0 28,14" fill="#ffffff" />
+          </svg>
+        </div>
       </div>
     </div>
   );
 }
 
-/* simple slugify helper — remove if your API provides movie.slug */
+/* helper */
 function slugify(text: string) {
   return text
     .toString()
@@ -128,14 +135,11 @@ function slugify(text: string) {
 export default function TheatrePage() {
   const cinema = SAMPLE_DATA;
 
-  // DATE STRIP: today + next 3 days (compact)
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const dateOptions = React.useMemo(() => {
     const today = new Date();
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const monthNames = [
-      "JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"
-    ];
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
     return Array.from({ length: 4 }, (_, i) => {
       const d = new Date(today);
@@ -150,7 +154,7 @@ export default function TheatrePage() {
     });
   }, []);
 
-  const [selectedDate, setSelectedDate] = useState<number | null>(null); // keep if needed elsewhere
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [showAllAmenities, setShowAllAmenities] = useState<boolean>(false);
 
   const [visibleMovies, setVisibleMovies] = useState<Movie[]>(cinema.movies);
@@ -162,7 +166,7 @@ export default function TheatrePage() {
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<Set<string>>(new Set());
   const [selectedOthers, setSelectedOthers] = useState<Set<string>>(new Set());
 
-  // hover state now controlled with timers
+  // hover timers and hovered id
   const [hoveredShowtime, setHoveredShowtime] = useState<string | null>(null);
   const showTimerRef = useRef<number | null>(null);
   const hideTimerRef = useRef<number | null>(null);
@@ -282,13 +286,6 @@ export default function TheatrePage() {
   const priceOptions = ["100-200", "200-300", "300-400", "400-500", "500-700"];
   const othersOptions = ["Premium Seats", "3D", "New Release"];
 
-  function toggleInSet(set: Set<string>, value: string, setSetter: (s: Set<string>) => void) {
-    const newSet = new Set(set);
-    if (newSet.has(value)) newSet.delete(value);
-    else newSet.add(value);
-    setSetter(newSet);
-  }
-
   function computeTiers(movie: Movie) {
     const classic = Math.round(movie.price * 1.3);
     const prime = Math.round(movie.price * 1.6);
@@ -300,15 +297,18 @@ export default function TheatrePage() {
     ];
   }
 
-  function runFilters() {
+  // Centralized filtering using explicit sets to avoid async state race conditions
+  function filterWithSets(langs: Set<string>, showtimes: Set<string>, prices: Set<string>, others: Set<string>) {
     const result = cinema.movies.filter((movie) => {
-      if (selectedLanguages.size > 0 && !selectedLanguages.has(movie.language)) return false;
-      if (selectedShowtimeRanges.size > 0) {
-        const anyMatch = movie.showtimes.some((t) => selectedShowtimeRanges.has(getShowtimeCategory(t)));
+      if (langs.size > 0 && !langs.has(movie.language)) return false;
+
+      if (showtimes.size > 0) {
+        const anyMatch = movie.showtimes.some((t) => showtimes.has(getShowtimeCategory(t)));
         if (!anyMatch) return false;
       }
-      if (selectedPriceRanges.size > 0) {
-        const matchesPrice = Array.from(selectedPriceRanges).some((pr) => {
+
+      if (prices.size > 0) {
+        const matchesPrice = Array.from(prices).some((pr) => {
           const [aStr, bStr] = pr.split("-").map((x) => x.trim());
           const a = parseInt(aStr, 10);
           const b = parseInt(bStr, 10);
@@ -316,23 +316,25 @@ export default function TheatrePage() {
         });
         if (!matchesPrice) return false;
       }
-      if (selectedOthers.size > 0) {
-        if (selectedOthers.has("Premium Seats")) {
+
+      if (others.size > 0) {
+        if (others.has("Premium Seats")) {
           const isPremium = movie.seatType && movie.seatType.toLowerCase().includes("recliner");
           if (!isPremium) return false;
         }
-        if (selectedOthers.has("3D")) {
-          if (!(movie as any).is3D) return false;
-        }
-        if (selectedOthers.has("New Release")) {
-          if (!(movie as any).isNewRelease) return false;
-        }
+        if (others.has("3D") && !(movie as any).is3D) return false;
+        if (others.has("New Release") && !(movie as any).isNewRelease) return false;
       }
+
       return true;
     });
 
     setVisibleMovies(result);
     return result;
+  }
+
+  function runFilters() {
+    return filterWithSets(selectedLanguages, selectedShowtimeRanges, selectedPriceRanges, selectedOthers);
   }
 
   function applyFilters() {
@@ -348,46 +350,50 @@ export default function TheatrePage() {
     setVisibleMovies(cinema.movies);
   }
 
-  // Quick filters...
+  // Quick filters logic (immediate filtering)
   function toggleQuickFilter(f: string) {
     const languageQuick = ["Hindi", "Gujarati", "Malayalam"];
+
     if (languageQuick.includes(f)) {
-      const newSet = new Set(selectedLanguages);
-      if (newSet.has(f)) newSet.delete(f);
-      else newSet.add(f);
-      setSelectedLanguages(newSet);
-      setTimeout(runFilters, 0);
+      const newLangs = new Set(selectedLanguages);
+      if (newLangs.has(f)) newLangs.delete(f);
+      else newLangs.add(f);
+      setSelectedLanguages(newLangs);
+      filterWithSets(newLangs, selectedShowtimeRanges, selectedPriceRanges, selectedOthers);
       return;
     }
+
     if (f === "Morning") {
-      const newSet = new Set(selectedShowtimeRanges);
-      if (newSet.has("Morning")) newSet.delete("Morning");
-      else newSet.add("Morning");
-      setSelectedShowtimeRanges(newSet);
-      setTimeout(runFilters, 0);
+      const newShow = new Set(selectedShowtimeRanges);
+      if (newShow.has("Morning")) newShow.delete("Morning");
+      else newShow.add("Morning");
+      setSelectedShowtimeRanges(newShow);
+      filterWithSets(selectedLanguages, newShow, selectedPriceRanges, selectedOthers);
       return;
     }
+
     if (f === "After 5 PM") {
-      const newSet = new Set(selectedShowtimeRanges);
-      const hasEvening = newSet.has("Evening");
-      const hasNight = newSet.has("Night");
+      const newShow = new Set(selectedShowtimeRanges);
+      const hasEvening = newShow.has("Evening");
+      const hasNight = newShow.has("Night");
       if (hasEvening && hasNight) {
-        newSet.delete("Evening");
-        newSet.delete("Night");
+        newShow.delete("Evening");
+        newShow.delete("Night");
       } else {
-        newSet.add("Evening");
-        newSet.add("Night");
+        newShow.add("Evening");
+        newShow.add("Night");
       }
-      setSelectedShowtimeRanges(newSet);
-      setTimeout(runFilters, 0);
+      setSelectedShowtimeRanges(newShow);
+      filterWithSets(selectedLanguages, newShow, selectedPriceRanges, selectedOthers);
       return;
     }
+
     if (f === "3D" || f === "New Release") {
-      const newSet = new Set(selectedOthers);
-      if (newSet.has(f)) newSet.delete(f);
-      else newSet.add(f);
-      setSelectedOthers(newSet);
-      setTimeout(runFilters, 0);
+      const newOthers = new Set(selectedOthers);
+      if (newOthers.has(f)) newOthers.delete(f);
+      else newOthers.add(f);
+      setSelectedOthers(newOthers);
+      filterWithSets(selectedLanguages, selectedShowtimeRanges, selectedPriceRanges, newOthers);
       return;
     }
   }
@@ -402,9 +408,9 @@ export default function TheatrePage() {
     return false;
   }
 
-  // --- NEW: show/hide with timers to avoid instant flicker on quick mouse passes
-  const SHOW_DELAY = 200; // ms before showing popup after mouseenter
-  const HIDE_DELAY = 150; // ms before hiding after mouseleave
+  // Hover show/hide with small delays to reduce flicker
+  const SHOW_DELAY = 180;
+  const HIDE_DELAY = 120;
 
   function handleMouseEnterShow(id: string) {
     if (hideTimerRef.current) {
@@ -437,67 +443,109 @@ export default function TheatrePage() {
     };
   }, []);
 
-  // ---------------------------
-  // Build activeFilterChips from modal selections (exclude items that are represented
-  // by quick-toggles to avoid duplicates).
-  // ---------------------------
+  // Build chips
   const QUICK_LANGUAGE_IDS = ["Hindi", "Gujarati", "Malayalam"];
-  const QUICK_SHOWTIME_IDS = ["Morning", "Evening", "Night"]; // Morning & After 5 PM use these
+  const QUICK_SHOW_IDS = ["Morning", "Evening", "Night"];
   const QUICK_OTHERS_IDS = ["3D", "New Release"];
 
-  const activeFilterChips: { key: string; group: "LANG" | "SHOW" | "PRICE" | "OTHERS"; id: string; label: string }[] = [];
+  const quickChips: { key: string; group: "QUICK"; id: string; label: string }[] = [];
+  QUICK_LANGUAGE_IDS.forEach((lang) => {
+    if (selectedLanguages.has(lang)) quickChips.push({ key: `Q-LANG-${lang}`, group: "QUICK", id: lang, label: lang });
+  });
+  if (selectedShowtimeRanges.has("Morning")) quickChips.push({ key: `Q-SHOW-MORNING`, group: "QUICK", id: "Morning", label: "Morning" });
+  if (selectedShowtimeRanges.has("Evening") && selectedShowtimeRanges.has("Night")) {
+    quickChips.push({ key: `Q-SHOW-AFTER5`, group: "QUICK", id: "AFTER5", label: "After 5 PM" });
+  }
+  if (selectedOthers.has("3D")) quickChips.push({ key: `Q-OTHERS-3D`, group: "QUICK", id: "3D", label: "3D" });
+  if (selectedOthers.has("New Release")) quickChips.push({ key: `Q-OTHERS-NEW`, group: "QUICK", id: "New Release", label: "New Release" });
 
-  // languages (exclude quick language pills)
+  const modalChips: { key: string; group: "LANG" | "SHOW" | "PRICE" | "OTHERS"; id: string; label: string }[] = [];
   selectedLanguages.forEach((lang) => {
-    if (QUICK_LANGUAGE_IDS.includes(lang)) return; // shown as quick toggle — skip chip
-    activeFilterChips.push({ key: `LANG-${lang}`, group: "LANG", id: lang, label: lang });
+    if (QUICK_LANGUAGE_IDS.includes(lang)) return;
+    modalChips.push({ key: `LANG-${lang}`, group: "LANG", id: lang, label: lang });
   });
-
-  // showtime ranges (exclude Morning/Evening/Night quick controls)
   selectedShowtimeRanges.forEach((sr) => {
-    if (QUICK_SHOWTIME_IDS.includes(sr)) return;
-    activeFilterChips.push({ key: `SHOW-${sr}`, group: "SHOW", id: sr, label: sr });
+    if (QUICK_SHOW_IDS.includes(sr)) return;
+    modalChips.push({ key: `SHOW-${sr}`, group: "SHOW", id: sr, label: sr });
   });
-
-  // price ranges
   selectedPriceRanges.forEach((pr) => {
-    activeFilterChips.push({ key: `PRICE-${pr}`, group: "PRICE", id: pr, label: `₹${pr.replace("-", " - ₹")}` });
+    modalChips.push({ key: `PRICE-${pr}`, group: "PRICE", id: pr, label: `₹${pr.replace("-", " - ₹")}` });
   });
-
-  // others (exclude quick others like 3D and New Release)
   selectedOthers.forEach((o) => {
     if (QUICK_OTHERS_IDS.includes(o)) return;
-    activeFilterChips.push({ key: `OTHERS-${o}`, group: "OTHERS", id: o, label: o });
+    modalChips.push({ key: `OTHERS-${o}`, group: "OTHERS", id: o, label: o });
   });
 
-  // remove handler for chips (maps chip back to correct Set)
-  function handleRemoveChip(group: "LANG" | "SHOW" | "PRICE" | "OTHERS", id: string) {
-    if (group === "LANG") {
+  const combinedChips = [...quickChips, ...modalChips];
+
+  function handleRemoveChip(group: "LANG" | "SHOW" | "PRICE" | "OTHERS" | "QUICK", id: string) {
+    if (group === "QUICK") {
+      if (id === "AFTER5") {
+        const s = new Set(selectedShowtimeRanges);
+        s.delete("Evening");
+        s.delete("Night");
+        setSelectedShowtimeRanges(s);
+        filterWithSets(selectedLanguages, s, selectedPriceRanges, selectedOthers);
+        return;
+      } else if (QUICK_LANGUAGE_IDS.includes(id)) {
+        const s = new Set(selectedLanguages);
+        s.delete(id);
+        setSelectedLanguages(s);
+        filterWithSets(s, selectedShowtimeRanges, selectedPriceRanges, selectedOthers);
+        return;
+      } else if (id === "3D" || id === "New Release") {
+        const s = new Set(selectedOthers);
+        s.delete(id);
+        setSelectedOthers(s);
+        filterWithSets(selectedLanguages, selectedShowtimeRanges, selectedPriceRanges, s);
+        return;
+      } else if (id === "Morning") {
+        const s = new Set(selectedShowtimeRanges);
+        s.delete("Morning");
+        setSelectedShowtimeRanges(s);
+        filterWithSets(selectedLanguages, s, selectedPriceRanges, selectedOthers);
+        return;
+      }
+    } else if (group === "LANG") {
       const s = new Set(selectedLanguages);
       s.delete(id);
       setSelectedLanguages(s);
+      filterWithSets(s, selectedShowtimeRanges, selectedPriceRanges, selectedOthers);
+      return;
     } else if (group === "SHOW") {
       const s = new Set(selectedShowtimeRanges);
       s.delete(id);
       setSelectedShowtimeRanges(s);
+      filterWithSets(selectedLanguages, s, selectedPriceRanges, selectedOthers);
+      return;
     } else if (group === "PRICE") {
       const s = new Set(selectedPriceRanges);
       s.delete(id);
       setSelectedPriceRanges(s);
+      filterWithSets(selectedLanguages, selectedShowtimeRanges, s, selectedOthers);
+      return;
     } else if (group === "OTHERS") {
       const s = new Set(selectedOthers);
       s.delete(id);
       setSelectedOthers(s);
+      filterWithSets(selectedLanguages, selectedShowtimeRanges, selectedPriceRanges, s);
+      return;
     }
-    // re-run filters after removal
+
     setTimeout(runFilters, 0);
   }
+
+  const activeQuickSet = new Set<string>();
+  quickChips.forEach((c) => {
+    if (c.id === "AFTER5") activeQuickSet.add("After 5 PM");
+    else activeQuickSet.add(c.id);
+  });
 
   return (
     <>
       <Header />
 
-      <main className="max-w-6xl mx-auto py-10 px-6">
+      <main className="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-6">
         {/* header */}
         <header className="flex items-start gap-6">
           <div className="relative h-20 w-20 flex-shrink-0">
@@ -582,12 +630,10 @@ export default function TheatrePage() {
             <div className="flex items-center gap-4">
               {/* Left vertical month pill */}
               <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
-                <span className="uppercase">
-                  {dateOptions[selectedDateIndex]?.month || ""}
-                </span>
+                <span className="uppercase">{dateOptions[selectedDateIndex]?.month || ""}</span>
               </div>
 
-              {/* Dates: today + next 3 days */}
+              {/* Dates */}
               <div className="flex flex-1 items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
                 {dateOptions.map((d, idx) => {
                   const active = idx === selectedDateIndex;
@@ -604,26 +650,11 @@ export default function TheatrePage() {
                             : "flex flex-shrink-0 flex-col items-center justify-center px-1"
                         }
                       >
-                        <span
-                          className={`text-[17px] font-semibold ${
-                            active ? "text-white" : "text-zinc-900"
-                          }`}
-                        >
-                          {d.dayNum}
-                        </span>
-                        <span
-                          className={`text-[11px] font-medium ${
-                            active ? "text-zinc-300" : "text-zinc-500"
-                          }`}
-                        >
-                          {d.dayLabel}
-                        </span>
+                        <span className={`text-[17px] font-semibold ${active ? "text-white" : "text-zinc-900"}`}>{d.dayNum}</span>
+                        <span className={`text-[11px] font-medium ${active ? "text-zinc-300" : "text-zinc-500"}`}>{d.dayLabel}</span>
                       </button>
 
-                      {/* vertical divider between days (except last) */}
-                      {idx < dateOptions.length - 1 && (
-                        <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />
-                      )}
+                      {idx < dateOptions.length - 1 && <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />}
                     </React.Fragment>
                   );
                 })}
@@ -632,43 +663,41 @@ export default function TheatrePage() {
           </div>
 
           <div className="mt-6">
-            {/* SINGLE HORIZONTAL STRIP: Filters button → chips from popup → quick toggles */}
             <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
-              {/* Filters button */}
               <button
                 onClick={() => setShowFilterModal(true)}
-                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-white text-sm font-medium text-zinc-800"
+                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-zinc-300 bg-white text-sm font-medium text-zinc-800"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>Filters</span>
               </button>
 
-              {/* Active chips from popup filters — styled like quick toggles (black bg / white text) */}
-              {activeFilterChips.map((chip) => (
+              {combinedChips.map((chip) => (
                 <button
                   key={chip.key}
-                  onClick={() => handleRemoveChip(chip.group, chip.id)}
-                  className="flex-shrink-0 rounded-full border border-black bg-black px-4 py-2 text-sm font-medium text-white"
+                  onClick={() => handleRemoveChip(chip.group as any, chip.id)}
+                  className="flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium border transition bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]"
                 >
-                  <span>{chip.label}</span>
+                  {chip.label}
                 </button>
               ))}
 
-              {/* Small divider */}
               <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
 
-              {/* Quick toggles */}
-              {["Hindi", "Gujarati", "Malayalam", "3D", "Morning", "After 5 PM", "New Release"].map((f, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => toggleQuickFilter(f)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full border text-sm font-medium ${
-                    quickFilterActive(f) ? "bg-zinc-900 text-white border-zinc-900" : "bg-white text-zinc-800 border-zinc-200"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+              {["Hindi", "Gujarati", "Malayalam", "3D", "Morning", "After 5 PM", "New Release"].map((f, idx) => {
+                if (activeQuickSet.has(f)) return null;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => toggleQuickFilter(f)}
+                    className={`flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium border transition ${
+                      quickFilterActive(f) ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white text-zinc-800 border-zinc-300"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -701,79 +730,79 @@ export default function TheatrePage() {
               const movieSlug = (movie as any).slug ? (movie as any).slug : slugify(movie.title);
               return (
                 <article key={movie.id}>
-                  <div className="flex items-start gap-6">
-                    {/* Poster clickable -> movie page */}
-                    <div className="h-24 w-20 relative flex-shrink-0 rounded-md overflow-hidden shadow-sm border border-zinc-100">
-                      <Link href={`/movie/${movieSlug}`} prefetch={false} aria-label={`Open ${movie.title} details`}>
-                        <div className="w-full h-full">
-                          <Image src={movie.poster} alt={movie.title} fill className="object-cover" />
-                        </div>
-                      </Link>
+                  {/* top row: poster + details */}
+                  <div className="flex flex-col sm:flex-row items-start gap-6">
+                    {/* Poster + language under poster */}
+                    <div className="flex flex-col items-start gap-2 shrink-0">
+                      <div className="h-24 w-20 relative rounded-md overflow-hidden shadow-sm border border-zinc-100">
+                        <Link href={`/movie/${movieSlug}`} prefetch={false} aria-label={`Open ${movie.title} details`}>
+                          <div className="w-full h-full">
+                            <Image src={movie.poster} alt={movie.title} fill className="object-cover" />
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* language under poster */}
+                      <div className="text-sm font-medium text-zinc-900 mt-1">{movie.language}</div>
                     </div>
 
-                    <div className="flex-1">
+                    {/* Title, certificate, genre etc */}
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div>
-                          {/* Title clickable -> movie page */}
                           <h2 className="text-lg font-semibold text-zinc-900">
                             <Link href={`/movie/${movieSlug}`} prefetch={false}>
                               <span className="hover:underline cursor-pointer">{movie.title}</span>
                             </Link>
                           </h2>
 
-                          <p className="text-sm text-zinc-500 mt-1">
-                            {movie.certificate} &nbsp;|&nbsp; {movie.language}
-                          </p>
+                          <p className="text-sm text-zinc-500 mt-1">{movie.certificate}</p>
                           <p className="text-sm text-zinc-500 mt-2">{movie.genre}</p>
                         </div>
 
-                        <div className="text-right text-sm text-zinc-500">
-                          <div className="font-medium">{movie.seatType}</div>
-                          <div className="text-xs mt-1">₹{movie.price}</div>
-                        </div>
+                        {/* intentionally removed seatType & price on right */}
                       </div>
+                    </div>
+                  </div>
 
-                      <div className="mt-6 mb-3">
-                        <h4 className="text-sm font-semibold text-zinc-800">{movie.language}</h4>
-                      </div>
-
-                      <div className="flex gap-4 flex-wrap">
-                        {movie.showtimes.map((time, idx) => {
-                          const id = `${movie.id}|${time}`;
-                          const tiers = computeTiers(movie);
-                          return (
-                            <div
-                              key={idx}
-                              className="relative"
-                              onMouseEnter={() => handleMouseEnterShow(id)}
-                              onMouseLeave={() => handleMouseLeaveHide(id)}
-                              onFocus={() => handleMouseEnterShow(id)}
-                              onBlur={() => handleMouseLeaveHide(id)}
+                  {/* SHOWTIMES — placed directly under (spanning whole width) so they appear below the poster's language */}
+                  <div className="mt-6">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                      {movie.showtimes.map((time, idx) => {
+                        const id = `${movie.id}|${time}`;
+                        const tiers = computeTiers(movie);
+                        return (
+                          <div
+                            key={idx}
+                            className="relative"
+                            onMouseEnter={() => handleMouseEnterShow(id)}
+                            onMouseLeave={() => handleMouseLeaveHide(id)}
+                            onFocus={() => handleMouseEnterShow(id)}
+                            onBlur={() => handleMouseLeaveHide(id)}
+                          >
+                            <button
+                              onClick={() => {
+                                const sessionId = `${movie.id}-${time.replace(/ |:/g, "")}`;
+                                window.location.href = `/movies/seat-layout/${sessionId}`;
+                              }}
+                              className="w-full h-14 rounded-xl border border-zinc-200 text-sm font-medium text-zinc-900 hover:shadow hover:bg-zinc-50 transition flex items-center justify-center"
                             >
-                              <button
-                                onClick={() => {
-                                  const sessionId = `${movie.id}-${time.replace(/ |:/g, "")}`;
-                                  window.location.href = `/movies/seat-layout/${sessionId}`;
-                                }}
-                                className="min-w-[140px] px-6 py-4 rounded-2xl border border-zinc-200 text-sm text-zinc-800 hover:shadow hover:bg-zinc-50 transition flex flex-col items-center group"
-                              >
-                                <span className="font-medium">{time}</span>
-                                <span className="text-xs text-zinc-500 mt-1">{movie.seatType}</span>
-                              </button>
+                              <span>{time}</span>
+                            </button>
 
-                              {hoveredShowtime === id && (
-                                <ShowtimePopover
-                                  tiers={tiers.map((t) => ({
-                                    label: t.label,
-                                    price: t.price,
-                                    status: "available",
-                                  }))}
-                                />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
+                            {/* show popover anchored to the showtime */}
+                            {hoveredShowtime === id && (
+                              <ShowtimePopover
+                                tiers={tiers.map((t) => ({
+                                  label: t.label,
+                                  price: t.price,
+                                  status: "available",
+                                }))}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -787,7 +816,7 @@ export default function TheatrePage() {
 
       <Footer />
 
-      {/* Filter modal */}
+      {/* Filter modal (unchanged behaviour) */}
       {showFilterModal && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-start justify-center px-4 py-10" onClick={() => setShowFilterModal(false)}>
           <div className="w-[760px] max-w-full bg-white rounded-2xl p-8 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
@@ -811,7 +840,18 @@ export default function TheatrePage() {
                   <div className="space-y-4">
                     {languageOptions.map((lang) => (
                       <label key={lang} className="flex items-center gap-3">
-                        <input type="checkbox" checked={selectedLanguages.has(lang)} onChange={() => { toggleInSet(selectedLanguages, lang, setSelectedLanguages); setTimeout(runFilters, 0); }} className="w-5 h-5 rounded border" />
+                        <input
+                          type="checkbox"
+                          checked={selectedLanguages.has(lang)}
+                          onChange={() => {
+                            const newSet = new Set(selectedLanguages);
+                            if (newSet.has(lang)) newSet.delete(lang);
+                            else newSet.add(lang);
+                            setSelectedLanguages(newSet);
+                            filterWithSets(newSet, selectedShowtimeRanges, selectedPriceRanges, selectedOthers);
+                          }}
+                          className="w-5 h-5 rounded border"
+                        />
                         <span className="font-medium">{lang}</span>
                       </label>
                     ))}
@@ -822,7 +862,18 @@ export default function TheatrePage() {
                   <div className="space-y-4">
                     {showtimeOptions.map((opt) => (
                       <label key={opt} className="flex items-start gap-3">
-                        <input type="checkbox" checked={selectedShowtimeRanges.has(opt)} onChange={() => { toggleInSet(selectedShowtimeRanges, opt, setSelectedShowtimeRanges); setTimeout(runFilters, 0); }} className="mt-1 h-5 w-5 rounded border" />
+                        <input
+                          type="checkbox"
+                          checked={selectedShowtimeRanges.has(opt)}
+                          onChange={() => {
+                            const newSet = new Set(selectedShowtimeRanges);
+                            if (newSet.has(opt)) newSet.delete(opt);
+                            else newSet.add(opt);
+                            setSelectedShowtimeRanges(newSet);
+                            filterWithSets(selectedLanguages, newSet, selectedPriceRanges, selectedOthers);
+                          }}
+                          className="mt-1 h-5 w-5 rounded border"
+                        />
                         <div>
                           <div className="font-medium">{opt}</div>
                           <div className="text-xs text-zinc-500">
@@ -843,7 +894,18 @@ export default function TheatrePage() {
                   <div className="space-y-4">
                     {priceOptions.map((pr) => (
                       <label key={pr} className="flex items-center gap-3">
-                        <input type="checkbox" checked={selectedPriceRanges.has(pr)} onChange={() => { toggleInSet(selectedPriceRanges, pr, setSelectedPriceRanges); setTimeout(runFilters, 0); }} className="w-5 h-5 rounded border" />
+                        <input
+                          type="checkbox"
+                          checked={selectedPriceRanges.has(pr)}
+                          onChange={() => {
+                            const newSet = new Set(selectedPriceRanges);
+                            if (newSet.has(pr)) newSet.delete(pr);
+                            else newSet.add(pr);
+                            setSelectedPriceRanges(newSet);
+                            filterWithSets(selectedLanguages, selectedShowtimeRanges, newSet, selectedOthers);
+                          }}
+                          className="w-5 h-5 rounded border"
+                        />
                         <span className="font-medium">₹{pr.replace("-", " - ₹")}</span>
                       </label>
                     ))}
@@ -854,7 +916,18 @@ export default function TheatrePage() {
                   <div className="space-y-4">
                     {othersOptions.map((o) => (
                       <label key={o} className="flex items-center gap-3">
-                        <input type="checkbox" checked={selectedOthers.has(o)} onChange={() => { toggleInSet(selectedOthers, o, setSelectedOthers); setTimeout(runFilters, 0); }} className="w-5 h-5 rounded border" />
+                        <input
+                          type="checkbox"
+                          checked={selectedOthers.has(o)}
+                          onChange={() => {
+                            const newSet = new Set(selectedOthers);
+                            if (newSet.has(o)) newSet.delete(o);
+                            else newSet.add(o);
+                            setSelectedOthers(newSet);
+                            filterWithSets(selectedLanguages, selectedShowtimeRanges, selectedPriceRanges, newSet);
+                          }}
+                          className="w-5 h-5 rounded border"
+                        />
                         <span className="font-medium">{o}</span>
                       </label>
                     ))}
@@ -864,10 +937,10 @@ export default function TheatrePage() {
             </div>
 
             <div className="mt-6 flex items-center justify-between">
-              <button onClick={() => { clearFilters(); }} className="text-sm underline text-zinc-600">Clear filter</button>
+              <button onClick={() => clearFilters()} className="text-sm underline text-zinc-600">Clear filter</button>
 
               <div>
-                <button onClick={() => { applyFilters(); }} className="px-8 py-3 bg-zinc-900 text-white rounded-2xl shadow">View {visibleMovies.length} shows</button>
+                <button onClick={() => applyFilters()} className="px-8 py-3 bg-zinc-900 text-white rounded-2xl shadow">View {visibleMovies.length} shows</button>
               </div>
             </div>
           </div>

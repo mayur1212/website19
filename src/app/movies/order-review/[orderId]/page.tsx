@@ -1,9 +1,19 @@
 "use client";
 
+
+import Link from "next/link";
+
+import { ChevronDown } from "lucide-react";
+
+
 import React, { useMemo, useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import { useParams, useSearchParams } from "next/navigation";
+
+import ProfileLoginModal from "@/components/ProfileLogin";
+import ProfileDrawer from "@/components/ProfileDrawer";
+
 
 type FoodCategory = "veg" | "combo" | "burger" | "others";
 
@@ -55,6 +65,28 @@ export default function OrderReviewPage() {
 
   const bookingCharge = Number((effectiveTicketAmount * 0.14).toFixed(2)) || 0;
   const initialTotal = effectiveTicketAmount + bookingCharge;
+
+
+
+// ===== PROFILE LOGIC (SAME AS SEAT-LAYOUT) =====
+const [openLogin, setOpenLogin] = useState(false);
+const [openDrawer, setOpenDrawer] = useState(false);
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+useEffect(() => {
+  const saved = localStorage.getItem("logged_in");
+  if (saved === "true") setIsLoggedIn(true);
+}, []);
+
+const handleLoginSuccess = () => {
+  localStorage.setItem("logged_in", "true");
+  setIsLoggedIn(true);
+  setOpenLogin(false);
+  setOpenDrawer(true);
+};
+// =============================================
+
+
 
   // Food items list (with categories + options for ALL items)
   const FOOD_ITEMS: FoodItem[] = [
@@ -288,31 +320,81 @@ export default function OrderReviewPage() {
 
   const payDisabled = isExpired || numericTotalToBePaid <= 0;
 
+  // CHECKOUT MODAL STATE
+const [showCheckout, setShowCheckout] = useState(false);
+
+
   return (
     <>
       {/* HEADER */}
-      <header className="w-full bg-white border-b border-zinc-200 py-3 px-4">
-        <div className="flex items-center relative w-full">
-          {/* LEFT LOGO */}
-          <div className="flex items-center gap-2">
-            <img
-              src="/movies/logored.png"
-              alt="District"
-              className="h-7 object-contain"
-            />
-          </div>
+      <header className="w-full border-b border-zinc-200 bg-white">
+  <div
+    className="
+      relative flex w-full items-center justify-between
+      px-3 py-2
+      sm:px-4
+      lg:px-10
+    "
+  >
+    {/* LEFT — LOGO */}
+   <Link href="/" className="relative shrink-0">
+  <Image
+    src="/movies/logored.png"
+    alt="Logo"
+    width={110}
+    height={33}
+    priority
+    className="
+      rounded-xl
+      w-[80px] h-auto
+      sm:w-[95px]
+      lg:w-[110px]
+      cursor-pointer
+    "
+  />
+</Link>
 
-          {/* CENTER TITLE */}
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-[13px] sm:text-[16px] font-semibold text-black">
-            Review your booking
-          </h1>
+    {/* CENTER — TITLE */}
+    <div
+      className="
+        absolute left-1/2 top-1/2
+        -translate-x-1/2 -translate-y-1/2
+        text-center
+      "
+    >
+      <h1
+        className="
+          truncate font-semibold text-zinc-900
+          text-xs
+          sm:text-sm
+          lg:text-sm
+          max-w-[140px]
+          sm:max-w-[180px]
+          lg:max-w-none
+        "
+      >
+        Review your booking
+      </h1>
+    </div>
 
-          {/* RIGHT USER ICON */}
-          <div className="ml-auto h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-black text-white flex items-center justify-center text-xs sm:text-sm font-medium">
-            U
-          </div>
-        </div>
-      </header>
+    {/* RIGHT — PROFILE */}
+    <button
+      onClick={() =>
+        isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+      }
+      className="
+        flex h-8 w-8 sm:h-9 sm:w-9
+        items-center justify-center
+        rounded-full bg-slate-900 text-white
+        text-xs sm:text-sm
+        font-semibold shadow-sm shrink-0
+      "
+    >
+      U
+    </button>
+  </div>
+</header>
+
 
       {/* TOP TIMER STRIP */}
       <div className="w-full bg-[#f3e9ff] border-b border-[#e0cfff] text-[13px] sm:text-sm text-center py-2">
@@ -426,92 +508,76 @@ export default function OrderReviewPage() {
               </div>
 
               {/* Food Section */}
-              <div className="rounded-xl bg-white p-6 shadow-sm border border-zinc-100">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm sm:text-base">
-                    Food and beverages
-                  </h3>
-                  {/* SEE ALL opens FoodDrawer */}
-                  <button
-                    onClick={() => {
-                      setFoodDrawerInitialItemId(null); // open drawer with no preselected item
-                      setShowFoodDrawer(true);
-                    }}
-                    className="text-xs sm:text-sm text-zinc-500 hover:text-zinc-700"
-                  >
-                    See all
-                  </button>
-                </div>
+             <div className="rounded-xl bg-white p-6 shadow-sm border border-zinc-100">
+  <div className="flex items-center justify-between">
+    <h3 className="font-semibold text-sm sm:text-base">
+      Food and beverages
+    </h3>
+    <button
+      onClick={() => {
+        setFoodDrawerInitialItemId(null); // open drawer with no preselected item
+        setShowFoodDrawer(true);
+      }}
+      className="text-xs sm:text-sm text-zinc-500 hover:text-zinc-700"
+    >
+      See all
+    </button>
+  </div>
 
-                <div className="mt-4 flex gap-4 overflow-x-auto no-scrollbar py-2">
-                  {FOOD_ITEMS.map((food) => (
-                    <div
-                      key={food.id}
-                      className="min-w-[180px] rounded-lg border border-zinc-200 p-3 bg-white"
-                    >
-                      <div className="h-28 w-full rounded-md overflow-hidden bg-zinc-50">
-                        {food.img ? (
-                          <Image
-                            src={food.img}
-                            alt={food.title}
-                            width={300}
-                            height={180}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-zinc-400 text-xs">
-                            No image
-                          </div>
-                        )}
-                      </div>
+  <div className="mt-4 flex gap-4 overflow-x-auto no-scrollbar py-2">
+    {FOOD_ITEMS.map((food) => (
+      <div
+        key={food.id}
+        className="min-w-[180px] rounded-lg border border-zinc-200 p-3 bg-white"
+      >
+        <div className="h-28 w-full rounded-md overflow-hidden bg-zinc-50">
+          {food.img ? (
+            <Image
+              src={food.img}
+              alt={food.title}
+              width={300}
+              height={180}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-zinc-400 text-xs">
+              No image
+            </div>
+          )}
+        </div>
 
-                      <div className="mt-3">
-                        <div className="font-medium text-sm">{food.title}</div>
-                        <div className="text-xs text-zinc-500">{food.desc}</div>
+        <div className="mt-3">
+          <div className="font-medium text-sm">{food.title}</div>
+          <div className="text-xs text-zinc-500">{food.desc}</div>
 
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="font-semibold text-sm">
-                            ₹{food.price}
-                          </div>
+          {/* ONLY PRICE AND ADD BUTTON */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="font-semibold text-sm">₹{food.price}</div>
 
-                          <div className="flex items-center gap-2">
-                            <button
-                              className="border border-zinc-300 rounded-md px-2 py-1 text-xs"
-                              onClick={() => onRemove(food.id)}
-                            >
-                              −
-                            </button>
-                            <span className="text-xs w-6 text-center">
-                              {foodQty[food.id] || 0}
-                            </span>
-                            {/* Inline add uses base item price;
-                                To choose variant/option, open the drawer and pre-open this item */}
-                            <button
-                              className="bg-black text-white rounded-md px-3 py-1 text-xs"
-                              onClick={() => {
-                                if (food.options && food.options.length > 0) {
-                                  // open drawer and request this item be pre-expanded
-                                  setFoodDrawerInitialItemId(food.id);
-                                  setShowFoodDrawer(true);
-                                } else {
-                                  // no options -> directly add
-                                  onAdd(food.id, 1, food.price);
-                                }
-                              }}
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <button
+              className="bg-black text-white rounded-md px-3 py-1 text-xs"
+              onClick={() => {
+                if (food.options && food.options.length > 0) {
+                  setFoodDrawerInitialItemId(food.id);
+                  setShowFoodDrawer(true);
+                } else {
+                  onAdd(food.id, 1, food.price);
+                }
+              }}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
 
-                <div className="mt-3 text-xs text-zinc-500">
-                  You can add food items to your order.
-                </div>
-              </div>
+  <div className="mt-3 text-xs text-zinc-500">
+    You can add food items to your order.
+  </div>
+</div>
+
             </section>
 
             {/* RIGHT SUMMARY COLUMN */}
@@ -613,21 +679,22 @@ export default function OrderReviewPage() {
                       <div className="text-sm font-semibold">TOTAL</div>
                     </div>
 
-                    <a
-                      href={payDisabled ? undefined : districtPaymentUrl}
-                      onClick={(e) => {
-                        if (payDisabled) e.preventDefault();
-                      }}
-                      className={`rounded-full px-6 py-3 text-sm font-semibold text-white shadow ${
-                        payDisabled ? "bg-zinc-400 pointer-events-none" : "bg-black hover:opacity-95"
-                      }`}
-                    >
-                      {isExpired
-                        ? "Session expired"
-                        : numericTotalToBePaid <= 0
-                        ? "No items selected"
-                        : "Proceed To Pay"}
-                    </a>
+                    <button
+  disabled={payDisabled}
+  onClick={() => setShowCheckout(true)}
+  className={`rounded-full px-6 py-3 text-sm font-semibold text-white shadow ${
+    payDisabled
+      ? "bg-zinc-400 cursor-not-allowed"
+      : "bg-black hover:opacity-95"
+  }`}
+>
+  {isExpired
+    ? "Session expired"
+    : numericTotalToBePaid <= 0
+    ? "No items selected"
+    : "Proceed To Pay"}
+</button>
+
                   </div>
 
                   <div className="mt-3 text-[11px] text-zinc-400">
@@ -638,6 +705,23 @@ export default function OrderReviewPage() {
             </aside>
           </div>
         </div>
+
+        <ProfileLoginModal
+  open={openLogin}
+  onClose={() => setOpenLogin(false)}
+  onSuccess={handleLoginSuccess}
+/>
+
+<ProfileDrawer
+  open={openDrawer}
+  onClose={() => setOpenDrawer(false)}
+  onLoggedOut={() => {
+    localStorage.removeItem("logged_in");
+    setIsLoggedIn(false);
+    setOpenDrawer(false);
+  }}
+/>
+
 
         {/* TERMS MODAL */}
         {showTerms && <TermsAndConditionsModal onClose={() => setShowTerms(false)} />}
@@ -671,7 +755,17 @@ export default function OrderReviewPage() {
             }}
           />
         )}
+
+        {showCheckout && (
+  <CheckoutModal
+    amount={numericTotalToBePaid}
+    onClose={() => setShowCheckout(false)}
+  />
+)}
+
       </main>
+
+
 
       <Footer />
     </>
@@ -1316,8 +1410,233 @@ function FoodDrawer({
           {filteredItems.length === 0 && (
             <div className="text-xs sm:text-sm text-zinc-500 text-center mt-4">No items found for “{search}”.</div>
           )}
+          
         </div>
       </div>
     </div>
   );
 }
+
+
+
+
+/* ===================== CHECKOUT MODAL ===================== */
+
+function CheckoutModal({
+  amount,
+  onClose,
+}: {
+  amount: number;
+  onClose: () => void;
+}) {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const toggle = (key: string) =>
+    setOpenSection((prev) => (prev === key ? null : key));
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      {/* overlay */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      {/* MODAL */}
+      
+        <div className="relative w-full max-w-xl h-[640px] bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.25)] flex flex-col">
+
+        {/* HEADER */}
+        
+          <div className="flex items-center justify-between px-7 py-5 border-b shrink-0">
+
+        
+          <h2 className="text-xl font-semibold text-zinc-900">Checkout</h2>
+
+          <button
+            onClick={onClose}
+            className="h-9 w-9 rounded-full border border-zinc-300 hover:bg-zinc-100 transition
+ flex items-center justify-center text-lg"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* BODY (fixed scroll area) */}
+      
+          <div className="flex-1 overflow-y-auto px-6">
+
+          {/* WALLET */}
+          <Section
+            title="Wallets"
+            open={openSection === "wallet"}
+            onClick={() => toggle("wallet")}
+          >
+            <ScrollableArea>
+              <div className="grid grid-cols-2 gap-4">
+                {["Mobikwik", "Paytm"].map((w) => (
+                  <Tile key={w} label={w} sub="LINK" />
+                ))}
+              </div>
+            </ScrollableArea>
+          </Section>
+
+          {/* CARDS */}
+          <Section
+            title="Add credit or debit cards"
+            open={openSection === "card"}
+            onClick={() => toggle("card")}
+          >
+            <ScrollableArea>
+              <div className="border border-zinc-200 rounded-xl p-4 space-y-3">
+                <Input placeholder="Name on Card" />
+                <Input placeholder="Card Number" />
+                <div className="flex gap-3">
+                  <Input placeholder="MM/YY" />
+                  <Input placeholder="CVV" />
+                </div>
+                <Input placeholder="Nickname for card" />
+                <button className="w-full bg-red-500 text-white rounded-lg py-2 text-sm font-medium">
+                  Checkout
+                </button>
+              </div>
+            </ScrollableArea>
+          </Section>
+
+          {/* NETBANKING */}
+          <Section
+            title="Netbanking"
+            open={openSection === "netbanking"}
+            onClick={() => toggle("netbanking")}
+          >
+            <ScrollableArea>
+              <div className="grid grid-cols-4 gap-4">
+                {["HDFC", "Kotak", "ICICI", "SBI", "Axis"].map((b) => (
+                  <Tile key={b} label={b} />
+                ))}
+              </div>
+            </ScrollableArea>
+          </Section>
+
+          {/* UPI */}
+          <Section
+            title="Add new UPI ID"
+            open={openSection === "upi"}
+            onClick={() => toggle("upi")}
+          >
+            <ScrollableArea>
+              <div className="border border-zinc-200 rounded-xl p-4">
+                <div className="flex gap-3">
+                  <Input placeholder="example@upi" />
+                  <button className="bg-red-500 text-white px-4 rounded-lg text-sm">
+                    Checkout
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-500 mt-2">
+                  The UPI ID is in the format of name/phone@bankname
+                </p>
+              </div>
+            </ScrollableArea>
+          </Section>
+
+          {/* PAY LATER */}
+          <Section
+            title="Pay Later"
+            open={openSection === "later"}
+            onClick={() => toggle("later")}
+          >
+            <ScrollableArea>
+              <p className="text-sm text-zinc-500">
+                Pay using Simpl, LazyPay, ZestMoney
+              </p>
+            </ScrollableArea>
+          </Section>
+        </div>
+
+        {/* FOOTER (always fixed) */}
+        <div className="border-t px-6 py-5 shrink-0 bg-white rounded-b-3xl">
+
+          <button
+            disabled
+            className="w-full bg-zinc-300 text-white py-3 rounded-xl text-sm font-semibold"
+          >
+            PAY ₹{amount.toFixed(2)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== HELPERS ===================== */
+
+function Section({
+  title,
+  open,
+  onClick,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b last:border-b-0">
+      <button
+        onClick={onClick}
+        className="w-full flex justify-between items-center py-5 text-[15px] font-medium text-zinc-800"
+
+      >
+        {title}
+        <ChevronDown
+  size={18}
+  className={`text-zinc-400 transition-transform duration-200 ${
+    open ? "rotate-180" : ""
+  }`}
+/>
+
+
+      </button>
+      {open && <div className="pb-4">{children}</div>}
+    </div>
+  );
+}
+
+function ScrollableArea({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="max-h-[260px] overflow-y-auto pr-1">
+      {children}
+    </div>
+  );
+}
+
+function Input({ placeholder }: { placeholder: string }) {
+  return (
+    <input
+      placeholder={placeholder}
+      className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
+    />
+  );
+}
+
+function Tile({ label, sub }: { label: string; sub?: string }) {
+  return (
+    <div className="border border-zinc-200 rounded-xl p-4 text-center cursor-pointer hover:border-black transition">
+      <div className="h-10 w-10 mx-auto mb-2 rounded-full bg-zinc-100" />
+      <div className="text-sm font-medium">{label}</div>
+      {sub && <div className="text-xs text-red-500 mt-1">{sub}</div>}
+    </div>
+  );
+}
+
+
+
+
+
+
+

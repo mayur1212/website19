@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import HayyaLogo from "@/assets/logored.png";
 import Footer from "@/components/Footer"; // <-- ADDED
 
 export default function Privacy() {
@@ -29,13 +28,16 @@ export default function Privacy() {
       >
         {/* ⭐ BIGGER LOGO AT TOP LEFT */}
         <Image
-          src={HayyaLogo}
+          src="/movies/logored.png"
           alt="Hayya Logo"
+          width={170}
+          height={90}
           onClick={goHome}
           className="
             h-14 w-auto rounded-xl cursor-pointer
             absolute left-4 sm:left-6 md:left-10
           "
+          priority
         />
 
         {/* ⭐ CENTERED PAGE TITLE */}

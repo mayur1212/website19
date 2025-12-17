@@ -253,10 +253,7 @@ function getTimeBucket(timeStr: string): ShowTimeBucket {
   return "NIGHT";
 }
 
-function matchPriceRanges(
-  minSeatPrice: number,
-  selectedPriceIds: string[]
-): boolean {
+function matchPriceRanges(minSeatPrice: number, selectedPriceIds: string[]): boolean {
   if (selectedPriceIds.length === 0) return true;
   return selectedPriceIds.some((id) => {
     const cfg = PRICE_FILTERS.find((p) => p.id === id);
@@ -315,8 +312,7 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
   // movie details modal
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [activeDetailsTab, setActiveDetailsTab] =
-    useState<DetailsTab>("REVIEWS");
+  const [activeDetailsTab, setActiveDetailsTab] = useState<DetailsTab>("REVIEWS");
 
   // refs for scroll-sync tabs
   const detailsScrollRef = useRef<HTMLDivElement | null>(null);
@@ -326,14 +322,10 @@ export default function MoviePage({}: { params: { slug: string } }) {
   const videosRef = useRef<HTMLDivElement | null>(null);
   const postersRef = useRef<HTMLDivElement | null>(null);
 
-  const [activeFilterTab, setActiveFilterTab] = useState<
-    "FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS"
-  >("FORMAT");
+  const [activeFilterTab, setActiveFilterTab] = useState<"FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS">("FORMAT");
 
   const [selectedFormats, setSelectedFormats] = useState<ShowTimeFormat[]>([]);
-  const [selectedShowTimes, setSelectedShowTimes] = useState<ShowTimeBucket[]>(
-    []
-  );
+  const [selectedShowTimes, setSelectedShowTimes] = useState<ShowTimeBucket[]>([]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
   const [selectedOthers, setSelectedOthers] = useState<string[]>([]);
 
@@ -344,17 +336,12 @@ export default function MoviePage({}: { params: { slug: string } }) {
     setSelectedOthers([]);
   };
 
-  // remove single chip helper
-  const handleRemoveFilter = (
-    group: "FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS",
-    id: string
-  ) => {
+  // remove single chip helper (keeps old API, but we also use custom removal for quick-group "AFTER5")
+  const handleRemoveFilter = (group: "FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS", id: string) => {
     if (group === "FORMAT") {
       setSelectedFormats((prev) => prev.filter((f) => f !== id));
     } else if (group === "SHOW_TIME") {
-      setSelectedShowTimes((prev) =>
-        prev.filter((f) => f !== (id as ShowTimeBucket))
-      );
+      setSelectedShowTimes((prev) => prev.filter((f) => f !== (id as ShowTimeBucket)));
     } else if (group === "PRICE") {
       setSelectedPriceRanges((prev) => prev.filter((f) => f !== id));
     } else if (group === "OTHERS") {
@@ -362,80 +349,90 @@ export default function MoviePage({}: { params: { slug: string } }) {
     }
   };
 
-  // Top pills quick toggles
+  // Top pills quick toggles state (used for styling + semantics)
   const morningActive = selectedShowTimes.includes("MORNING");
-  const after5Active =
-    selectedShowTimes.includes("EVENING") ||
-    selectedShowTimes.includes("NIGHT");
+  const after5Active = selectedShowTimes.includes("EVENING") || selectedShowTimes.includes("NIGHT");
   const reclinersActive = selectedOthers.includes("RECLINERS");
   const wheelchairActive = selectedOthers.includes("WHEELCHAIR");
   const premiumActive = selectedOthers.includes("PREMIUM");
   const imaxActive = selectedFormats.includes("IMAX 2D");
 
-  // ids represented by quick pills → chips मध्ये duplicate नको
+  // quick-id sets
   const QUICK_FORMAT_IDS: ShowTimeFormat[] = ["IMAX 2D"];
   const QUICK_SHOWTIME_IDS: ShowTimeBucket[] = ["MORNING", "EVENING", "NIGHT"];
   const QUICK_OTHERS_IDS: string[] = ["RECLINERS", "WHEELCHAIR", "PREMIUM"];
 
-  // build chips for all active filters (for showing next to Filters button)
-  const activeFilterChips: {
-    key: string;
-    group: "FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS";
-    id: string;
-    label: string;
-  }[] = [];
+  // Build active chips next to Filters button WITHOUT duplicates:
+  // - include quick chips (IMAX, Morning, After 5, Recliners, Wheelchair, Premium) if selected (either via modal arrays or quick toggles)
+  // - include non-quick selections (format/showtime/price/others) that are not in quick sets
+  const activeFilterChips: { key: string; group: "FORMAT" | "SHOW_TIME" | "PRICE" | "OTHERS"; id: string; label: string }[] = [];
+  const activeQuickSet = new Set<string>();
 
+  // Quick: IMAX
+  if (selectedFormats.includes("IMAX 2D")) {
+    activeFilterChips.push({ key: `FORMAT-IMAX`, group: "FORMAT", id: "IMAX 2D", label: "IMAX 2D" });
+    activeQuickSet.add("IMAX 2D");
+  }
+
+  // Quick: Morning
+  if (selectedShowTimes.includes("MORNING")) {
+    activeFilterChips.push({ key: `SHOW_TIME-MORNING`, group: "SHOW_TIME", id: "MORNING", label: "Morning" });
+    activeQuickSet.add("MORNING");
+  }
+
+  // Quick: After 5 PM (if either EVENING or NIGHT present)
+  if (selectedShowTimes.includes("EVENING") || selectedShowTimes.includes("NIGHT")) {
+    // show single chip "After 5 PM"
+    activeFilterChips.push({ key: `SHOW_TIME-AFTER5`, group: "SHOW_TIME", id: "AFTER5", label: "After 5 PM" });
+    activeQuickSet.add("AFTER5"); // special marker
+  }
+
+  // Quick: Others (recliners/wheelchair/premium)
+  if (selectedOthers.includes("RECLINERS")) {
+    activeFilterChips.push({ key: `OTHERS-RECLINERS`, group: "OTHERS", id: "RECLINERS", label: "Recliners" });
+    activeQuickSet.add("RECLINERS");
+  }
+  if (selectedOthers.includes("WHEELCHAIR")) {
+    activeFilterChips.push({ key: `OTHERS-WHEELCHAIR`, group: "OTHERS", id: "WHEELCHAIR", label: "Wheelchair Friendly" });
+    activeQuickSet.add("WHEELCHAIR");
+  }
+  if (selectedOthers.includes("PREMIUM")) {
+    activeFilterChips.push({ key: `OTHERS-PREMIUM`, group: "OTHERS", id: "PREMIUM", label: "Premium Seats" });
+    activeQuickSet.add("PREMIUM");
+  }
+
+  // Non-quick formats (2D etc) - exclude quick ones already added
   selectedFormats.forEach((f) => {
-    // IMAX 2D has quick pill → no chip
     if (QUICK_FORMAT_IDS.includes(f)) return;
     const cfg = FORMAT_FILTERS.find((x) => x.id === f);
     if (cfg) {
-      activeFilterChips.push({
-        key: `FORMAT-${cfg.id}`,
-        group: "FORMAT",
-        id: cfg.id,
-        label: cfg.label,
-      });
+      activeFilterChips.push({ key: `FORMAT-${cfg.id}`, group: "FORMAT", id: cfg.id, label: cfg.label });
     }
   });
 
+  // Non-quick showtime buckets (exclude MORNING/EVENING/NIGHT handled above)
   selectedShowTimes.forEach((st) => {
-    // Morning / Evening / Night handled by quick pills
     if (QUICK_SHOWTIME_IDS.includes(st)) return;
     const cfg = SHOW_TIME_FILTERS.find((x) => x.id === st);
     if (cfg) {
-      activeFilterChips.push({
-        key: `SHOW_TIME-${cfg.id}`,
-        group: "SHOW_TIME",
-        id: cfg.id,
-        label: cfg.label,
-      });
+      activeFilterChips.push({ key: `SHOW_TIME-${cfg.id}`, group: "SHOW_TIME", id: cfg.id, label: cfg.label });
     }
   });
 
+  // Price chips (always non-quick)
   selectedPriceRanges.forEach((pid) => {
     const cfg = PRICE_FILTERS.find((x) => x.id === pid);
     if (cfg) {
-      activeFilterChips.push({
-        key: `PRICE-${cfg.id}`,
-        group: "PRICE",
-        id: cfg.id,
-        label: cfg.label,
-      });
+      activeFilterChips.push({ key: `PRICE-${cfg.id}`, group: "PRICE", id: cfg.id, label: cfg.label });
     }
   });
 
+  // Non-quick others (exclude quick others)
   selectedOthers.forEach((oid) => {
-    // Recliners / Wheelchair / Premium → quick pills
     if (QUICK_OTHERS_IDS.includes(oid)) return;
     const cfg = OTHERS_FILTERS.find((x) => x.id === oid);
     if (cfg) {
-      activeFilterChips.push({
-        key: `OTHERS-${cfg.id}`,
-        group: "OTHERS",
-        id: cfg.id,
-        label: cfg.label,
-      });
+      activeFilterChips.push({ key: `OTHERS-${cfg.id}`, group: "OTHERS", id: cfg.id, label: cfg.label });
     }
   });
 
@@ -443,11 +440,7 @@ export default function MoviePage({}: { params: { slug: string } }) {
   const filteredTheatres: Theatre[] = THEATRES.map((t) => {
     const filteredTimes = t.times.filter((slot) => {
       // format
-      if (
-        selectedFormats.length > 0 &&
-        slot.format &&
-        !selectedFormats.includes(slot.format)
-      ) {
+      if (selectedFormats.length > 0 && slot.format && !selectedFormats.includes(slot.format)) {
         return false;
       }
 
@@ -458,22 +451,14 @@ export default function MoviePage({}: { params: { slug: string } }) {
       }
 
       // price
-      const minPrice =
-        slot.seats && slot.seats.length > 0
-          ? Math.min(...slot.seats.map((s) => s.price))
-          : 0;
+      const minPrice = slot.seats && slot.seats.length > 0 ? Math.min(...slot.seats.map((s) => s.price)) : 0;
       if (!matchPriceRanges(minPrice, selectedPriceRanges)) return false;
 
       // others – AND logic
       if (selectedOthers.length > 0) {
         const ok = selectedOthers.every((f) => {
           if (f === "RECLINERS") {
-            return (
-              hasAmenity(t, "recliners") ||
-              (slot.seats ?? []).some((s) =>
-                s.label.toLowerCase().includes("recliner")
-              )
-            );
+            return hasAmenity(t, "recliners") || (slot.seats ?? []).some((s) => s.label.toLowerCase().includes("recliner"));
           }
           if (f === "WHEELCHAIR") {
             return hasAmenity(t, "wheelchair");
@@ -481,18 +466,11 @@ export default function MoviePage({}: { params: { slug: string } }) {
           if (f === "PREMIUM") {
             return (slot.seats ?? []).some((s) => {
               const l = s.label.toLowerCase();
-              return (
-                l.includes("royal") ||
-                l.includes("prime") ||
-                l.includes("vip") ||
-                l.includes("premium")
-              );
+              return l.includes("royal") || l.includes("prime") || l.includes("vip") || l.includes("premium");
             });
           }
           if (f === "COUPLE") {
-            return (slot.seats ?? []).some((s) =>
-              s.label.toLowerCase().includes("couple")
-            );
+            return (slot.seats ?? []).some((s) => s.label.toLowerCase().includes("couple"));
           }
           return true;
         });
@@ -505,12 +483,9 @@ export default function MoviePage({}: { params: { slug: string } }) {
     return { ...t, times: filteredTimes };
   }).filter((t) => t.times.length > 0);
 
-  const totalShows = filteredTheatres.reduce(
-    (sum, t) => sum + t.times.length,
-    0
-  );
+  const totalShows = filteredTheatres.reduce((sum, t) => sum + t.times.length, 0);
 
-  // ---------- Movie details modal: scroll + tab sync ---------- //
+  // ---------- Movie details modal: scroll + tab sync ----------
   const detailsTabs: { id: DetailsTab; label: string }[] = [
     { id: "REVIEWS", label: "Reviews" },
     { id: "SYNOPSIS", label: "Synopsis" },
@@ -519,10 +494,7 @@ export default function MoviePage({}: { params: { slug: string } }) {
     { id: "POSTERS", label: "Posters" },
   ];
 
-  const sectionRefMap: Record<
-    DetailsTab,
-    React.RefObject<HTMLDivElement | null>
-  > = {
+  const sectionRefMap: Record<DetailsTab, React.RefObject<HTMLDivElement | null>> = {
     REVIEWS: reviewsRef,
     SYNOPSIS: synopsisRef,
     CAST: castRef,
@@ -540,8 +512,7 @@ export default function MoviePage({}: { params: { slug: string } }) {
     const containerRect = container.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
 
-    const offset =
-      targetRect.top - containerRect.top + container.scrollTop - 16;
+    const offset = targetRect.top - containerRect.top + container.scrollTop - 16;
 
     container.scrollTo({
       top: Math.max(0, offset),
@@ -576,6 +547,20 @@ export default function MoviePage({}: { params: { slug: string } }) {
     }
   };
 
+  // Helper to remove a quick chip (handles AFTER5 special case)
+  const removeQuickChip = (id: string) => {
+    if (id === "AFTER5") {
+      // remove both EVENING and NIGHT
+      setSelectedShowTimes((prev) => prev.filter((x) => x !== "EVENING" && x !== "NIGHT"));
+    } else if (id === "MORNING") {
+      setSelectedShowTimes((prev) => prev.filter((x) => x !== "MORNING"));
+    } else if (id === "IMAX 2D") {
+      setSelectedFormats((prev) => prev.filter((x) => x !== "IMAX 2D"));
+    } else if (id === "RECLINERS" || id === "WHEELCHAIR" || id === "PREMIUM") {
+      setSelectedOthers((prev) => prev.filter((x) => x !== id));
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-white">
       <Header />
@@ -590,26 +575,15 @@ export default function MoviePage({}: { params: { slug: string } }) {
               onClick={() => setIsTrailerOpen(true)}
               className="relative h-[140px] w-[100px] overflow-hidden rounded-2xl bg-zinc-200 md:h-[160px] md:w-[115px]"
             >
-              <Image
-                src="/movies/d4.jpg"
-                alt="Tere Ishk Mein"
-                fill
-                className="object-cover"
-              />
+              <Image src="/movies/d4.jpg" alt="Tere Ishk Mein" fill className="object-cover" />
               <span className="absolute inset-0 flex items-center justify-center">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-white shadow-lg">
-                  ▶
-                </span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-white shadow-lg">▶</span>
               </span>
             </button>
 
             <div className="flex flex-1 flex-col gap-2">
-              <h1 className="text-2xl font-semibold text-zinc-900 md:text-3xl">
-                Tere Ishk Mein
-              </h1>
-              <p className="text-xs font-medium text-zinc-500 md:text-sm">
-                UA16+ • Hindi +1 more • 2 hr 49 min
-              </p>
+              <h1 className="text-2xl font-semibold text-zinc-900 md:text-3xl">Tere Ishk Mein</h1>
+              <p className="text-xs font-medium text-zinc-500 md:text-sm">UA16+ • Hindi +1 more • 2 hr 49 min</p>
 
               {/* OPEN MOVIE DETAILS MODAL */}
               <button
@@ -628,9 +602,7 @@ export default function MoviePage({}: { params: { slug: string } }) {
           <div className="flex items-stretch gap-4">
             {/* Left vertical month pill */}
             <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
-              <span className="uppercase">
-                {dateOptions[selectedDateIndex]?.month || ""}
-              </span>
+              <span className="uppercase">{dateOptions[selectedDateIndex]?.month || ""}</span>
             </div>
 
             {/* Dates: today + next 3 days */}
@@ -647,26 +619,12 @@ export default function MoviePage({}: { params: { slug: string } }) {
                           : "flex flex-shrink-0 flex-col items-center justify-center px-1"
                       }
                     >
-                      <span
-                        className={`text-[17px] font-semibold ${
-                          active ? "text-white" : "text-zinc-900"
-                        }`}
-                      >
-                        {d.dayNum}
-                      </span>
-                      <span
-                        className={`text-[11px] font-medium ${
-                          active ? "text-zinc-300" : "text-zinc-500"
-                        }`}
-                      >
-                        {d.dayLabel}
-                      </span>
+                      <span className={`text-[17px] font-semibold ${active ? "text-white" : "text-zinc-900"}`}>{d.dayNum}</span>
+                      <span className={`text-[11px] font-medium ${active ? "text-zinc-300" : "text-zinc-500"}`}>{d.dayLabel}</span>
                     </button>
 
                     {/* vertical divider between days (except last) */}
-                    {idx < dateOptions.length - 1 && (
-                      <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />
-                    )}
+                    {idx < dateOptions.length - 1 && <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />}
                   </React.Fragment>
                 );
               })}
@@ -681,18 +639,10 @@ export default function MoviePage({}: { params: { slug: string } }) {
               <button
                 type="button"
                 onClick={() => setIsFilterOpen(true)}
-                className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800"
+                className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800"
               >
                 <span className="text-lg leading-none">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 5h16M7 5a2 2 0 1 0 4 0M4 12h16M13 12a2 2 0 1 0 4 0M4 19h16M6 19a2 2 0 1 0 4 0" />
                   </svg>
                 </span>
@@ -700,14 +650,23 @@ export default function MoviePage({}: { params: { slug: string } }) {
                 <span className="text-xs">▼</span>
               </button>
 
-              {/* Active chips from popup filters — styled exactly like quick toggles (black bg / white text).
-                  Each chip is flex-shrink-0 so the whole row stays single-line and scrollable. */}
+              {/* Active chips from popup filters — medium corners (rounded-lg) */}
               {activeFilterChips.map((chip) => (
                 <button
                   key={chip.key}
                   type="button"
-                  onClick={() => handleRemoveFilter(chip.group, chip.id)}
-                  className="flex-shrink-0 rounded-full border border-black bg-black px-4 py-2 text-sm font-medium text-white"
+                  onClick={() => {
+                    // special handling for AFTER5
+                    if (chip.id === "AFTER5") {
+                      removeQuickChip("AFTER5");
+                    } else if (chip.group === "FORMAT" && chip.id === "IMAX 2D") {
+                      removeQuickChip("IMAX 2D");
+                    } else {
+                      // use generic removal for others
+                      handleRemoveFilter(chip.group, chip.id);
+                    }
+                  }}
+                  className="flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]"
                 >
                   <span>{chip.label}</span>
                 </button>
@@ -716,103 +675,77 @@ export default function MoviePage({}: { params: { slug: string } }) {
               {/* Small divider between popup filters & quick toggles */}
               <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
 
-              {/* Quick toggle pills – same line (no "clear all" button here) */}
-              <button
-                onClick={() =>
-                  setSelectedFormats((prev) => toggleFromArray(prev, "IMAX 2D"))
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  imaxActive
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                IMAX 2D
-              </button>
+              {/* QUICK TOGGLES: only render if NOT already active (prevent duplicates) */}
+              {/* IMAX */}
+              {!activeQuickSet.has("IMAX 2D") && (
+                <button
+                  onClick={() => setSelectedFormats((prev) => toggleFromArray(prev, "IMAX 2D"))}
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${imaxActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  IMAX 2D
+                </button>
+              )}
 
-              <button
-                onClick={() =>
-                  setSelectedShowTimes((prev) =>
-                    toggleFromArray(prev, "MORNING")
-                  )
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  morningActive
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                Morning
-              </button>
+              {/* Morning */}
+              {!activeQuickSet.has("MORNING") && (
+                <button
+                  onClick={() => setSelectedShowTimes((prev) => toggleFromArray(prev, "MORNING"))}
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${morningActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  Morning
+                </button>
+              )}
 
-              <button
-                onClick={() =>
-                  setSelectedShowTimes((prev) => {
-                    let next = [...prev];
-                    if (after5Active) {
-                      next = next.filter(
-                        (id) => id !== "EVENING" && id !== "NIGHT"
-                      );
-                    } else {
-                      if (!next.includes("EVENING")) next.push("EVENING");
-                      if (!next.includes("NIGHT")) next.push("NIGHT");
-                    }
-                    return next;
-                  })
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  after5Active
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                After 5 PM
-              </button>
+              {/* After 5 PM (maps to EVENING+NIGHT) */}
+              {!activeQuickSet.has("AFTER5") && (
+                <button
+                  onClick={() =>
+                    setSelectedShowTimes((prev) => {
+                      let next = [...prev];
+                      if (after5Active) {
+                        next = next.filter((id) => id !== "EVENING" && id !== "NIGHT");
+                      } else {
+                        if (!next.includes("EVENING")) next.push("EVENING");
+                        if (!next.includes("NIGHT")) next.push("NIGHT");
+                      }
+                      return next;
+                    })
+                  }
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${after5Active ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  After 5 PM
+                </button>
+              )}
 
-              <button
-                onClick={() =>
-                  setSelectedOthers((prev) =>
-                    toggleFromArray(prev, "RECLINERS")
-                  )
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  reclinersActive
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                Recliners
-              </button>
+              {/* Recliners */}
+              {!activeQuickSet.has("RECLINERS") && (
+                <button
+                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "RECLINERS"))}
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${reclinersActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  Recliners
+                </button>
+              )}
 
-              <button
-                onClick={() =>
-                  setSelectedOthers((prev) =>
-                    toggleFromArray(prev, "WHEELCHAIR")
-                  )
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  wheelchairActive
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                Wheelchair Friendly
-              </button>
+              {/* Wheelchair */}
+              {!activeQuickSet.has("WHEELCHAIR") && (
+                <button
+                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "WHEELCHAIR"))}
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${wheelchairActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  Wheelchair Friendly
+                </button>
+              )}
 
-              <button
-                onClick={() =>
-                  setSelectedOthers((prev) =>
-                    toggleFromArray(prev, "PREMIUM")
-                  )
-                }
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium ${
-                  premiumActive
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-800"
-                }`}
-              >
-                Premium Seats
-              </button>
+              {/* Premium */}
+              {!activeQuickSet.has("PREMIUM") && (
+                <button
+                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "PREMIUM"))}
+                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${premiumActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
+                >
+                  Premium Seats
+                </button>
+              )}
             </div>
           </div>
 
@@ -836,45 +769,24 @@ export default function MoviePage({}: { params: { slug: string } }) {
         {/* THEATRES + SHOWTIMES */}
         <section className="mt-4 space-y-6">
           {filteredTheatres.map((theatre) => (
-            <div
-              key={theatre.id}
-              className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm"
-            >
+            <div key={theatre.id} className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 {/* LEFT: logo + name - CLICKABLE for info modal */}
-                <button
-                  type="button"
-                  onClick={() => setInfoTheatre(theatre)}
-                  className="flex flex-1 items-start gap-4 text-left"
-                >
+                <button type="button" onClick={() => setInfoTheatre(theatre)} className="flex flex-1 items-start gap-4 text-left">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-[10px] font-bold uppercase text-zinc-700">
                     {theatre.logoText}
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <h3 className="text-[15px] font-semibold text-zinc-900 md:text-base">
-                      {theatre.name}
-                    </h3>
-                    <p className="text-xs text-zinc-500">
-                      {theatre.distance} • {theatre.meta}
-                    </p>
+                    <h3 className="text-[15px] font-semibold text-zinc-900 md:text-base">{theatre.name}</h3>
+                    <p className="text-xs text-zinc-500">{theatre.distance} • {theatre.meta}</p>
                   </div>
                 </button>
 
                 {/* Favourite heart */}
                 <button className="mt-1 flex h-12 w-12 items-center justify-center rounded-full hover:bg-zinc-100">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 stroke-[2] text-zinc-700"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2] text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                   </svg>
                 </button>
               </div>
@@ -885,74 +797,30 @@ export default function MoviePage({}: { params: { slug: string } }) {
                   <div key={idx} className="group relative">
                     {/* HOVER POPUP */}
                     {slot.seats && slot.seats.length > 0 && (
-                      <div
-                        className="
-                          pointer-events-none
-                          absolute bottom-full left-1/2 z-20 mb-3
-                          hidden -translate-x-1/2 transform
-                          rounded-2xl bg-[#f3f3f3] px-7 py-4
-                          shadow-[0_8px_24px_rgba(0,0,0,0.12)]
-                          group-hover:flex
-                        "
-                      >
+                      <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden -translate-x-1/2 transform rounded-2xl bg-[#f3f3f3] px-7 py-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] group-hover:flex">
                         <div className="flex gap-8">
                           {slot.seats.map((s, i) => (
                             <div key={i} className="min-w-[90px] text-center">
-                              <div className="text-[11px] font-semibold tracking-wide text-zinc-500">
-                                {s.label.toUpperCase()}
-                              </div>
-                              <div className="mt-1 text-[15px] font-semibold text-zinc-900">
-                                ₹{s.price}
-                              </div>
-                              <div
-                                className={`mt-1 text-[11px] font-semibold ${
-                                  s.status === "AVAILABLE"
-                                    ? "text-emerald-600"
-                                    : s.status === "FILLING"
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {s.status === "AVAILABLE"
-                                  ? "AVAILABLE"
-                                  : s.status === "FILLING"
-                                  ? "FILLING FAST"
-                                  : "ALMOST FULL"}
+                              <div className="text-[11px] font-semibold tracking-wide text-zinc-500">{s.label.toUpperCase()}</div>
+                              <div className="mt-1 text-[15px] font-semibold text-zinc-900">₹{s.price}</div>
+                              <div className={`mt-1 text-[11px] font-semibold ${s.status === "AVAILABLE" ? "text-emerald-600" : s.status === "FILLING" ? "text-yellow-600" : "text-red-600"}`}>
+                                {s.status === "AVAILABLE" ? "AVAILABLE" : s.status === "FILLING" ? "FILLING FAST" : "ALMOST FULL"}
                               </div>
                             </div>
                           ))}
                         </div>
 
                         {/* notch-style arrow */}
-                        <div
-                          className="
-                            pointer-events-none absolute left-1/2 top-full
-                            -translate-x-1/2 -translate-y-[1px]
-                          "
-                        >
-                          <div
-                            className="
-                              h-0 w-0
-                              border-l-[18px] border-r-[18px] border-t-[14px]
-                              border-l-transparent border-r-transparent
-                              border-t-[#f3f3f3]
-                            "
-                          />
+                        <div className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 -translate-y-[1px]">
+                          <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-[#f3f3f3]" />
                         </div>
                       </div>
                     )}
 
                     {/* TIME CARD */}
-                    <Link
-                      href={`/movies/seat-layout/${slot.sessionId}`}
-                      className="flex h-[56px] w-[160px] flex-col items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 hover:border-zinc-900"
-                    >
+                    <Link href={`/movies/seat-layout/${slot.sessionId}`} className="flex h-[56px] w-[160px] flex-col items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 hover:border-zinc-900">
                       <span>{slot.time}</span>
-                      {slot.tag && (
-                        <span className="mt-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                          {slot.tag}
-                        </span>
-                      )}
+                      {slot.tag && <span className="mt-1 text-[10px] uppercase tracking-wide text-zinc-500">{slot.tag}</span>}
                     </Link>
                   </div>
                 ))}
@@ -961,52 +829,24 @@ export default function MoviePage({}: { params: { slug: string } }) {
           ))}
 
           {filteredTheatres.length === 0 && (
-            <div className="mt-8 text-center text-sm text-zinc-600">
-              No shows match the selected filters.
-            </div>
+            <div className="mt-8 text-center text-sm text-zinc-600">No shows match the selected filters.</div>
           )}
         </section>
       </main>
 
       {/* TRAILER MODAL */}
       {isTrailerOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-md"
-          onClick={() => setIsTrailerOpen(false)}
-        >
-          <button
-            type="button"
-            onClick={() => setIsTrailerOpen(false)}
-            className="absolute right-6 top-6 text-2xl font-semibold text-zinc-700 hover:text-black"
-          >
-            ✕
-          </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-md" onClick={() => setIsTrailerOpen(false)}>
+          <button type="button" onClick={() => setIsTrailerOpen(false)} className="absolute right-6 top-6 text-2xl font-semibold text-zinc-700 hover:text-black">✕</button>
 
-          <div
-            className="relative w-full max-w-5xl overflow-hidden rounded-2xl bg-black shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative w-full max-w-5xl overflow-hidden rounded-2xl bg-black shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="relative w-full pb-[56.25%]">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`${TRAILER_EMBED_URL}?autoplay=1`}
-                className="absolute inset-0 h-full w-full"
-                title="Tere Ishk Mein Trailer"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
+              <iframe width="100%" height="100%" src={`${TRAILER_EMBED_URL}?autoplay=1`} className="absolute inset-0 h-full w-full" title="Tere Ishk Mein Trailer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />
             </div>
 
             <div className="bg-white px-6 py-4">
-              <h2 className="text-lg font-semibold text-zinc-900">
-                Tere Ishk Mein
-              </h2>
-              <p className="mt-1 text-xs font-medium text-zinc-500">
-                UA16+ &nbsp;|&nbsp; Hindi &nbsp;|&nbsp; 2 hr 49 min
-              </p>
+              <h2 className="text-lg font-semibold text-zinc-900">Tere Ishk Mein</h2>
+              <p className="mt-1 text-xs font-medium text-zinc-500">UA16+ &nbsp;|&nbsp; Hindi &nbsp;|&nbsp; 2 hr 49 min</p>
             </div>
           </div>
         </div>
@@ -1014,110 +854,59 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
       {/* MOVIE DETAILS MODAL (View details) */}
       {isDetailsOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
-          onClick={() => setIsDetailsOpen(false)}
-        >
-          <div
-            className="relative w-full max-w-5xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-7"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsDetailsOpen(false)}
-              className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800"
-            >
-              ✕
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md" onClick={() => setIsDetailsOpen(false)}>
+          <div className="relative w-full max-w-5xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-7" onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setIsDetailsOpen(false)} className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800">✕</button>
 
             <div>
-              <h2 className="text-xl font-semibold text-zinc-900 md:text-2xl">
-                Movie details
-              </h2>
-              <p className="mt-1 text-xs font-medium text-zinc-500 md:text-sm">
-                Tere Ishk Mein
-              </p>
+              <h2 className="text-xl font-semibold text-zinc-900 md:text-2xl">Movie details</h2>
+              <p className="mt-1 text-xs font-medium text-zinc-500 md:text-sm">Tere Ishk Mein</p>
             </div>
 
             {/* Tabs */}
             <div className="mt-6 flex gap-6 border-b border-zinc-200 text-sm md:text-base">
               {detailsTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleDetailsTabClick(tab.id)}
-                  className={`relative px-1 pb-3 text-sm font-medium md:px-2 md:text-base ${
-                    activeDetailsTab === tab.id
-                      ? "text-zinc-900"
-                      : "text-zinc-500 hover:text-zinc-800"
-                  }`}
-                >
+                <button key={tab.id} type="button" onClick={() => handleDetailsTabClick(tab.id)} className={`relative px-1 pb-3 text-sm font-medium md:px-2 md:text-base ${activeDetailsTab === tab.id ? "text-zinc-900" : "text-zinc-500 hover:text-zinc-800"}`}>
                   {tab.label}
-                  {activeDetailsTab === tab.id && (
-                    <span className="absolute bottom-0 left-0 right-0 mx-auto h-[2px] w-full max-w-[70px] rounded-full bg-[#6c4bff]" />
-                  )}
+                  {activeDetailsTab === tab.id && <span className="absolute bottom-0 left-0 right-0 mx-auto h-[2px] w-full max-w-[70px] rounded-full bg-[#6c4bff]" />}
                 </button>
               ))}
             </div>
 
             {/* Scrollable content */}
-            <div
-              ref={detailsScrollRef}
-              onScroll={handleDetailsScroll}
-              className="mt-5 max-h-[60vh] overflow-y-auto pr-2"
-            >
+            <div ref={detailsScrollRef} onScroll={handleDetailsScroll} className="mt-5 max-h-[60vh] overflow-y-auto pr-2">
               {/* REVIEWS */}
               <section ref={reviewsRef} className="pb-10">
-                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">
-                  Reviews
-                </h3>
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Reviews</h3>
 
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-orange-100" />
                       <div>
-                        <p className="text-xs font-semibold text-zinc-800">
-                          Bollywood Hungama
-                        </p>
-                        <p className="text-[11px] text-zinc-500">
-                          critic review
-                        </p>
+                        <p className="text-xs font-semibold text-zinc-800">Bollywood Hungama</p>
+                        <p className="text-[11px] text-zinc-500">critic review</p>
                       </div>
-                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
-                        3.0/5 ★
-                      </span>
+                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">3.0/5 ★</span>
                     </div>
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-                      An emotional love story with strong performances and a
-                      soundtrack that stays with you long after the film ends.
-                    </p>
+                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">An emotional love story with strong performances and a soundtrack that stays with you long after the film ends.</p>
                   </div>
 
                   <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-blue-100" />
                       <div>
-                        <p className="text-xs font-semibold text-zinc-800">
-                          Taran Adarsh
-                        </p>
-                        <p className="text-[11px] text-zinc-500">
-                          film critic
-                        </p>
+                        <p className="text-xs font-semibold text-zinc-800">Taran Adarsh</p>
+                        <p className="text-[11px] text-zinc-500">film critic</p>
                       </div>
-                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
-                        3.5/5 ★
-                      </span>
+                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">3.5/5 ★</span>
                     </div>
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-                      Relies heavily on its lead pair&apos;s chemistry and
-                      delivers a visually rich, emotionally charged experience.
-                    </p>
+                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">Relies heavily on its lead pair's chemistry and delivers a visually rich, emotionally charged experience.</p>
                   </div>
                 </div>
               </section>
 
-              {/* ... rest of modal content unchanged ... */}
+              
             </div>
           </div>
         </div>
@@ -1125,64 +914,34 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
       {/* THEATRE INFO MODAL (unchanged) */}
       {infoTheatre && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
-          onClick={() => setInfoTheatre(null)}
-        >
-          <div
-            className="relative w-full max-w-4xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setInfoTheatre(null)}
-              className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800"
-            >
-              ✕
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md" onClick={() => setInfoTheatre(null)}>
+          <div className="relative w-full max-w-4xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-8" onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setInfoTheatre(null)} className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800">✕</button>
 
             <div className="flex flex-col gap-4 pr-10 md:flex-row md:items-start">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-200 bg-white text-xs font-bold uppercase text-zinc-700">
-                {infoTheatre.logoText}
-              </div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-200 bg-white text-xs font-bold uppercase text-zinc-700">{infoTheatre.logoText}</div>
 
               <div className="flex flex-1 flex-col gap-2">
-                <h2 className="text-lg font-semibold text-zinc-900 md:text-xl">
-                  {infoTheatre.name}
-                </h2>
-                <p className="text-xs leading-relaxed text-zinc-600 md:text-sm">
-                  {infoTheatre.address}
-                </p>
+                <h2 className="text-lg font-semibold text-zinc-900 md:text-xl">{infoTheatre.name}</h2>
+                <p className="text-xs leading-relaxed text-zinc-600 md:text-sm">{infoTheatre.address}</p>
               </div>
             </div>
 
             <div className="mt-6">
-              <h3 className="text-sm font-semibold text-zinc-900">
-                Services &amp; amenities
-              </h3>
+              <h3 className="text-sm font-semibold text-zinc-900">Services &amp; amenities</h3>
 
               <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 text-xs text-zinc-700 sm:grid-cols-3 md:grid-cols-4">
                 {infoTheatre.amenities?.map((a) => (
-                  <div
-                    key={a.id}
-                    className="flex flex-col items-center gap-1 text-center"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-base">
-                      {a.icon}
-                    </div>
-                    <span className="max-w-[8rem] text-[11px] leading-snug text-zinc-600">
-                      {a.label}
-                    </span>
+                  <div key={a.id} className="flex flex-col items-center gap-1 text-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-base">{a.icon}</div>
+                    <span className="max-w-[8rem] text-[11px] leading-snug text-zinc-600">{a.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="mt-8">
-              <Link
-                href={`/theatre/${infoTheatre.slug}`}
-                className="flex w-full items-center justify-center rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-200"
-              >
+              <Link href={`/theatre/${infoTheatre.slug}`} className="flex w-full items-center justify-center rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-200">
                 View all movies playing here
               </Link>
             </div>
@@ -1190,72 +949,22 @@ export default function MoviePage({}: { params: { slug: string } }) {
         </div>
       )}
 
-      {/* FILTER MODAL – unchanged behavior & layout (still contains Clear options) */}
+      {/* FILTER MODAL */}
       {isFilterOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
-          onClick={() => setIsFilterOpen(false)}
-        >
-          <div
-            className="relative flex max-h-[80vh] w-full max-w-4xl flex-col rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsFilterOpen(false)}
-              className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800"
-            >
-              ✕
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md" onClick={() => setIsFilterOpen(false)}>
+          <div className="relative flex max-h-[80vh] w-full max-w-4xl flex-col rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-8" onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setIsFilterOpen(false)} className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800">✕</button>
 
-            <h2 className="text-lg font-semibold text-zinc-900 md:text-xl">
-              Filter by
-            </h2>
+            <h2 className="text-lg font-semibold text-zinc-900 md:text-xl">Filter by</h2>
 
             {/* Main body with fixed inner height */}
             <div className="mt-6 flex flex-1 gap-6 overflow-hidden">
               {/* Left tabs */}
               <div className="flex w-32 flex-col text-sm font-medium text-zinc-600">
-                <button
-                  onClick={() => setActiveFilterTab("FORMAT")}
-                  className={`rounded-xl px-3 py-2 text-left ${
-                    activeFilterTab === "FORMAT"
-                      ? "bg-zinc-900/5 text-zinc-900"
-                      : "hover:bg-zinc-100"
-                  }`}
-                >
-                  Format
-                </button>
-                <button
-                  onClick={() => setActiveFilterTab("SHOW_TIME")}
-                  className={`mt-1 rounded-xl px-3 py-2 text-left ${
-                    activeFilterTab === "SHOW_TIME"
-                      ? "bg-zinc-900/5 text-zinc-900"
-                      : "hover:bg-zinc-100"
-                  }`}
-                >
-                  Show Time
-                </button>
-                <button
-                  onClick={() => setActiveFilterTab("PRICE")}
-                  className={`mt-1 rounded-xl px-3 py-2 text-left ${
-                    activeFilterTab === "PRICE"
-                      ? "bg-zinc-900/5 text-zinc-900"
-                      : "hover:bg-zinc-100"
-                  }`}
-                >
-                  Price
-                </button>
-                <button
-                  onClick={() => setActiveFilterTab("OTHERS")}
-                  className={`mt-1 rounded-xl px-3 py-2 text-left ${
-                    activeFilterTab === "OTHERS"
-                      ? "bg-zinc-900/5 text-zinc-900"
-                      : "hover:bg-zinc-100"
-                  }`}
-                >
-                  Others
-                </button>
+                <button onClick={() => setActiveFilterTab("FORMAT")} className={`rounded-xl px-3 py-2 text-left ${activeFilterTab === "FORMAT" ? "bg-zinc-900/5 text-zinc-900" : "hover:bg-zinc-100"}`}>Format</button>
+                <button onClick={() => setActiveFilterTab("SHOW_TIME")} className={`mt-1 rounded-xl px-3 py-2 text-left ${activeFilterTab === "SHOW_TIME" ? "bg-zinc-900/5 text-zinc-900" : "hover:bg-zinc-100"}`}>Show Time</button>
+                <button onClick={() => setActiveFilterTab("PRICE")} className={`mt-1 rounded-xl px-3 py-2 text-left ${activeFilterTab === "PRICE" ? "bg-zinc-900/5 text-zinc-900" : "hover:bg-zinc-100"}`}>Price</button>
+                <button onClick={() => setActiveFilterTab("OTHERS")} className={`mt-1 rounded-xl px-3 py-2 text-left ${activeFilterTab === "OTHERS" ? "bg-zinc-900/5 text-zinc-900" : "hover:bg-zinc-100"}`}>Others</button>
               </div>
 
               {/* Right content – fixed height, scrollable */}
@@ -1265,19 +974,8 @@ export default function MoviePage({}: { params: { slug: string } }) {
                   <ul className="space-y-4 text-sm">
                     {FORMAT_FILTERS.map((f) => (
                       <li key={f.id} className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedFormats.includes(f.id)}
-                          onChange={() =>
-                            setSelectedFormats((prev) =>
-                              toggleFromArray(prev, f.id)
-                            )
-                          }
-                          className="mt-[1px] h-4 w-4 rounded-full border-2 border-zinc-400 accent-black"
-                        />
-                        <span className="font-semibold text-zinc-900">
-                          {f.label}
-                        </span>
+                        <input type="checkbox" checked={selectedFormats.includes(f.id)} onChange={() => setSelectedFormats((prev) => toggleFromArray(prev, f.id))} className="mt-[1px] h-4 w-4 rounded-full border-2 border-zinc-400 accent-black" />
+                        <span className="font-semibold text-zinc-900">{f.label}</span>
                       </li>
                     ))}
                   </ul>
@@ -1288,23 +986,10 @@ export default function MoviePage({}: { params: { slug: string } }) {
                   <ul className="space-y-4 text-sm">
                     {SHOW_TIME_FILTERS.map((opt) => (
                       <li key={opt.id} className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedShowTimes.includes(opt.id)}
-                          onChange={() =>
-                            setSelectedShowTimes((prev) =>
-                              toggleFromArray(prev, opt.id)
-                            )
-                          }
-                          className="mt-1 h-4 w-4 rounded-full border-2 border-zinc-400 accent-black"
-                        />
+                        <input type="checkbox" checked={selectedShowTimes.includes(opt.id)} onChange={() => setSelectedShowTimes((prev) => toggleFromArray(prev, opt.id))} className="mt-1 h-4 w-4 rounded-full border-2 border-zinc-400 accent-black" />
                         <div>
-                          <div className="font-semibold text-zinc-900">
-                            {opt.label}
-                          </div>
-                          <div className="text-xs text-zinc-500">
-                            {opt.sub}
-                          </div>
+                          <div className="font-semibold text-zinc-900">{opt.label}</div>
+                          <div className="text-xs text-zinc-500">{opt.sub}</div>
                         </div>
                       </li>
                     ))}
@@ -1316,19 +1001,8 @@ export default function MoviePage({}: { params: { slug: string } }) {
                   <ul className="space-y-3 text-sm">
                     {PRICE_FILTERS.map((opt) => (
                       <li key={opt.id} className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedPriceRanges.includes(opt.id)}
-                          onChange={() =>
-                            setSelectedPriceRanges((prev) =>
-                              toggleFromArray(prev, opt.id)
-                            )
-                          }
-                          className="h-4 w-4 rounded-full border-2 border-zinc-400 accent-black"
-                        />
-                        <span className="font-semibold text-zinc-900">
-                          {opt.label}
-                        </span>
+                        <input type="checkbox" checked={selectedPriceRanges.includes(opt.id)} onChange={() => setSelectedPriceRanges((prev) => toggleFromArray(prev, opt.id))} className="h-4 w-4 rounded-full border-2 border-zinc-400 accent-black" />
+                        <span className="font-semibold text-zinc-900">{opt.label}</span>
                       </li>
                     ))}
                   </ul>
@@ -1339,19 +1013,8 @@ export default function MoviePage({}: { params: { slug: string } }) {
                   <ul className="space-y-4 text-sm">
                     {OTHERS_FILTERS.map((opt) => (
                       <li key={opt.id} className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedOthers.includes(opt.id)}
-                          onChange={() =>
-                            setSelectedOthers((prev) =>
-                              toggleFromArray(prev, opt.id)
-                            )
-                          }
-                          className="h-4 w-4 rounded-full border-2 border-zinc-400 accent-black"
-                        />
-                        <span className="font-semibold text-zinc-900">
-                          {opt.label}
-                        </span>
+                        <input type="checkbox" checked={selectedOthers.includes(opt.id)} onChange={() => setSelectedOthers((prev) => toggleFromArray(prev, opt.id))} className="h-4 w-4 rounded-full border-2 border-zinc-400 accent-black" />
+                        <span className="font-semibold text-zinc-900">{opt.label}</span>
                       </li>
                     ))}
                   </ul>
@@ -1361,19 +1024,9 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
             {/* Bottom actions */}
             <div className="mt-8 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="text-sm font-medium text-zinc-700 underline underline-offset-4"
-              >
-                Clear filter
-              </button>
+              <button type="button" onClick={handleClearFilters} className="text-sm font-medium text-zinc-700 underline underline-offset-4">Clear filter</button>
 
-              <button
-                type="button"
-                onClick={() => setIsFilterOpen(false)}
-                className="flex min-w-[200px] items-center justify-center rounded-2xl bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-900"
-              >
+              <button type="button" onClick={() => setIsFilterOpen(false)} className="flex min-w-[200px] items-center justify-center rounded-2xl bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-900">
                 View {totalShows} shows
               </button>
             </div>

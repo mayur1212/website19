@@ -108,7 +108,7 @@ export default function Footer() {
       {/* LEFT LOGO */}
       <div>
         <Image
-          src="/movies/logored.png"
+          src="/movies/hayyalogo.png"
           alt="Hayya"
           width={170}
           height={90}

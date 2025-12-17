@@ -1,10 +1,27 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
+import type { IronSession } from "iron-session";
+
+type SessionData = {
+  user?: any;
+};
 
 export async function POST() {
   try {
-    const session = await getSession();
+    // ✅ Properly typed session
+    const session = (await getSession()) as IronSession<SessionData>;
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Session not initialized" },
+        { status: 500 }
+      );
+    }
+
+    // ✅ Clear user
     session.user = undefined;
+
+    // ✅ TS now knows save() exists
     await session.save();
 
     return NextResponse.json({ success: true });
@@ -16,4 +33,3 @@ export async function POST() {
     );
   }
 }
-

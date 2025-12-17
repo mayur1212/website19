@@ -2,13 +2,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-/**
- * Sample data and filter UI for "Only in Theatres".
- */
 
 type MovieItem = {
   id: number;
@@ -21,111 +16,19 @@ type MovieItem = {
 };
 
 const MOVIES: MovieItem[] = [
-  {
-    id: 1,
-    title: "De De Pyaar De 2",
-    cert: "UA13+",
-    language: "Hindi",
-    image: "/movies/d1.jpg",
-    tags: ["New Releases"],
-    genres: ["Comedy", "Drama"],
-  },
-  {
-    id: 2,
-    title: "Tere Ishk Mein",
-    cert: "UA16+",
-    language: "Hindi",
-    image: "/movies/d2.jpg",
-    tags: ["New Releases"],
-    genres: ["Romance", "Drama"],
-  },
-  {
-    id: 3,
-    title: "Mastiii 4",
-    cert: "A",
-    language: "Hindi",
-    image: "/movies/d3.jpg",
-    tags: ["New Releases", "3D"],
-    genres: ["Comedy"],
-  },
-  {
-    id: 4,
-    title: "120 Bahadur",
-    cert: "UA13+",
-    language: "Hindi",
-    image: "/movies/d4.jpg",
-    tags: ["New Releases"],
-    genres: ["Action"],
-  },
-  {
-    id: 5,
-    title: "Haq",
-    cert: "UA13+",
-    language: "Hindi",
-    image: "/movies/d5.jpg",
-    tags: ["Re-Releases"],
-    genres: ["Drama"],
-  },
-  {
-    id: 6,
-    title: "Thamma",
-    cert: "UA16+",
-    language: "Hindi",
-    image: "/movies/d1.jpg",
-    tags: ["New Releases"],
-    genres: ["Thriller"],
-  },
-  {
-    id: 7,
-    title: "Skyfall",
-    cert: "UA13+",
-    language: "English",
-    image: "/movies/d2.jpg",
-    tags: ["Re-Releases"],
-    genres: ["Action"],
-  },
-  {
-    id: 8,
-    title: "Avatar: The Way of Water",
-    cert: "UA13+",
-    language: "English",
-    image: "/movies/d3.jpg",
-    tags: ["3D", "4DX", "IMAX"],
-    genres: ["Adventure", "Fantasy"],
-  },
-  {
-    id: 9,
-    title: "Pushpa 2",
-    cert: "UA16+",
-    language: "Hindi",
-    image: "/movies/d4.jpg",
-    tags: ["New Releases"],
-    genres: ["Action"],
-  },
-  {
-    id: 10,
-    title: "Spider-Man: No Way Home",
-    cert: "UA13+",
-    language: "English",
-    image: "/movies/d5.jpg",
-    tags: ["Re-Releases", "3D"],
-    genres: ["Action", "Fantasy"],
-  },
+  { id: 1, title: "De De Pyaar De 2", cert: "UA13+", language: "Hindi", image: "/movies/d1.jpg", tags: ["New Releases"], genres: ["Comedy", "Drama"] },
+  { id: 2, title: "Tere Ishk Mein", cert: "UA16+", language: "Hindi", image: "/movies/d2.jpg", tags: ["New Releases"], genres: ["Romance", "Drama"] },
+  { id: 3, title: "Mastiii 4", cert: "A", language: "Hindi", image: "/movies/d3.jpg", tags: ["New Releases", "3D"], genres: ["Comedy"] },
+  { id: 4, title: "120 Bahadur", cert: "UA13+", language: "Hindi", image: "/movies/d4.jpg", tags: ["New Releases"], genres: ["Action"] },
+  { id: 5, title: "Haq", cert: "UA13+", language: "Hindi", image: "/movies/d5.jpg", tags: ["Re-Releases"], genres: ["Drama"] },
+  { id: 6, title: "Thamma", cert: "UA16+", language: "Hindi", image: "/movies/d1.jpg", tags: ["New Releases"], genres: ["Thriller"] },
+  { id: 7, title: "Skyfall", cert: "UA13+", language: "English", image: "/movies/d2.jpg", tags: ["Re-Releases"], genres: ["Action"] },
+  { id: 8, title: "Avatar: The Way of Water", cert: "UA13+", language: "English", image: "/movies/d3.jpg", tags: ["3D", "4DX", "IMAX"], genres: ["Adventure", "Fantasy"] },
+  { id: 9, title: "Pushpa 2", cert: "UA16+", language: "Hindi", image: "/movies/d4.jpg", tags: ["New Releases"], genres: ["Action"] },
+  { id: 10, title: "Spider-Man: No Way Home", cert: "UA13+", language: "English", image: "/movies/d5.jpg", tags: ["Re-Releases", "3D"], genres: ["Action", "Fantasy"] }
 ];
 
-const GENRES = [
-  "Action",
-  "Adventure",
-  "Animation",
-  "Anime",
-  "Comedy",
-  "Crime",
-  "Devotional",
-  "Drama",
-  "Family",
-  "Fantasy",
-  "Thriller",
-];
+const GENRES = ["Action", "Adventure", "Animation", "Anime", "Comedy", "Crime", "Devotional", "Drama", "Family", "Fantasy", "Thriller"];
 const LANGUAGES = ["Hindi", "English", "Tamil", "Telugu"];
 const FORMATS = ["2D", "3D", "4DX", "IMAX"];
 
@@ -134,18 +37,17 @@ const QUICK_FILTERS = [
   { label: "English", type: "language", value: "English" },
   { label: "New Releases", type: "tag", value: "New Releases" },
   { label: "Re-Releases", type: "tag", value: "Re-Releases" },
-  { label: "4DX", type: "tag", value: "4DX" },
-  { label: "IMAX 3D", type: "tag", value: "IMAX" },
+  { label: "3D", type: "tag", value: "3D" },
+  { label: "4DX–3D", type: "tag", value: "4DX" }
 ];
 
-type ChipGroup = "Genre" | "Language" | "Format";
+type ChipGroup = "Genre" | "Language" | "Format" | "Quick";
 
 export default function OnlyInTheatres() {
   const router = useRouter();
 
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [activeTab, setActiveTab] =
-    useState<"Genre" | "Language" | "Format">("Genre");
+  const [activeTab, setActiveTab] = useState<"Genre" | "Language" | "Format">("Genre");
 
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
@@ -153,333 +55,333 @@ export default function OnlyInTheatres() {
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
 
   const toggleQuickFilter = (value: string) => {
-    setQuickFilters((prev) =>
-      prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
+    setQuickFilters(prev =>
+      prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
     );
   };
 
-  // values that have quick pills outside
-  const QUICK_VALUES = QUICK_FILTERS.map((f) => f.value);
+  const QUICK_VALUES = QUICK_FILTERS.map(f => f.value);
 
-  // build chips only for modal filters that DON'T have quick pills
-  const activeFilterChips: {
-    key: string;
-    group: ChipGroup;
-    value: string;
-    label: string;
-  }[] = [];
+  // Build active filter chips. We include quick-chips (from quickFilters or from modal selections if they are quick-values),
+  // and then non-quick selections. This ensures each quick-value shows only once.
+  const activeFilterChips: { key: string; group: ChipGroup; value: string; label: string; isQuick?: boolean }[] = [];
+  const addedQuick = new Set<string>();
 
-  selectedGenres.forEach((g) => {
-    const isDupQuick = QUICK_VALUES.includes(g);
-    if (isDupQuick) return;
-    activeFilterChips.push({
-      key: `Genre-${g}`,
-      group: "Genre",
-      value: g,
-      label: g,
-    });
-  });
-
-  selectedLanguages.forEach((l) => {
-    const isDupQuick = QUICK_VALUES.includes(l);
-    if (isDupQuick) return;
-    activeFilterChips.push({
-      key: `Language-${l}`,
-      group: "Language",
-      value: l,
-      label: l,
-    });
-  });
-
-  selectedFormats.forEach((f) => {
-    const isDupQuick = QUICK_VALUES.includes(f);
-    if (isDupQuick) return;
-    activeFilterChips.push({
-      key: `Format-${f}`,
-      group: "Format",
-      value: f,
-      label: f,
-    });
-  });
-
-  const handleRemoveFilterChip = (group: ChipGroup, value: string) => {
-    if (group === "Genre") {
-      setSelectedGenres((prev) => prev.filter((g) => g !== value));
-    } else if (group === "Language") {
-      setSelectedLanguages((prev) => prev.filter((l) => l !== value));
-    } else {
-      setSelectedFormats((prev) => prev.filter((f) => f !== value));
+  // 1) Add quick-chips from quickFilters (explicit quick clicks)
+  quickFilters.forEach(q => {
+    if (!addedQuick.has(q)) {
+      activeFilterChips.push({ key: `Quick-${q}`, group: "Quick", value: q, label: q, isQuick: true });
+      addedQuick.add(q);
     }
-  };
+  });
 
-  const handleClearModalFilters = () => {
-    setSelectedGenres([]);
-    setSelectedLanguages([]);
-    setSelectedFormats([]);
-  };
+  // 2) If modal selections include a QUICK value (e.g., selectedLanguages includes "Hindi"),
+  //    add it as a quick chip as well (if not already added).
+  selectedLanguages.forEach(l => {
+    if (QUICK_VALUES.includes(l) && !addedQuick.has(l)) {
+      activeFilterChips.push({ key: `Quick-${l}`, group: "Quick", value: l, label: l, isQuick: true });
+      addedQuick.add(l);
+    }
+  });
+  selectedFormats.forEach(f => {
+    if (QUICK_VALUES.includes(f) && !addedQuick.has(f)) {
+      activeFilterChips.push({ key: `Quick-${f}`, group: "Quick", value: f, label: f, isQuick: true });
+      addedQuick.add(f);
+    }
+  });
 
-  // Filtering logic: quick filters + modal filters
-  const filteredMovies = MOVIES.filter((movie) => {
-    const quickLang = quickFilters.some((f) => LANGUAGES.includes(f));
-    const quickTag = quickFilters.some(
-      (f) => FORMATS.includes(f) || f.includes("Re") || f.includes("New")
-    );
+  // 3) Add other non-quick selected chips (genres and other languages/formats that are not in QUICK_VALUES)
+  selectedGenres.forEach(g => {
+    activeFilterChips.push({ key: `Genre-${g}`, group: "Genre", value: g, label: g });
+  });
 
-    const quickLangOk = !quickLang || quickFilters.includes(movie.language);
-    const quickTagOk =
-      !quickTag || movie.tags.some((t) => quickFilters.includes(t));
+  selectedLanguages.forEach(l => {
+    if (!QUICK_VALUES.includes(l)) {
+      activeFilterChips.push({ key: `Language-${l}`, group: "Language", value: l, label: l });
+    }
+  });
 
-    const modalLangOk =
-      selectedLanguages.length === 0 ||
-      selectedLanguages.includes(movie.language);
-    const modalFormatOk =
-      selectedFormats.length === 0 ||
-      movie.tags.some((tag) => selectedFormats.includes(tag));
-    const modalGenreOk =
-      selectedGenres.length === 0 ||
-      movie.genres.some((g) => selectedGenres.includes(g));
+  selectedFormats.forEach(f => {
+    if (!QUICK_VALUES.includes(f)) {
+      activeFilterChips.push({ key: `Format-${f}`, group: "Format", value: f, label: f });
+    }
+  });
 
-    return (
-      quickLangOk && quickTagOk && modalLangOk && modalFormatOk && modalGenreOk
-    );
+  // Filter movies using quickFilters and the selected sets
+  const filteredMovies = MOVIES.filter(movie => {
+    const quickOk =
+      quickFilters.length === 0 ||
+      quickFilters.includes(movie.language) ||
+      movie.tags.some(t => quickFilters.includes(t));
+
+    const langOk = selectedLanguages.length === 0 || selectedLanguages.includes(movie.language);
+    const formatOk = selectedFormats.length === 0 || movie.tags.some(tag => selectedFormats.includes(tag));
+    const genreOk = selectedGenres.length === 0 || movie.genres.some(g => selectedGenres.includes(g));
+
+    return quickOk && langOk && formatOk && genreOk;
   });
 
   return (
-    <section className="w-full px-4 pt-10 md:px-6 lg:px-16 lg:pt-16">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="mb-6 text-[26px] font-semibold md:text-[32px] lg:text-[36px]">
-          Only in Theatres
-        </h2>
+    <section className="w-full px-4 pt-10 pb-16 md:px-6 lg:px-6 lg:pt-16 lg:pb-16">
 
-        {/* FILTER STRIP – single horizontal line, scrollable */}
+  <div className="w-full max-w-none">
+
+        <h2 className="mb-6 text-[26px] font-semibold md:text-[32px] lg:text-[36px]">Only in Theatres</h2>
+
+        {/* FILTER STRIP */}
         <div className="mb-6">
           <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {/* Filters button (opens modal) */}
+
+            {/* FILTER BUTTON (medium corners) */}
             <button
               onClick={() => setShowFilterModal(true)}
-              className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
+              className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              <span>Filters</span>
+              Filters
               <ChevronDown className="h-4 w-4" />
             </button>
 
-            {/* Chips from popup (modal) filters */}
-            {activeFilterChips.map((chip) => (
-              <button
-                key={chip.key}
-                type="button"
-                onClick={() =>
-                  handleRemoveFilterChip(chip.group, chip.value)
-                }
-                className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700"
-              >
-                <span>{chip.label}</span>
-                <span className="text-xs leading-none">✕</span>
-              </button>
-            ))}
+            {/* SHOW selected quick / active chips immediately after Filters button */}
+            {activeFilterChips.map(chip => {
+              // Quick chips toggle quickFilters
+              if (chip.isQuick) {
+                const selected = quickFilters.includes(chip.value) || selectedLanguages.includes(chip.value) || selectedFormats.includes(chip.value);
+                return (
+                  <button
+                    key={chip.key}
+                    onClick={() => {
+                      // if modal selected it may not be in quickFilters; toggling should remove it from whichever state holds it.
+                      // Prioritize removing from quickFilters; if not present there, remove from selectedLanguages/selectedFormats appropriately.
+                      if (quickFilters.includes(chip.value)) {
+                        toggleQuickFilter(chip.value);
+                      } else if (selectedLanguages.includes(chip.value)) {
+                        setSelectedLanguages(prev => prev.filter(x => x !== chip.value));
+                      } else if (selectedFormats.includes(chip.value)) {
+                        setSelectedFormats(prev => prev.filter(x => x !== chip.value));
+                      } else {
+                        // fallback: toggle quickFilters
+                        toggleQuickFilter(chip.value);
+                      }
+                    }}
+                    className={`flex-shrink-0 px-4 py-2 text-sm font-medium border transition rounded-lg
+                      ${selected ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white border-zinc-300 text-zinc-700"}`}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              }
 
-            {activeFilterChips.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClearModalFilters}
-                className="flex-shrink-0 text-xs font-medium text-zinc-500 underline underline-offset-4"
-              >
-                Clear all
-              </button>
-            )}
+              // Non-quick chips (Genre / Language / Format that are not quick values)
+              const isSelected =
+                (chip.group === "Genre" && selectedGenres.includes(chip.value)) ||
+                (chip.group === "Language" && selectedLanguages.includes(chip.value)) ||
+                (chip.group === "Format" && selectedFormats.includes(chip.value));
 
-            {/* Divider between popup chips & quick toggles */}
-            <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
+              return (
+                <button
+                  key={chip.key}
+                  onClick={() => {
+                    if (chip.group === "Genre") {
+                      setSelectedGenres(prev =>
+                        prev.includes(chip.value) ? prev.filter(x => x !== chip.value) : [...prev, chip.value]
+                      );
+                    } else if (chip.group === "Language") {
+                      setSelectedLanguages(prev =>
+                        prev.includes(chip.value) ? prev.filter(x => x !== chip.value) : [...prev, chip.value]
+                      );
+                    } else {
+                      setSelectedFormats(prev =>
+                        prev.includes(chip.value) ? prev.filter(x => x !== chip.value) : [...prev, chip.value]
+                      );
+                    }
+                  }}
+                  className={`flex-shrink-0 px-4 py-2 text-sm font-medium border transition rounded-lg
+                    ${isSelected ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white border-zinc-300 text-zinc-700"}`}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
 
-            {/* QUICK TOGGLES – same line, scroll horizontally */}
-            {QUICK_FILTERS.map((f) => (
-              <button
-                key={f.label}
-                onClick={() => toggleQuickFilter(f.value)}
-                className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
-                  quickFilters.includes(f.value)
-                    ? "border-black bg-black text-white"
-                    : "border-zinc-300 bg-white text-zinc-700"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+            {/* DIVIDER */}
+            <div className="h-6 w-px bg-zinc-200 flex-shrink-0" />
+
+            {/* QUICK FILTER BUTTONS (don't render values that are already active anywhere) */}
+            {QUICK_FILTERS
+              .filter(f => {
+                // skip if present in quickFilters OR selectedLanguages OR selectedFormats
+                return !quickFilters.includes(f.value) && !selectedLanguages.includes(f.value) && !selectedFormats.includes(f.value);
+              })
+              .map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => toggleQuickFilter(f.value)}
+                  className={`flex-shrink-0 px-4 py-2 text-sm font-medium border transition rounded-lg
+                    ${quickFilters.includes(f.value) ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white border-zinc-300 text-zinc-700"}`}
+                >
+                  {f.label}
+                </button>
+              ))}
           </div>
         </div>
 
         {/* MOVIE GRID */}
-        <div className="mx-auto w-full">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-6">
-            {filteredMovies.map((movie) => (
-              <div
-                key={movie.id}
-                onClick={() => {
-                  const slug = movie.title.toLowerCase().replace(/ /g, "-");
-                  router.push(`/movie/${slug}`);
-                }}
-                className="w-full min-w-0 cursor-pointer overflow-hidden rounded-[22px] bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.18)]"
-              >
-                <div className="h-[260px] sm:h-[280px] md:h-[300px] lg:h-[260px]">
-                  <img
-                    src={movie.image}
-                    alt={movie.title}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-2 md:grid-cols-6">
 
-                <div className="px-3 py-3 md:px-4 md:py-4">
-                  <h3 className="line-clamp-2 text-[14px] font-semibold md:text-[16px]">
-                    {movie.title}
-                  </h3>
-                  <p className="mt-1 text-[12px] text-zinc-500 md:text-[13px]">
-                    {movie.cert} | {movie.language}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+  {filteredMovies.map(movie => (
+    <div
+      key={movie.id}
+      onClick={() =>
+        router.push(`/movie/${movie.title.toLowerCase().replace(/ /g, "-")}`)
+      }
+      className="cursor-pointer w-full rounded-2xl bg-white shadow-md
+                 hover:-translate-y-1 hover:shadow-lg
+                 transition-all duration-200"
+    >
+      <div className="h-[260px] md:h-[300px] overflow-hidden rounded-t-2xl">
+        {/* image with rounded top corners */}
+        <img
+          src={movie.image}
+          alt={movie.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="px-3 py-3">
+        <h3 className="text-[14px] font-semibold line-clamp-2">
+          {movie.title}
+        </h3>
+        <p className="text-[12px] text-zinc-500">
+          {movie.cert} | {movie.language}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
 
         {/* FILTER MODAL */}
         {showFilterModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/30 p-4 backdrop-blur-md">
-            <div className="w-full max-w-4xl rounded-3xl bg-white p-6 shadow-lg md:p-8">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Filter by</h2>
-                <button
-                  onClick={() => setShowFilterModal(false)}
-                  className="text-xl font-bold text-zinc-600"
-                >
-                  ✕
-                </button>
+          <div className="fixed inset-0 bg-white/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-lg">
+              <div className="flex justify-between mb-4">
+                <h3 className="text-lg font-semibold">Filters</h3>
+                <button onClick={() => setShowFilterModal(false)}>✕</button>
               </div>
 
               <div className="flex gap-6">
+                {/* Left Tabs */}
                 <div className="w-40 border-r pr-4">
-                  {(["Genre", "Language", "Format"] as const).map((tab) => (
+                  {["Genre", "Language", "Format"].map(tab => (
                     <button
                       key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`block w-full rounded-lg px-2 py-3 text-left text-sm font-medium ${
-                        activeTab === tab
-                          ? "bg-zinc-100 text-zinc-900"
-                          : "text-zinc-500"
-                      }`}
+                      onClick={() => setActiveTab(tab as any)}
+                      className={`block w-full text-left px-2 py-2 rounded-md ${activeTab === tab ? "bg-zinc-200" : "text-zinc-600"}`}
                     >
                       {tab}
                     </button>
                   ))}
                 </div>
 
-                <div className="h-[380px] flex-1 overflow-y-auto pr-4">
-                  {/* GENRE TAB */}
-                  {activeTab === "Genre" && (
-                    <div className="grid gap-3">
-                      {GENRES.map((genre) => (
-                        <label
-                          key={genre}
-                          className="flex items-center gap-3"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedGenres.includes(genre)}
-                            onChange={() =>
-                              setSelectedGenres((prev) =>
-                                prev.includes(genre)
-                                  ? prev.filter((x) => x !== genre)
-                                  : [...prev, genre]
-                              )
-                            }
-                            className="h-5 w-5"
-                          />
-                          <span className="text-sm">{genre}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                {/* Right Options */}
+                <div className="flex-1 h-[350px] overflow-y-auto pr-4">
+                  {activeTab === "Genre" &&
+                    GENRES.map(g => (
+                      <label key={g} className="flex items-center gap-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedGenres.includes(g)}
+                          onChange={() =>
+                            setSelectedGenres(prev =>
+                              prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]
+                            )
+                          }
+                          className="h-5 w-5"
+                        />
+                        {g}
+                      </label>
+                    ))}
 
-                  {/* LANGUAGE TAB */}
-                  {activeTab === "Language" && (
-                    <div className="grid gap-3">
-                      {LANGUAGES.map((lang) => (
-                        <label key={lang} className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={
-                              QUICK_VALUES.includes(lang)
-                                ? quickFilters.includes(lang)
-                                : selectedLanguages.includes(lang)
-                            }
-                            onChange={() => {
-                              if (QUICK_VALUES.includes(lang)) {
-                                // sync with quick pill
-                                toggleQuickFilter(lang);
+                  {activeTab === "Language" &&
+                    LANGUAGES.map(l => (
+                      <label key={l} className="flex items-center gap-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={
+                            QUICK_VALUES.includes(l)
+                              ? quickFilters.includes(l) || selectedLanguages.includes(l)
+                              : selectedLanguages.includes(l)
+                          }
+                          onChange={() => {
+                            if (QUICK_VALUES.includes(l)) {
+                              // if it's a quick value, toggling should add/remove from selectedLanguages (we want it represented as active chip)
+                              if (selectedLanguages.includes(l)) {
+                                setSelectedLanguages(prev => prev.filter(x => x !== l));
                               } else {
-                                setSelectedLanguages((prev) =>
-                                  prev.includes(lang)
-                                    ? prev.filter((x) => x !== lang)
-                                    : [...prev, lang]
-                                );
+                                setSelectedLanguages(prev => [...prev, l]);
                               }
-                            }}
-                            className="h-5 w-5"
-                          />
-                          <span className="text-sm">{lang}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                            } else {
+                              // non-quick languages (rare) handled normally
+                              setSelectedLanguages(prev =>
+                                prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]
+                              );
+                            }
+                          }}
+                          className="h-5 w-5"
+                        />
+                        {l}
+                      </label>
+                    ))}
 
-                  {/* FORMAT TAB */}
-                  {activeTab === "Format" && (
-                    <div className="grid gap-3">
-                      {FORMATS.map((format) => (
-                        <label
-                          key={format}
-                          className="flex items-center gap-3"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={
-                              QUICK_VALUES.includes(format)
-                                ? quickFilters.includes(format)
-                                : selectedFormats.includes(format)
-                            }
-                            onChange={() => {
-                              if (QUICK_VALUES.includes(format)) {
-                                // sync with quick pill (4DX / IMAX)
-                                toggleQuickFilter(format);
+                  {activeTab === "Format" &&
+                    FORMATS.map(f => (
+                      <label key={f} className="flex items-center gap-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={
+                            QUICK_VALUES.includes(f)
+                              ? quickFilters.includes(f) || selectedFormats.includes(f)
+                              : selectedFormats.includes(f)
+                          }
+                          onChange={() => {
+                            if (QUICK_VALUES.includes(f)) {
+                              if (selectedFormats.includes(f)) {
+                                setSelectedFormats(prev => prev.filter(x => x !== f));
                               } else {
-                                setSelectedFormats((prev) =>
-                                  prev.includes(format)
-                                    ? prev.filter((x) => x !== format)
-                                    : [...prev, format]
-                                );
+                                setSelectedFormats(prev => [...prev, f]);
                               }
-                            }}
-                            className="h-5 w-5"
-                          />
-                          <span className="text-sm">{format}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                            } else {
+                              setSelectedFormats(prev =>
+                                prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]
+                              );
+                            }
+                          }}
+                          className="h-5 w-5"
+                        />
+                        {f}
+                      </label>
+                    ))}
                 </div>
               </div>
 
-              <div className="mt-8 flex items-center justify-between">
+              {/* Footer */}
+              <div className="flex justify-between mt-6">
                 <button
-                  onClick={handleClearModalFilters}
-                  className="text-sm font-medium text-zinc-600 underline"
+                  onClick={() => {
+                    setSelectedGenres([]);
+                    setSelectedLanguages([]);
+                    setSelectedFormats([]);
+                    setQuickFilters([]);
+                  }}
+                  className="text-sm underline text-zinc-600"
                 >
                   Clear Filters
                 </button>
 
                 <button
                   onClick={() => setShowFilterModal(false)}
-                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white"
+                  className="bg-black text-white px-6 py-3 rounded-full"
                 >
                   Apply Filters
                 </button>

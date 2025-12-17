@@ -40,7 +40,9 @@ const MOVIES: Movie[] = [
 export default function HitsFromPreviousWeeks() {
   return (
     <section className="w-full bg-white py-10">
-      <div className="mx-auto w-full max-w-6xl px-8">
+      
+        <div className="mx-auto w-[85%] px-8">
+
         <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">
           Hits from previous weeks
         </h2>

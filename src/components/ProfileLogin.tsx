@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Logo from "@/assets/logored.png";
+import Logo from "@/assets/hayyalogo.png";
 
 const COUNTRIES = [
   { name: "UAE (Dubai)", code: "+971", flag: "🇦🇪", maxLength: 9 },

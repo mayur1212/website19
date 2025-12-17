@@ -31,12 +31,15 @@ const STORIES = [
 
 export default function RegionStories() {
   return (
-    <section className="w-full px-6 pt-10 md:px-10 lg:px-16 lg:pt-16">
-      <div className="mx-auto max-w-6xl">
-        {/* Heading */}
-        <h2 className="text-[26px] md:text-[30px] lg:text-[36px] font-semibold">
-          Stories Across Regions
-        </h2>
+    <section className="w-full pt-10 lg:pt-16">
+  <div className="w-[95%] mx-auto max-w-none px-4 md:px-6 lg:px-0">
+    <h2 className="text-[26px] md:text-[30px] lg:text-[36px] font-semibold">
+      Stories Across Regions
+    </h2>
+
+
+
+
 
         {/* MOBILE + TABLET (2 cards per row) */}
         <div

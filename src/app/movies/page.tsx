@@ -8,32 +8,24 @@ import Footer from "@/components/Footer";
 export default function HomePage() {
   return (
     <main className="bg-white text-black">
-      {/* Header */}
+      {/* Header – FULL WIDTH */}
       <Header />
 
-      {/* ⭐ FULL-WIDTH BANNER */}
-      <div className="">
-        <FeaturedCarousel />
-      </div>
+      {/* Banner – FULL WIDTH */}
+      <FeaturedCarousel />
 
-      {/* Center Content Container */}
-      <div className="max-w-[1350px] mx-auto px-1 md:px-6">
-        {/* Stories Across Regions */}
-        <div className="mt-12">
-          <RegionStories />
-        </div>
-
-        {/* Only in Theatres */}
+      {/* 85% CONTENT WRAPPER */}
+      <div className="w-[85%] mx-auto">
+        <RegionStories />
         <OnlyInTheatres />
       </div>
 
-      {/* ⭐ FULL WIDTH ACCORDION SECTION */}
-      <div className="mt-12 w-full">
-        <InfoAccordion />
-      </div>
+      {/* Accordion – 85% but with gray background */}
+      <InfoAccordion />
 
-      {/* Footer */}
+      {/* Footer – FULL WIDTH */}
       <Footer />
     </main>
   );
 }
+

@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const SLIDES = [
+/* =======================
+   DATA
+======================= */
+type Slide = {
+  id: number;
+  dateTime: string;
+  title: string;
+  location: string;
+  price: string;
+  image: string;
+};
+
+const SLIDES: Slide[] = [
   {
     id: 1,
     dateTime: "Daily, Multiple slots",
     title: "The Game Palacio | Delhi Ansal Plaza",
     location: "The Game Palacio, Delhi/NCR",
     price: "₹650 onwards",
-    image: "/events/game-palacio.jpg",
+    image: "/event/consoleevent.png",
   },
   {
     id: 2,
@@ -18,7 +32,7 @@ const SLIDES = [
     title: "Smaaash | Cyber Hub",
     location: "Smaaash, DLF Cyber Hub, Gurugram",
     price: "₹799 onwards",
-    image: "/events/smaaash.jpg",
+    image: "/event/happyevent.png",
   },
   {
     id: 3,
@@ -26,7 +40,7 @@ const SLIDES = [
     title: "The Game Palacio | Delhi Ansal Plaza",
     location: "The Game Palacio, Delhi/NCR",
     price: "₹650 onwards",
-    image: "/events/game-palacio.jpg",
+    image: "/event/timezoneevent.png",
   },
   {
     id: 4,
@@ -34,87 +48,87 @@ const SLIDES = [
     title: "Smaaash | Cyber Hub",
     location: "Smaaash, DLF Cyber Hub, Gurugram",
     price: "₹799 onwards",
-    image: "/events/smaaash.jpg",
+    image: "/event/timezoneevent.png",
   },
 ];
 
+/* =======================
+   COMPONENT
+======================= */
 export default function ActivitiesHero() {
-  const [active, setActive] = useState(0);
-  const slide = SLIDES[active];
+  const [current, setCurrent] = useState(0);
+  const total = SLIDES.length;
+  const item = SLIDES[current];
 
-  const goNext = () => setActive((i) => (i + 1) % SLIDES.length);
-  const goPrev = () => setActive((i) => (i === 0 ? SLIDES.length - 1 : i - 1));
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCurrent((p) => (p + 1) % total);
+    }, 4500);
+    return () => clearInterval(id);
+  }, [total]);
+
+  const goNext = () => setCurrent((p) => (p + 1) % total);
+  const goPrev = () => setCurrent((p) => (p - 1 + total) % total);
 
   return (
     <>
-      {/* ========= MOBILE + TABLET : Featured Activities cards ========= */}
-      <section className="w-full bg-white px-4 py-8 sm:px-5 md:px-6 lg:hidden">
-        <div className="mx-auto w-full max-w-5xl">
-          <h2 className="text-lg font-semibold text-zinc-900 sm:text-xl">
-            Featured Activities
+      {/* ================= MOBILE / TABLET ================= */}
+      <section className="w-full bg-[#f4f9ff] px-4 py-6 md:py-8 lg:hidden">
+        <div className="mx-auto w-full max-w-md">
+          <h2 className="mb-3 text-[18px] font-semibold text-zinc-900">
+            In the spotlight
           </h2>
 
-          {/* horizontally scroll cards */}
-          <div className="relative mt-4">
-            {/* हलकं fade effect side ला (optional) */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white to-transparent" />
-
-            <div
-              className="
-                flex gap-5 overflow-x-auto pb-4
-                snap-x snap-mandatory no-scrollbar
-              "
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.45 }}
+              className="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm"
             >
-              {SLIDES.map((item, index) => (
-                <article
-                  key={item.id}
-                  onClick={() => setActive(index)}
-                  className={`
-                    snap-center shrink-0
-                    w-[260px] sm:w-[280px]
-                    overflow-hidden rounded-[24px]
-                    bg-white shadow-[0_18px_40px_rgba(15,23,42,0.18)]
-                    transition-transform duration-200
-                    ${
-                      index === active
-                        ? "scale-[1.02]"
-                        : "scale-[0.97] opacity-90"
-                    }
-                  `}
-                >
-                  {/* Poster */}
-                  <div className="relative h-[320px] sm:h-[340px] w-full">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+              {/* Image */}
+              <div className="relative h-[260px] w-full overflow-hidden">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
 
-                  {/* Text */}
-                  <div className="px-4 pb-4 pt-3">
-                    <h3 className="text-sm font-semibold leading-snug text-zinc-900">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 text-xs font-medium text-zinc-500">
-                      {item.price}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+              {/* Content */}
+              <div className="px-4 py-3">
+                <h3 className="text-[16px] font-semibold text-zinc-900">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-[13px] text-zinc-500">
+                  {item.dateTime}
+                </p>
+                <p className="mt-1 text-[13px] text-zinc-600">
+                  {item.location}
+                </p>
 
-          {/* dots खाली */}
-          <div className="mt-3 flex justify-center gap-2">
+                <div className="mt-2 text-sm font-semibold text-zinc-900">
+                  {item.price}
+                </div>
+
+                <button className="mt-3 inline-flex rounded-full bg-black px-4 py-2 text-sm font-semibold text-white">
+                  Book Now
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Dots */}
+          <div className="mt-4 flex justify-center gap-2">
             {SLIDES.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setActive(idx)}
+                onClick={() => setCurrent(idx)}
                 className={`h-2 rounded-full transition-all ${
-                  idx === active ? "w-6 bg-zinc-900" : "w-2 bg-zinc-300"
+                  idx === current ? "w-6 bg-black" : "w-2 bg-zinc-400"
                 }`}
               />
             ))}
@@ -122,69 +136,104 @@ export default function ActivitiesHero() {
         </div>
       </section>
 
-      {/* ========= DESKTOP UI (lg+) – तुझं जुने hero जसंच्या तसं ========= */}
-      <section className="relative hidden w-full overflow-hidden bg-gradient-to-r from-[#d9d8df] via-[#ebe7ef] to-[#f6f3f6] px-12 py-20 lg:flex">
-        {/* LEFT SIDE TEXT + LEFT ARROW */}
-        <div className="relative flex-1 pl-20">
-          <button
-            onClick={goPrev}
-            className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-3xl text-black hover:text-zinc-800"
+      {/* ================= DESKTOP ================= */}
+      <section className="relative hidden min-h-[600px] overflow-hidden px-8 py-10 md:px-16 lg:flex">
+        {/* Background */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={item.id + "-bg"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="absolute inset-0"
           >
-            ‹
-          </button>
+            <Image
+              src={item.image}
+              alt={item.title}
+              fill
+              className="scale-110 object-cover blur-[24px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white to-white" />
+          </motion.div>
+        </AnimatePresence>
 
-          <p className="text-sm font-medium text-zinc-700">{slide.dateTime}</p>
+        {/* Arrows */}
+        <button
+          onClick={goPrev}
+          className="absolute left-12 top-1/2 z-20 -translate-y-1/2 transition hover:scale-110"
+        >
+          <ChevronLeft className="h-7 w-7 text-zinc-900" />
+        </button>
 
-          <h1 className="mt-4 text-5xl font-bold leading-tight text-zinc-900">
-            {slide.title}
-          </h1>
+        <button
+          onClick={goNext}
+          className="absolute right-12 top-1/2 z-20 -translate-y-1/2 transition hover:scale-110"
+        >
+          <ChevronRight className="h-7 w-7 text-zinc-900" />
+        </button>
 
-          <p className="mt-4 text-lg font-medium text-zinc-700">
-            {slide.location}
-          </p>
+        {/* Content */}
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl items-center gap-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={item.id + "-text"}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ duration: 0.6 }}
+              className="flex-1 max-w-lg"
+            >
+              <h1 className="text-[44px] font-semibold text-zinc-900">
+                {item.title}
+              </h1>
+              <p className="mt-3 text-[18px] text-zinc-700">
+                {item.dateTime}
+              </p>
+              <p className="mt-1 text-[18px] text-zinc-700">
+                {item.location}
+              </p>
 
-          <p className="mt-8 text-lg font-semibold text-zinc-900">
-            {slide.price}
-          </p>
+              <div className="mt-3 text-[20px] font-semibold">
+                {item.price}
+              </div>
 
-          <button className="mt-6 rounded-full bg-black px-10 py-3 text-sm font-semibold text-white shadow-xl hover:bg-zinc-900">
-            Book tickets
-          </button>
+              <button className="mt-6 w-[180px] rounded-full bg-black px-8 py-3 text-white">
+                Book Now
+              </button>
+            </motion.div>
+          </AnimatePresence>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={item.id + "-image"}
+              initial={{ opacity: 0, scale: 0.8, x: 60 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.8, x: -60 }}
+              transition={{ duration: 0.7 }}
+              className="flex flex-1 justify-end"
+            >
+              <div className="relative h-[420px] w-[300px] overflow-hidden rounded-3xl shadow-2xl">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {/* RIGHT SIDE IMAGE + RIGHT ARROW */}
-        <div className="relative flex flex-1 justify-center pr-16">
-          <div className="overflow-hidden rounded-3xl shadow-[0_18px_40px_rgba(15,23,42,0.3)]">
-            <div className="relative h-[430px] w-[320px]">
-              <Image
-                src={slide.image}
-                alt={slide.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={goNext}
-            className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-3xl text-black hover:text-zinc-800"
-          >
-            ›
-          </button>
-        </div>
-
-        {/* DOTS */}
-        <div className="absolute bottom-10 flex w-full justify-center gap-3">
+        {/* Desktop dots */}
+        <div className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-3">
           {SLIDES.map((_, idx) => (
             <button
               key={idx}
-              onClick={() => setActive(idx)}
-              className={
-                idx === active
-                  ? "h-2 w-8 rounded-full bg-black"
-                  : "h-2 w-2 rounded-full bg-zinc-400"
-              }
+              onClick={() => setCurrent(idx)}
+              className={`h-2 rounded-full transition-all ${
+                idx === current ? "w-8 bg-black" : "w-2 bg-zinc-300"
+              }`}
             />
           ))}
         </div>

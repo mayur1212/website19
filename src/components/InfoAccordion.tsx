@@ -56,7 +56,7 @@ export default function InfoAccordion() {
 
   return (
     <div className="w-full bg-[#f1f1f2] py-10">
-      <div className="max-w-6xl mx-auto px-4 space-y-4">
+    <div className="w-[85%] mx-auto px-4 md:px-6 lg:px-0 space-y-4">
         {AccordionData.map((item, index) => (
           <div
             key={index}

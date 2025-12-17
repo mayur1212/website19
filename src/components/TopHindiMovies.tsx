@@ -38,7 +38,8 @@ const MOVIES = [
 export default function TopHindiMovies() {
   return (
     <section className="w-full bg-gradient-to-b from-[#f3ecff] to-white py-10">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-[85%] px-4 sm:px-6 lg:px-8">
+
         
         {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">

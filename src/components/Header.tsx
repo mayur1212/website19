@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "@/assets/hayyalogo.png";
 
-import Logo from "@/assets/logored.png";
 
 import ProfileLoginModal from "@/components/ProfileLogin";
 import ProfileDrawer from "@/components/ProfileDrawer";
