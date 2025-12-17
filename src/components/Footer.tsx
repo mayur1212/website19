@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="md:hidden px-6">
         {/* LOGO */}
         <div className="flex justify-center">
-          <Image src="/movies/logored.png" alt="Hayya" width={160} height={80} />
+          <Image src="/movies/logofooter2.png" alt="Hayya" width={160} height={80} />
         </div>
 
         {/* LINKS */}
@@ -108,7 +108,7 @@ export default function Footer() {
       {/* LEFT LOGO */}
       <div>
         <Image
-          src="/movies/hayyalogo.png"
+          src="/movies/logofooter2.png"
           alt="Hayya"
           width={170}
           height={90}
