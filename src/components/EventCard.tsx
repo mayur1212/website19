@@ -2,7 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo, useState } from "react";
+import EventFilterModal from "./EventFilterModal";
+
+/* ===================== QUICK FILTER TABS ===================== */
+
+const QUICK_FILTERS = [
+  "Today",
+  "Tomorrow",
+  "This Weekend",
+  "Under 10 km",
+  "Comedy",
+  "Music",
+];
 
 /* ===================== TYPES ===================== */
 
@@ -31,8 +43,8 @@ export type Event = {
 type EventCardProps = {
   quickFilter: string | null;
   modalFilters: string[];
-  onOpenModal: () => void;
-  onQuickSelect: (chip: string) => void;
+  onQuickSelect: (chip: string | null) => void;
+  onModalApply: (filters: string[]) => void;
 };
 
 /* ===================== EVENTS DATA ===================== */
@@ -54,9 +66,11 @@ export const EVENTS: Event[] = [
       name: "A. R. Rahman",
       image: "/movies/a1.jpg",
       role: "Music Composer",
-      shortBio: "Oscar-winning composer and global music icon.",
+      shortBio:
+        "Legendary Indian composer known globally for soulful melodies and iconic film scores.",
     },
   },
+
   {
     id: 2,
     image: "/movies/event2.jpg",
@@ -77,6 +91,7 @@ export const EVENTS: Event[] = [
         "One of India’s most loved stand-up comedians, known for relatable storytelling and humor.",
     },
   },
+
   {
     id: 3,
     image: "/movies/event2.jpg",
@@ -93,7 +108,8 @@ export const EVENTS: Event[] = [
       name: "Sunidhi Chauhan",
       image: "/movies/a2.jpg",
       role: "Playback Singer",
-      shortBio: "Powerhouse Bollywood singer and live performer.",
+      shortBio:
+        "Powerhouse Bollywood singer and live performer known for high-energy vocals.",
     },
   },
 ];
@@ -134,27 +150,107 @@ function applyModalFilters(events: Event[], modalFilters: string[]) {
 export default function EventCard({
   quickFilter,
   modalFilters,
+  onQuickSelect,
+  onModalApply,
 }: EventCardProps) {
+  const [openFilterModal, setOpenFilterModal] = useState(false);
+
+  const orderedFilters = useMemo(() => {
+    if (!quickFilter) return QUICK_FILTERS;
+    return [quickFilter, ...QUICK_FILTERS.filter((f) => f !== quickFilter)];
+  }, [quickFilter]);
+
   let filtered = EVENTS.filter((event) =>
     filterByQuick(event, quickFilter)
   );
   filtered = applyModalFilters(filtered, modalFilters);
 
-  return (
-    <section className="w-full py-10">
-      <div className="w-[80%] mx-auto">
-        <h2 className="text-2xl font-semibold mb-6 text-black">
-          All events
-        </h2>
+  const toggleModalFilter = (filter: string) => {
+    if (modalFilters.includes(filter)) {
+      onModalApply(modalFilters.filter((f) => f !== filter));
+    } else {
+      onModalApply([...modalFilters, filter]);
+    }
+  };
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+  return (
+    <>
+      {/* ================= FILTER BAR ================= */}
+      {/* ================= FILTER BAR ================= */}
+{/* ================= FILTER BAR ================= */}
+<div
+  className="
+    w-full
+    sticky
+    top-[128px] md:top-[72px]
+    z-40
+    bg-white
+    border-b border-zinc-200
+  "
+>
+  <div className="w-[90%] md:w-[80%] mx-auto pt-4 pb-3">
+    <h2 className="text-2xl font-semibold text-black mb-4">
+      All events
+    </h2>
+
+    {/* ✅ MOBILE HORIZONTAL SCROLL */}
+    <div className="flex gap-3 items-center overflow-x-auto whitespace-nowrap pb-2 scrollbar-hide">
+      {/* Filters button */}
+      <button
+        onClick={() => setOpenFilterModal(true)}
+        className="flex items-center gap-2 px-4 py-2 border border-purple-400 bg-purple-50 text-purple-700 rounded-lg font-medium shrink-0"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="7" y1="12" x2="17" y2="12" />
+          <line x1="10" y1="18" x2="14" y2="18" />
+        </svg>
+        Filters
+      </button>
+
+      {modalFilters.map((filter) => (
+        <button
+          key={filter}
+          onClick={() => toggleModalFilter(filter)}
+          className="px-4 py-2 rounded-lg text-sm bg-purple-100 border border-purple-400 text-purple-700 shrink-0"
+        >
+          {filter}
+        </button>
+      ))}
+
+      {orderedFilters.map((chip) => (
+        <button
+          key={chip}
+          onClick={() =>
+            onQuickSelect(quickFilter === chip ? null : chip)
+          }
+          className={`px-4 py-2 rounded-lg text-sm border transition shrink-0
+            ${
+              quickFilter === chip
+                ? "bg-black text-white"
+                : "bg-white text-black"
+            }`}
+        >
+          {chip}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
+
+
+      {/* ================= EVENTS GRID ================= */}
+      <section className="w-full pb-16">
+        <div className="w-[90%] md:w-[80%] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           {filtered.map((event) => (
             <Link
               key={event.id}
               href={`/events/${event.id}`}
-              className="bg-white rounded-2xl shadow hover:scale-[1.02] transition"
+              className="bg-white rounded-2xl shadow hover:scale-[1.02] transition overflow-hidden"
             >
-              <div className="relative w-full h-[260px]">
+              {/* ✅ ROUNDED TOP IMAGE */}
+              <div className="relative w-full h-[260px] rounded-t-2xl overflow-hidden">
                 <Image
                   src={event.image}
                   alt={event.title}
@@ -176,7 +272,18 @@ export default function EventCard({
             </Link>
           ))}
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* ================= FILTER MODAL ================= */}
+      <EventFilterModal
+        open={openFilterModal}
+        onClose={() => setOpenFilterModal(false)}
+        selectedFilters={modalFilters}
+        onApply={(filters) => {
+          onModalApply(filters);
+          setOpenFilterModal(false);
+        }}
+      />
+    </>
   );
 }

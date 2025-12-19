@@ -16,29 +16,33 @@ const ARTISTS = [
   { id: 8, name: "Diljit Dosanjh", image: "/movies/a8.jpg" },
 ];
 
-// CARD layout
 const CARD_SIZE = 150;
 const GAP = 40;
 const TOTAL_WIDTH = CARD_SIZE + GAP;
 
 export default function ArtistsInYourDistrict() {
   const [index, setIndex] = useState(0);
-  const extended = [...ARTISTS, ...ARTISTS]; // for smooth infinite feel
-  const autoRef = useRef<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // scroll ref for touch devices / fallback
+  const extended = [...ARTISTS, ...ARTISTS];
+  const autoRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ detect screen size safely
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const next = () => setIndex((i) => (i + 1) % ARTISTS.length);
   const prev = () => setIndex((i) => (i === 0 ? ARTISTS.length - 1 : i - 1));
 
-  // Auto-advance every 3.5s
+  // auto slide (desktop only)
   useEffect(() => {
-    // clear first just in case
-    if (autoRef.current) {
-      window.clearInterval(autoRef.current);
-      autoRef.current = null;
-    }
+    if (isMobile) return;
+
     autoRef.current = window.setInterval(() => {
       setIndex((i) => (i + 1) % ARTISTS.length);
     }, 3500);
@@ -49,29 +53,17 @@ export default function ArtistsInYourDistrict() {
         autoRef.current = null;
       }
     };
-  }, []);
+  }, [isMobile]);
 
-  // Keep scrollRef in sync on small screens (when user wants to scroll manually)
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    // If viewport is narrow, scroll to make the "index" visible
-    if (window.innerWidth < 720) {
-      const targetLeft = index * (CARD_SIZE + 24); // smaller gap for responsive layout
-      el.scrollTo({ left: targetLeft, behavior: "smooth" });
-    }
-  }, [index]);
-
-  // Pause auto on hover (desktop)
   const handleMouseEnter = () => {
     if (autoRef.current) {
       window.clearInterval(autoRef.current);
       autoRef.current = null;
     }
   };
+
   const handleMouseLeave = () => {
-    if (!autoRef.current) {
+    if (!isMobile && !autoRef.current) {
       autoRef.current = window.setInterval(() => {
         setIndex((i) => (i + 1) % ARTISTS.length);
       }, 3500);
@@ -85,69 +77,65 @@ export default function ArtistsInYourDistrict() {
       onMouseLeave={handleMouseLeave}
     >
       <div className="mx-auto w-full max-w-7xl px-6">
-        <h2 className="text-3xl font-bold text-zinc-900 mb-10">
+        <h2 className="text-3xl font-bold text-zinc-900 mb-6">
           Artists in your District
         </h2>
 
-        {/* SLIDER */}
         <div className="relative flex items-center gap-6">
-          {/* LEFT ARROW */}
+          {/* LEFT ARROW — desktop only */}
           <button
             onClick={prev}
-            aria-label="Previous"
-            className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm hover:bg-zinc-100 transition"
-            title="Previous"
+            className="hidden sm:flex h-10 w-10 rounded-full bg-white border items-center justify-center shadow-sm hover:bg-zinc-100 transition"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
 
           {/* CAROUSEL */}
           <div
-            className="overflow-hidden w-full"
             ref={scrollRef}
-            role="region"
-            aria-label="Artists carousel"
+            className="w-full overflow-x-auto sm:overflow-hidden scrollbar-hide"
           >
             <motion.div
-              className="flex items-center"
-              animate={{ x: -index * TOTAL_WIDTH }}
+              className="flex items-start"
+              animate={!isMobile ? { x: -index * TOTAL_WIDTH } : {}}
               transition={{ type: "spring", stiffness: 60, damping: 16 }}
             >
               {extended.map((artist, i) => (
                 <Link
                   key={`${artist.id}-${i}`}
                   href={`/artist/${artist.id}`}
-                  className="flex flex-col items-center cursor-pointer"
-                  style={{ width: CARD_SIZE, marginRight: GAP }}
+                  className="flex flex-col items-center shrink-0"
+                  style={{
+                    width: isMobile ? 96 : CARD_SIZE,
+                    marginRight: isMobile ? 24 : GAP,
+                  }}
                 >
-                  {/* CIRCLE IMAGE */}
-                  {/* CIRCLE IMAGE */}
-<div
-  className="
-    relative w-[172px] h-[172px] rounded-full overflow-hidden bg-white
-    shadow-sm
-    transition-all duration-300 ease-out
-    hover:shadow-xl hover:scale-[1.06]
-    cursor-pointer
-  "
->
-  <Image
-    src={artist.image}
-    alt={artist.name}
-    fill
-    className="
-      object-cover
-      transition-transform duration-300 ease-out
-      hover:scale-110
-    "
-  />
-</div>
-
+                  {/* IMAGE */}
+                  <div
+                    className="
+                      relative
+                      w-[88px] h-[88px]
+                      sm:w-[172px] sm:h-[172px]
+                      rounded-full overflow-hidden
+                      bg-white
+                      shadow-sm
+                      sm:hover:shadow-xl
+                      sm:hover:scale-[1.06]
+                      transition-all
+                    "
+                  >
+                    <Image
+                      src={artist.image}
+                      alt={artist.name}
+                      fill
+                      className="object-cover sm:hover:scale-110 transition-transform"
+                    />
+                  </div>
 
                   {/* NAME */}
-                  <p className="mt-4 text-base font-semibold text-zinc-900 text-center">
+                  <p className="mt-2 sm:mt-4 text-xs sm:text-base font-semibold text-zinc-900 text-center">
                     {artist.name}
                   </p>
                 </Link>
@@ -155,27 +143,13 @@ export default function ArtistsInYourDistrict() {
             </motion.div>
           </div>
 
-          {/* RIGHT ARROW */}
+          {/* RIGHT ARROW — desktop only */}
           <button
             onClick={next}
-            aria-label="Next"
-            className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm hover:bg-zinc-100 transition"
-            title="Next"
+            className="hidden sm:flex h-10 w-10 rounded-full bg-white border items-center justify-center shadow-sm hover:bg-zinc-100 transition"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" stroke="#333" strokeWidth="2" fill="none">
               <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-
-          {/* mobile next button (overlay) */}
-          <button
-            onClick={() => scrollRef.current?.scrollBy({ left: 220, behavior: "smooth" })}
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-zinc-100 sm:hidden"
-            aria-label="Scroll next"
-            title="Scroll next"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
         </div>

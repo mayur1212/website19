@@ -264,7 +264,7 @@ export default function CategoryPage({
           {/* TEXT */}
           <div className="px-5 mt-4">
             <p className="text-sm text-black font-medium">{slide.dateTime}</p>
-            <h1 className="mt-2 text-2xl font-bold leading-snug">{slide.title}</h1>
+            <h1 className="mt-2 text-2xl text-black font-bold leading-snug">{slide.title}</h1>
             <p className="text-[15px] text-black/80">{slide.location}</p>
             <p className="mt-3 text-lg text-black font-semibold">{slide.price}</p>
 

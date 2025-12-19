@@ -131,7 +131,8 @@ export default function Header({
   };
 
   return (
-    <header className="w-full border-b border-zinc-200 bg-white">
+    <header className="w-full border-b border-zinc-200 bg-white sticky top-0 z-50">
+
 
       {/* ========================================================= */}
       {/* 📱 MOBILE NAVBAR */}

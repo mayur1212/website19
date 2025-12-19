@@ -4,10 +4,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-// ⭐ Your global header + footer (NO SLIM HEADER HERE)
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
+import EventGuideModal from "@/components/EventGuideModal"; // ✅ ADD
 import { EVENTS } from "@/components/EventCard";
 
 export default function EventDetails({
@@ -15,16 +14,17 @@ export default function EventDetails({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // ✅ Next.js param fix
   const { id } = React.use(params);
   const event = EVENTS.find((e) => e.id === Number(id));
 
   const [showMore, setShowMore] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false); // ✅ ADD
 
   if (!event) {
     return (
-      <div className="p-10 text-center text-lg text-black">Event not found</div>
+      <div className="p-10 text-center text-lg text-black">
+        Event not found
+      </div>
     );
   }
 
@@ -39,7 +39,7 @@ and creative showcases from emerging artists.
   const SHORT_TEXT = FULL_TEXT.slice(0, 200);
 
   const openGoogleMaps = () => {
-    const query = encodeURIComponent(event?.location || "");
+    const query = encodeURIComponent(event.location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
@@ -48,12 +48,9 @@ and creative showcases from emerging artists.
 
   return (
     <div className="min-h-screen bg-white text-black">
-      {/* ⭐ NORMAL HEADER (your approved one) */}
       <Header />
 
-      {/* ===================================================== */}
-      {/* ⭐ MOBILE HERO */}
-      {/* ===================================================== */}
+      {/* ================= MOBILE HERO ================= */}
       <div className="md:hidden mt-4 px-4">
         <div className="rounded-2xl overflow-hidden">
           <Image
@@ -65,7 +62,9 @@ and creative showcases from emerging artists.
           />
         </div>
 
-        <h1 className="mt-4 text-xl font-bold leading-snug">{event.title}</h1>
+        <h1 className="mt-4 text-xl font-bold leading-snug">
+          {event.title}
+        </h1>
 
         <div className="mt-3 text-[14px] space-y-1 text-zinc-700">
           <p>📅 {event.dateTime}</p>
@@ -85,9 +84,7 @@ and creative showcases from emerging artists.
         </Link>
       </div>
 
-      {/* ===================================================== */}
-      {/* ⭐ DESKTOP HERO */}
-      {/* ===================================================== */}
+      {/* ================= DESKTOP HERO ================= */}
       <div className="hidden md:flex max-w-[1200px] mx-auto gap-10 py-10 px-6">
         <div className="w-[70%] rounded-2xl overflow-hidden shadow-lg">
           <Image
@@ -109,7 +106,7 @@ and creative showcases from emerging artists.
           </div>
 
           <p className="mt-6 text-lg font-semibold">
-            Starts from <span className="text-black">{event.price}</span>
+            Starts from ₹<span className="text-black">{event.price}</span>
           </p>
 
           <Link
@@ -121,9 +118,7 @@ and creative showcases from emerging artists.
         </div>
       </div>
 
-      {/* ===================================================== */}
-      {/* ⭐ ABOUT SECTION */}
-      {/* ===================================================== */}
+      {/* ================= ABOUT ================= */}
       <div className="max-w-[1200px] mx-auto px-6">
         <h2 className="text-xl font-semibold mb-2">About the Event</h2>
 
@@ -138,10 +133,13 @@ and creative showcases from emerging artists.
           {showMore ? "See less" : "See more"}
         </button>
 
-        {/* EVENT GUIDE */}
+        {/* ================= EVENT GUIDE ================= */}
         <div className="mt-10 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Event Guide</h2>
-          <button className="text-sm text-blue-600 font-medium">
+          <button
+            onClick={() => setGuideOpen(true)} // ✅ ONLY CHANGE
+            className="text-sm text-blue-600 font-medium"
+          >
             See all →
           </button>
         </div>
@@ -158,7 +156,7 @@ and creative showcases from emerging artists.
           </div>
         </div>
 
-        {/* ARTIST */}
+        {/* ================= ARTIST ================= */}
         <div className="mt-14">
           <h2 className="text-xl font-semibold">Artist</h2>
 
@@ -177,8 +175,12 @@ and creative showcases from emerging artists.
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold">{event.artist?.name}</h3>
-              <p className="text-zinc-600 text-sm">{event.artist?.role}</p>
+              <h3 className="text-lg font-semibold">
+                {event.artist?.name}
+              </h3>
+              <p className="text-zinc-600 text-sm">
+                {event.artist?.role}
+              </p>
               <p className="text-zinc-600 text-sm max-w-md mt-1 leading-relaxed">
                 {event.artist?.shortBio}
               </p>
@@ -186,7 +188,7 @@ and creative showcases from emerging artists.
           </Link>
         </div>
 
-        {/* VENUE */}
+        {/* ================= VENUE ================= */}
         <div className="mt-14">
           <h2 className="text-xl font-semibold mb-2">Venue</h2>
 
@@ -202,10 +204,12 @@ and creative showcases from emerging artists.
           </div>
         </div>
 
-        {/* FAQ */}
+        {/* ================= FAQ ================= */}
         <div className="mt-14 space-y-4 pb-20">
           <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
-            <summary className="font-semibold">Frequently Asked Questions</summary>
+            <summary className="font-semibold">
+              Frequently Asked Questions
+            </summary>
             <p className="mt-3 text-zinc-700 leading-relaxed">
               • Parking is available onsite. <br />
               • Outside food is not allowed. <br />
@@ -214,7 +218,9 @@ and creative showcases from emerging artists.
           </details>
 
           <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
-            <summary className="font-semibold">Terms & Conditions</summary>
+            <summary className="font-semibold">
+              Terms & Conditions
+            </summary>
             <p className="mt-3 text-zinc-700 leading-relaxed">
               • Tickets are non-refundable. <br />
               • Entry closes 30 minutes before showtime. <br />
@@ -224,9 +230,12 @@ and creative showcases from emerging artists.
         </div>
       </div>
 
-      {/* NORMAL FOOTER */}
+      {/* ================= EVENT GUIDE MODAL ================= */}
+      {guideOpen && (
+        <EventGuideModal onClose={() => setGuideOpen(false)} />
+      )}
+
       <Footer />
     </div>
   );
 }
-

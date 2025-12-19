@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { EVENTS } from "@/components/EventCard";
 import Header from "@/components/Header";
+import SlimHeader from "@/components/SlimHeader";
 
 export default function BuyTicketsPage({
   params,
@@ -53,33 +54,15 @@ export default function BuyTicketsPage({
   return (
     <div className="min-h-screen bg-white text-black pb-28 md:pb-0">
 
-      {/* ================= MOBILE SLIM HEADER ================= */}
-      <div className="md:hidden sticky top-0 z-50 bg-white border-b">
-        <div className="flex items-center justify-between px-3 h-12">
-          {/* Logo */}
-          <div className="w-8">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={28}
-              height={28}
-              priority
-            />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-sm font-semibold text-black truncate max-w-[220px] text-center">
-            {event.title}
-          </h1>
-
-          {/* Login */}
-          <button className="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center text-sm">
-            U
-          </button>
-        </div>
+      {/* ================= MOBILE HEADER (FIXED) ================= */}
+      <div className="md:hidden sticky top-0 z-50">
+        <SlimHeader
+          title={event.title}
+          subtitle={`${event.dateTime} • ${event.location}`}
+        />
       </div>
 
-      {/* ================= DESKTOP HEADER ================= */}
+      {/* ================= DESKTOP HEADER (UNCHANGED) ================= */}
       <div className="hidden md:block">
         <Header
           centerContent={
@@ -95,17 +78,12 @@ export default function BuyTicketsPage({
         />
       </div>
 
-      {/* ================= TIMER BAR ================= */}
-      <div className="bg-purple-50 text-purple-700 text-sm py-2 text-center">
-        ⏱ Complete your booking in{" "}
-        <span className="font-semibold">06:30</span> mins
-      </div>
-
       {/* ================= SEAT MAP ================= */}
       <div className="w-full flex justify-center mt-6 md:mt-10 relative">
 
         {/* ZOOM CONTROLS */}
-        <div className="fixed md:absolute bottom-24 right-4 md:right-10 md:top-1/2 z-50 flex flex-col gap-2">
+        <div className="fixed md:absolute bottom-24 right-4 md:right-10 md:top-1/2 z-30 flex flex-col gap-2">
+
           <button
             onClick={() => setZoom((z) => Math.min(z + 0.1, 1.6))}
             className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white shadow border flex items-center justify-center"
