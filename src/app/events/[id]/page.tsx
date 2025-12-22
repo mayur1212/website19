@@ -4,9 +4,18 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import {
+  Calendar,
+  MapPin,
+  Tag,
+  Languages,
+  Clock,
+  Ticket,
+} from "lucide-react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EventGuideModal from "@/components/EventGuideModal"; // ✅ ADD
+import EventGuideModal from "@/components/EventGuideModal";
 import { EVENTS } from "@/components/EventCard";
 
 export default function EventDetails({
@@ -18,7 +27,7 @@ export default function EventDetails({
   const event = EVENTS.find((e) => e.id === Number(id));
 
   const [showMore, setShowMore] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false); // ✅ ADD
+  const [guideOpen, setGuideOpen] = useState(false);
 
   if (!event) {
     return (
@@ -31,9 +40,6 @@ export default function EventDetails({
   const FULL_TEXT = `
 India's favourite festival brings together food, music, live performances, curated activities,
 artistic zones, pop-up funfair experiences, workshops, flea markets, gaming arenas, and much more.
-
-Across the venue, you will find immersive art installations, storytelling corners, meet & greets,
-and creative showcases from emerging artists.
 `;
 
   const SHORT_TEXT = FULL_TEXT.slice(0, 200);
@@ -48,7 +54,10 @@ and creative showcases from emerging artists.
 
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header />
+      {/* HEADER → desktop only */}
+      <div className="hidden md:block">
+        <Header />
+      </div>
 
       {/* ================= MOBILE HERO ================= */}
       <div className="md:hidden mt-4 px-4">
@@ -66,25 +75,26 @@ and creative showcases from emerging artists.
           {event.title}
         </h1>
 
-        <div className="mt-3 text-[14px] space-y-1 text-zinc-700">
-          <p>📅 {event.dateTime}</p>
-          <p>📍 {event.location}</p>
-          <p>🎭 Category: {event.category}</p>
+        {/* MOBILE META (District style) */}
+        <div className="mt-4 space-y-3 text-sm text-zinc-700">
+          <div className="flex items-center gap-3">
+            <Calendar size={16} />
+            <span>{event.dateTime}</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <MapPin size={16} />
+            <span>{event.location}</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Tag size={16} />
+            <span>{event.category}</span>
+          </div>
         </div>
-
-        <p className="mt-4 text-lg font-semibold">
-          Starts from <span className="text-black">{event.price}</span>
-        </p>
-
-        <Link
-          href={`/events/${event.id}/buy`}
-          className="block mt-4 w-full bg-black text-white py-3 rounded-xl text-sm font-semibold text-center"
-        >
-          BOOK TICKETS
-        </Link>
       </div>
 
-      {/* ================= DESKTOP HERO ================= */}
+      {/* ================= DESKTOP HERO (UNCHANGED) ================= */}
       <div className="hidden md:flex max-w-[1200px] mx-auto gap-10 py-10 px-6">
         <div className="w-[70%] rounded-2xl overflow-hidden shadow-lg">
           <Image
@@ -137,22 +147,37 @@ and creative showcases from emerging artists.
         <div className="mt-10 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Event Guide</h2>
           <button
-            onClick={() => setGuideOpen(true)} // ✅ ONLY CHANGE
+            onClick={() => setGuideOpen(true)}
             className="text-sm text-blue-600 font-medium"
           >
             See all →
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4 text-[14px]">
-          <div className="p-4 bg-zinc-100 rounded-xl text-black">
-            Language: English
+        {/* MOBILE = District cards */}
+        <div className="mt-4 space-y-3 md:grid md:grid-cols-3 md:gap-6 md:space-y-0 text-sm">
+          <div className="flex items-center gap-4 p-4 bg-zinc-100 rounded-xl">
+            <Languages size={18} />
+            <div>
+              <p className="text-zinc-500 text-xs">Language</p>
+              <p className="font-medium">English</p>
+            </div>
           </div>
-          <div className="p-4 bg-zinc-100 rounded-xl text-black">
-            Duration: 6 Hours
+
+          <div className="flex items-center gap-4 p-4 bg-zinc-100 rounded-xl">
+            <Clock size={18} />
+            <div>
+              <p className="text-zinc-500 text-xs">Duration</p>
+              <p className="font-medium">6 Hours</p>
+            </div>
           </div>
-          <div className="p-4 bg-zinc-100 rounded-xl text-black">
-            Tickets Needed: 16 yrs+
+
+          <div className="flex items-center gap-4 p-4 bg-zinc-100 rounded-xl">
+            <Ticket size={18} />
+            <div>
+              <p className="text-zinc-500 text-xs">Tickets Needed</p>
+              <p className="font-medium">16 yrs+</p>
+            </div>
           </div>
         </div>
 
@@ -162,26 +187,26 @@ and creative showcases from emerging artists.
 
           <Link
             href={`/artist/${event.artist?.id ?? 0}`}
-            className="flex flex-col sm:flex-row items-center gap-6 mt-6 cursor-pointer"
+            className="mt-6 flex items-start gap-4"
           >
-            <div className="h-32 w-32 rounded-full overflow-hidden">
+            <div className="h-30 w-30 md:h-32 md:w-32 rounded-xl md:rounded-full overflow-hidden shrink-0">
               <Image
                 src={event.artist?.image ?? "/movies/d1.jpg"}
                 alt={event.artist?.name ?? "Artist"}
-                width={500}
-                height={500}
+                width={700}
+                height={700}
                 className="object-cover"
               />
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-base font-semibold">
                 {event.artist?.name}
               </h3>
               <p className="text-zinc-600 text-sm">
                 {event.artist?.role}
               </p>
-              <p className="text-zinc-600 text-sm max-w-md mt-1 leading-relaxed">
+              <p className="text-zinc-600 text-sm mt-1 leading-relaxed">
                 {event.artist?.shortBio}
               </p>
             </div>
@@ -192,12 +217,12 @@ and creative showcases from emerging artists.
         <div className="mt-14">
           <h2 className="text-xl font-semibold mb-2">Venue</h2>
 
-          <div className="bg-white p-4 rounded-xl shadow text-black">
+          <div className="bg-white p-4 rounded-xl shadow">
             <p className="font-medium">{event.location}</p>
 
             <button
               onClick={openGoogleMaps}
-              className="mt-3 px-4 py-2 bg-black text-white rounded-lg text-sm font-semibold"
+              className="mt-3 px-4 py-2 bg-black text-white rounded-lg cursor-pointer text-sm font-semibold"
             >
               Get Directions
             </button>
@@ -205,32 +230,44 @@ and creative showcases from emerging artists.
         </div>
 
         {/* ================= FAQ ================= */}
-        <div className="mt-14 space-y-4 pb-20">
+        <div className="mt-14 space-y-4 pb-32">
           <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
             <summary className="font-semibold">
               Frequently Asked Questions
             </summary>
-            <p className="mt-3 text-zinc-700 leading-relaxed">
-              • Parking is available onsite. <br />
-              • Outside food is not allowed. <br />
-              • Gates open 2 hours before the event.
+            <p className="mt-3 text-zinc-700">
+              • Parking is available onsite <br />
+              • Outside food not allowed <br />
+              • Gates open 2 hours before
             </p>
           </details>
 
           <details className="p-4 bg-zinc-100 rounded-xl cursor-pointer">
-            <summary className="font-semibold">
-              Terms & Conditions
-            </summary>
-            <p className="mt-3 text-zinc-700 leading-relaxed">
-              • Tickets are non-refundable. <br />
-              • Entry closes 30 minutes before showtime. <br />
-              • Security check is mandatory.
+            <summary className="font-semibold">Terms & Conditions</summary>
+            <p className="mt-3 text-zinc-700">
+              • Tickets non-refundable <br />
+              • Entry closes 30 mins before <br />
+              • Security check mandatory
             </p>
           </details>
         </div>
       </div>
 
-      {/* ================= EVENT GUIDE MODAL ================= */}
+      {/* ================= MOBILE STICKY BAR ================= */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50 px-4 py-3 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-zinc-500">Starts from</p>
+          <p className="text-lg font-bold">₹{event.price}</p>
+        </div>
+
+        <Link
+          href={`/events/${event.id}/buy`}
+          className="bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold"
+        >
+          BOOK TICKETS
+        </Link>
+      </div>
+
       {guideOpen && (
         <EventGuideModal onClose={() => setGuideOpen(false)} />
       )}

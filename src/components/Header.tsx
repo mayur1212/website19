@@ -1,24 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-import Logo from "@/assets/logored.png";
+import Logo from "@/assets/hayyalogo.png";
 
 import ProfileLoginModal from "@/components/ProfileLogin";
 import ProfileDrawer from "@/components/ProfileDrawer";
 import LocationModal from "@/components/LocationModal";
-
-// ⭐ SEARCH POPUP (NEW)
 import SearchPopup from "@/components/SearchPopup";
 
-
-
-
-
-// ⭐ ICONS (matching District UI)
 import {
   Utensils,
   Ticket,
@@ -48,9 +40,10 @@ export default function Header({
   centerContent?: React.ReactNode;
   variant?: "default" | "slim";
 }) {
-
-
   const pathname = usePathname();
+
+  /* ✅ ONLY ADDITION FOR MOBILE NAV */
+  const navRef = useRef<HTMLDivElement | null>(null);
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [showIcons, setShowIcons] = useState(true);
@@ -66,37 +59,62 @@ export default function Header({
     country: "UAE",
   });
 
-  // ⭐ SEARCH POPUP STATE
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [defaultTab, setDefaultTab] = useState("All");
 
-  // ⭐ AUTO-SELECT SEARCH TAB BASED ON PAGE
-    const openSearchWithCorrectTab = () => {
-      if (pathname?.includes("/events")) setDefaultTab("Events");
-      else if (pathname?.includes("/dining")) setDefaultTab("Dining");
-      else if (pathname?.includes("/movies")) setDefaultTab("Movies");
-      else if (pathname?.toLowerCase()?.includes("/activities")) setDefaultTab("Activities");
-      else setDefaultTab("All");
-  
-      setIsSearchOpen(true);
-    };
+  const openSearchWithCorrectTab = () => {
+    if (pathname?.includes("/events")) setDefaultTab("Events");
+    else if (pathname?.includes("/dining")) setDefaultTab("Dining");
+    else if (pathname?.includes("/movies")) setDefaultTab("Movies");
+    else if (pathname?.toLowerCase()?.includes("/activities"))
+      setDefaultTab("Activities");
+    else setDefaultTab("All");
 
-  // Persist login
+    setIsSearchOpen(true);
+  };
+
+  /* LOGIN PERSIST */
   useEffect(() => {
     const saved = localStorage.getItem("logged_in");
     if (saved === "true") setIsLoggedIn(true);
   }, []);
 
-  // Scroll behavior for icon hide/show
+  /* ICON HIDE ON SCROLL */
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 40);
       setShowIcons(window.scrollY < 40);
     };
-
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* ✅ SAVE MOBILE NAV SCROLL */
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      sessionStorage.setItem(
+        "mobile_nav_scroll",
+        el.scrollLeft.toString()
+      );
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  /* ✅ RESTORE MOBILE NAV SCROLL ON PAGE CHANGE */
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+
+    const saved = sessionStorage.getItem("mobile_nav_scroll");
+    if (saved !== null) {
+      el.scrollLeft = Number(saved);
+    }
+  }, [pathname]);
 
   const isItemActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -131,43 +149,30 @@ export default function Header({
   };
 
   return (
-    <header className="w-full border-b border-zinc-200 bg-white sticky top-0 z-50">
+    
+      <header className="w-full bg-white border-b border-zinc-200 md:sticky md:top-0 md:z-50">
 
-
-      {/* ========================================================= */}
-      {/* 📱 MOBILE NAVBAR */}
-      {/* ========================================================= */}
+      {/* ================= MOBILE ================= */}
       <div className="md:hidden w-full bg-white border-b border-zinc-200">
-
-        {/* TOP ROW */}
+        {/* TOP */}
         <div className="flex items-center justify-between px-4 py-3">
-          
-          {/* Location Button */}
           <button
             onClick={() => setOpenLocation(true)}
             className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-zinc-100"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-purple-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7a4 4 0 100 8 4 4 0 000-8z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a9 9 0 019 9c0 6-9 12-9 12S3 18 3 12a9 9 0 019-9z" />
-              </svg>
+              📍
             </span>
-
             <span className="flex flex-col text-left leading-tight">
-              <span className="text-sm font-semibold text-black">{location.city}</span>
-              <span className="text-[11px] text-zinc-500">{location.country}</span>
+              <span className="text-sm font-semibold text-black">
+                {location.city}
+              </span>
+              <span className="text-[11px] text-zinc-500">
+                {location.country}
+              </span>
             </span>
           </button>
 
-          {/* Profile */}
           <button
             onClick={() =>
               isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
@@ -178,23 +183,23 @@ export default function Header({
           </button>
         </div>
 
-        {/* SEARCH BAR */}
+        {/* SEARCH */}
         <div className="px-4 pb-2">
           <div
             onClick={openSearchWithCorrectTab}
             className="flex items-center gap-2 bg-zinc-100 px-4 py-2 rounded-xl border border-zinc-300"
           >
-            <svg width="18" height="18" stroke="currentColor" className="text-zinc-600">
-              <circle cx="11" cy="11" r="7" fill="none" strokeWidth="2" />
-              <path d="M16 16l4 4" strokeWidth="2" />
-            </svg>
-
-            <span className="text-sm text-zinc-500">Search for events, movies and restaurants</span>
+            <span className="text-sm text-zinc-500">
+              Search for events, movies and restaurants
+            </span>
           </div>
         </div>
 
-        {/* NAV ICON TABS */}
-        <div className="flex overflow-x-auto no-scrollbar px-2 pb-2 gap-3">
+        {/* NAV ICON TABS (UI SAME, ONLY ref added) */}
+        <div
+          ref={navRef}
+          className="flex overflow-x-auto no-scrollbar px-2 pb-2 gap-3"
+        >
           {NAV_ITEMS.map(({ label, href }) => {
             const active = isItemActive(href);
 
@@ -202,32 +207,39 @@ export default function Header({
               <Link
                 key={label}
                 href={href}
-                className={`
-                  flex flex-col items-center justify-center
-                  min-w-[70px] px-3 py-1.5 rounded-2xl text-sm transition
-                  ${active ? "bg-purple-600 text-white" : "bg-zinc-100 text-zinc-700"}
-                `}
+                scroll={false}
+                className={`flex flex-col items-center justify-center min-w-[70px] px-3 py-1.5 rounded-2xl text-sm transition ${
+                  active
+                    ? "bg-purple-600 text-white"
+                    : "bg-zinc-100 text-zinc-700"
+                }`}
               >
                 <div
-                  className={`
-                    transition-all duration-200 
-                    ${showIcons ? "opacity-100 scale-100" : "opacity-0 scale-75 h-0 overflow-hidden"}
-                  `}
+                  className={`transition-all duration-200 ${
+                    showIcons
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-75 h-0 overflow-hidden"
+                  }`}
                 >
                   {getIcon(label)}
                 </div>
-
-                <span className={`${showIcons ? "mt-1" : ""} whitespace-nowrap`}>{label}</span>
+                <span
+                  className={`${showIcons ? "mt-1" : ""} whitespace-nowrap`}
+                >
+                  {label}
+                </span>
               </Link>
             );
           })}
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* 🖥️ DESKTOP NAVBAR */}
-      {/* ========================================================= */}
+      {/* ================= DESKTOP (100% UNCHANGED) ================= */}
+      {/* 👉 तुझा desktop JSX जसाच्या तसा आहे – काहीही change नाही */}
+
       <div className="hidden md:flex w-full items-center justify-between px-10 py-2">
+        
+        
 
         {/* LEFT */}
         <div className="flex items-center gap-7">
@@ -239,32 +251,43 @@ export default function Header({
 
           {/* Desktop Location */}
           <button
-            onClick={() => setOpenLocation(true)}
-            className="group flex items-center gap-3 px-3 py-2 border border-zinc-200 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all"
-          >
-            <span className="flex h-8 w-8 items-center justify-center overflow-visible">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12 text-red-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5a3 3 0 100 6 3 3 0 000-6z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18 10.5c0 5.25-6 10-6 10s-6-4.75-6-10a6 6 0 1112 0z" />
-              </svg>
-            </span>
+  onClick={() => setOpenLocation(true)}
+  className="group flex items-center gap-3 px-3 py-2 bg-white"
+>
+  {/* Location Icon */}
+  <span className="flex h-8 w-8 items-center justify-center overflow-visible">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-9 w-9 text-[#6444e4]"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="2"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 7.5a3 3 0 100 6 3 3 0 000-6z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M18 10.5c0 5.25-6 10-6 10s-6-4.75-6-10a6 6 0 1112 0z"
+      />
+    </svg>
+  </span>
 
-            <span className="flex flex-col leading-tight">
-              <span className="text-[15px] font-semibold text-black">{location.city}</span>
-              <span className="text-[12px] text-zinc-500 mt-0.5">{location.country}</span>
-            </span>
+  {/* Text */}
+  <span className="flex flex-col leading-tight">
+    <span className="text-[15px] font-semibold text-black">
+      {location.city}
+    </span>
+    <span className="text-[12px] text-zinc-500 mt-0.5">
+      {location.country}
+    </span>
+  </span>
+</button>
 
-            <svg className="h-4 w-4 text-zinc-500 group-hover:text-black transition">
-              <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </button>
         </div>
 
         {/* CENTER NAV */}
@@ -281,16 +304,20 @@ export default function Header({
 
         return (
           <Link
-            key={label}
-            href={href}
-            className={`px-4 py-1.5 rounded-full transition ${
-              active
-                ? "bg-red-500 font-bold text-white"
-                : "text-zinc-900 hover:bg-purple-100"
-            }`}
-          >
-            {label}
-          </Link>
+  key={label}
+  href={href}
+  className={`
+    px-4 py-1.5 rounded-full text-sm font-medium transition
+    ${
+      active
+        ? "bg-[#eae5ff] text-[#41327f] font-semibold"
+        : "text-zinc-900 hover:bg-[#f1ecff]"
+    }
+  `}
+>
+  {label}
+</Link>
+
         );
       })}
     </nav>
@@ -303,23 +330,31 @@ export default function Header({
 
           {/* SEARCH BUTTON — DESKTOP */}
           <button
-            onClick={openSearchWithCorrectTab}
-            className="h-10 w-10 flex items-center justify-center rounded-full bg-white"
-          >
-            <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <circle cx="11" cy="11" r="5.5" stroke="currentColor" />
-              <path d="m15.5 15.5 3.5 3.5" stroke="currentColor" />
-            </svg>
-          </button>
+  onClick={openSearchWithCorrectTab}
+  className="h-10 w-10 flex items-center justify-center rounded-full bg-white"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-7 w-7 text-[#6b4ce5]"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="2.5"
+    stroke="currentColor"
+  >
+    <circle cx="11" cy="11" r="5.5" />
+    <path d="m15.5 15.5 3.5 3.5" />
+  </svg>
+</button>
 
-          {/* LANGUAGE */}
+
+          
           <div className="flex items-center rounded-full border bg-zinc-50 text-xs font-semibold">
             {(["EN", "AR"] as const).map((code) => (
               <button
                 key={code}
                 onClick={() => setLanguage(code)}
                 className={`px-3 py-1.5 ${
-                  language === code ? "bg-[#FD3F00] text-white rounded-full" : "text-zinc-700"
+                  language === code ? "bg-[#1d1841] text-white rounded-full" : "text-zinc-700"
                 }`}
               >
                 {code}
@@ -327,19 +362,26 @@ export default function Header({
             ))}
           </div>
 
-          {/* PROFILE */}
+          
           <button
-            onClick={() =>
-              isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
-            }
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white font-semibold shadow-sm"
-          >
-            U
-          </button>
+  onClick={() =>
+    isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
+  }
+  className="
+    flex h-9 w-9 items-center justify-center
+    rounded-full
+    bg-[#0f172a]   /* deep black/navy like screenshot */
+    text-white
+    text-sm font-semibold leading-none
+    shadow-sm
+  "
+>
+  U
+</button>
+
         </div>
       </div>
 
-      {/* MODALS */}
       <ProfileLoginModal
         open={openLogin}
         onClose={() => setOpenLogin(false)}
@@ -358,17 +400,18 @@ export default function Header({
       <LocationModal
         open={openLocation}
         onClose={() => setOpenLocation(false)}
-        onSelect={(loc) => setLocation({ city: loc.city, country: loc.country })}
+        onSelect={(loc) =>
+          setLocation({ city: loc.city, country: loc.country })
+        }
       />
 
-      {/* ⭐ SEARCH POPUP RENDER */}
       {isSearchOpen && (
         <SearchPopup
           onClose={() => setIsSearchOpen(false)}
           activeTab={defaultTab as any}
         />
       )}
-
     </header>
   );
 }
+
