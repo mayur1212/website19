@@ -16,28 +16,62 @@ const EVENT_CATEGORIES = [
 
 export default function ExploreEvents() {
   return (
-    <section className="w-[100%] py-10 flex flex-col items-center mx-auto">
+    <section className="w-full py-8 flex flex-col items-center mx-auto">
 
-      {/* ⭐ Explore Events heading */}
-      <h2 className="w-[80%] text-left text-2xl sm:text-3xl font-bold text-black mb-6">
+      {/* HEADING */}
+      <h2 className="w-[90%] sm:w-[80%] text-left text-xl sm:text-3xl font-bold text-black mb-6">
         Explore Events
       </h2>
 
-      {/* CATEGORY CARDS */}
+      {/* CATEGORY GRID */}
       <div
-        className="w-[80%] 
-                   grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 
-                   lg:grid-cols-6 xl:grid-cols-8 gap-4 mx-auto"
+        className="
+          w-full sm:w-[80%]
+
+          /* MOBILE */
+          grid grid-rows-2 grid-flow-col
+          gap-3
+          overflow-x-auto
+          px-4
+          snap-x snap-mandatory
+          scrollbar-hide
+
+          /* DESKTOP */
+          sm:grid-rows-none
+          sm:grid-flow-row
+          sm:grid-cols-3
+          md:grid-cols-4
+          lg:grid-cols-6
+          xl:grid-cols-8
+          sm:gap-6
+          sm:overflow-visible
+          sm:px-0
+        "
       >
         {EVENT_CATEGORIES.map((item, index) => (
           <Link
             key={index}
             href={`/events/category/${item.slug}`}
-            className="rounded-3xl p-5 bg-gradient-to-b from-[#fff9db] to-[#ffeaa7]
-                       shadow-md border border-yellow-200 flex flex-col items-center justify-center
-                       hover:shadow-xl transition cursor-pointer"
+            className="
+              /* MOBILE SIZE */
+              min-w-[118px]
+              px-3 py-4
+
+              /* DESKTOP SIZE */
+              sm:min-w-0
+              sm:px-4 sm:py-6
+
+              snap-start
+              rounded-2xl
+              bg-gradient-to-b from-[#fff9db] to-[#ffeaa7]
+              border border-yellow-200
+
+              flex flex-col items-center justify-center
+              transition hover:scale-[1.03]
+            "
           >
-            <div className="h-29 w-29 relative mb-3">
+            {/* ICON */}
+            <div className="relative h-16 w-16 sm:h-20 sm:w-20 mb-3">
               <Image
                 src={item.image}
                 alt={item.title}
@@ -46,7 +80,8 @@ export default function ExploreEvents() {
               />
             </div>
 
-            <p className="mt-1 text-sm font-semibold text-black">
+            {/* TITLE */}
+            <p className="text-[13px] sm:text-sm font-semibold text-black text-center leading-tight">
               {item.title}
             </p>
           </Link>

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 import { EVENTS } from "@/components/EventCard";
 import Header from "@/components/Header";
+import SlimHeader from "@/components/SlimHeader";
+import { useBookingTimer } from "@/hooks/useBookingTimer";
 
 const PRICE_MAP: Record<string, number> = {
   platinum: 7000,
@@ -24,6 +25,8 @@ export default function TicketQuantityPage({
   const { id, section } = React.use(params);
   const router = useRouter();
 
+  const timeLeft = useBookingTimer();
+
   const eventId = Number(id);
   const event = EVENTS.find((e) => e.id === eventId);
   const price = PRICE_MAP[section];
@@ -31,19 +34,6 @@ export default function TicketQuantityPage({
   if (!event || !price) {
     return <div className="p-10 text-center">Invalid ticket</div>;
   }
-
-  /* ---------------- TIMER ---------------- */
-  const [timeLeft, setTimeLeft] = useState(6 * 60 + 30); // 06:30
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimeLeft((t) => t - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timeLeft]);
 
   /* ---------------- QTY ---------------- */
   const [qty, setQty] = useState(1);
@@ -67,32 +57,14 @@ export default function TicketQuantityPage({
     <div className="min-h-screen bg-white text-black pb-28">
 
       {/* ================= MOBILE SLIM HEADER ================= */}
-      <div className="md:hidden sticky top-0 z-50 bg-white border-b">
-        <div className="flex items-center justify-between px-3 h-12">
-          {/* Logo */}
-          <div className="w-8">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={28}
-              height={28}
-              priority
-            />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-sm font-semibold text-black truncate max-w-[220px] text-center">
-            {event.title}
-          </h1>
-
-          {/* Login */}
-          <button className="h-8 w-8 rounded-full bg-black text-white flex items-center justify-center text-sm">
-            U
-          </button>
-        </div>
+      <div className="md:hidden sticky top-0 z-50">
+        <SlimHeader
+          title={event.title}
+          subtitle={`${event.dateTime} • ${event.location}`}
+        />
       </div>
 
-      {/* ================= DESKTOP HEADER ================= */}
+      {/* ================= DESKTOP HEADER (UNCHANGED) ================= */}
       <div className="hidden md:block">
         <Header
           centerContent={
@@ -121,7 +93,7 @@ export default function TicketQuantityPage({
       {/* ================= CONTENT ================= */}
       <div className="max-w-3xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-semibold mb-2">
-          Phase 2 — {section.toUpperCase()}
+          Phase 2 - {section.toUpperCase()}
         </h1>
         <p className="text-sm text-gray-500 mb-6">
           Choose number of tickets

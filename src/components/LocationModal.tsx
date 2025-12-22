@@ -49,11 +49,21 @@ export default function LocationModal({
     useState<keyof typeof DATA | null>(null);
 
   const [search, setSearch] = useState("");
-
-  // ⭐ New persistent selected city
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-  // Load saved selection when modal opens
+  // 🔥 drawer animation state
+  const [visible, setVisible] = useState(false);
+
+  // drawer animation control
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+    }
+  }, [open]);
+
+  // load saved selection
   useEffect(() => {
     if (open) {
       const savedCity = localStorage.getItem("selected_city");
@@ -64,36 +74,31 @@ export default function LocationModal({
     }
   }, [open]);
 
-  if (!open) return null;
+  // safe unmount AFTER animation
+  if (!open && !visible) return null;
 
   // MERGE ALL CITIES
   const ALL_CITY_LIST = Object.entries(DATA).flatMap(([country, cities]) =>
     cities.map((city) => ({ city, country }))
   );
 
-  // FILTER CITIES BY COUNTRY
   const FILTERED_COUNTRY =
     activeCountry === null
       ? ALL_CITY_LIST
       : ALL_CITY_LIST.filter((c) => c.country === activeCountry);
 
-  // APPLY SEARCH FILTER
   const FILTERED_CITIES = FILTERED_COUNTRY.filter((item) =>
     item.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ⭐ Handle manual city selection
   const handleCitySelect = (item: CityItem) => {
     setSelectedCity(item.city);
-
     localStorage.setItem("selected_city", item.city);
     localStorage.setItem("selected_country", item.country);
-
     onSelect(item);
     onClose();
   };
 
-  // ⭐ Handle Use Current Location (reverse geocoding)
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported.");
@@ -104,63 +109,70 @@ export default function LocationModal({
       async (pos) => {
         const { latitude, longitude } = pos.coords;
 
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          );
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        );
+        const data = await res.json();
 
-          const data = await res.json();
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.state ||
+          "Unknown";
 
-          const city =
-            data.address.city ||
-            data.address.town ||
-            data.address.village ||
-            data.address.state ||
-            "Unknown";
+        const country = data.address.country || "Unknown";
 
-          const country = data.address.country || "Unknown";
+        localStorage.setItem("selected_city", city);
+        localStorage.setItem("selected_country", country);
 
-          // Save
-          setSelectedCity(city);
-          localStorage.setItem("selected_city", city);
-          localStorage.setItem("selected_country", country);
-
-          // Send to header
-          onSelect({ city, country });
-
-          onClose();
-        } catch (err) {
-          console.error("Reverse geocoding failed:", err);
-          alert("Unable to fetch location details.");
-        }
+        onSelect({ city, country });
+        onClose();
       },
-      () => alert("Unable to access GPS. Please enable location.")
+      () => alert("Unable to access GPS.")
     );
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex justify-center items-start sm:items-center pt-10 sm:pt-0">
+    /* OVERLAY — click outside closes (desktop + mobile) */
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm flex justify-center items-end sm:items-center"
+    >
+      {/* MODAL */}
       <div
-        className="
-          relative bg-white rounded-3xl shadow-2xl 
+        onClick={(e) => e.stopPropagation()} // prevent close on inside click
+        className={`
+          relative bg-white rounded-3xl shadow-2xl
           w-full max-w-[480px] sm:max-w-[850px]
           h-[80vh] sm:min-h-[600px]
           overflow-hidden flex flex-col p-6 sm:p-8
-        "
+
+          transform transition-transform duration-700
+          ease-[cubic-bezier(0.32,0.72,0,1)]
+          ${visible ? "translate-y-0" : "translate-y-full"}
+          sm:translate-y-0
+        `}
       >
-        {/* CLOSE BUTTON */}
+        {/* MOBILE DRAG HANDLE */}
+        <div className="sm:hidden flex justify-center mb-2">
+          <div className="w-10 h-1.5 bg-zinc-300 rounded-full" />
+        </div>
+
+        {/* ❌ CLOSE BUTTON — MOBILE ONLY */}
         <button
           onClick={onClose}
-          className="text-2xl absolute right-6 top-4 text-black"
+          className="sm:hidden text-2xl absolute right-6 top-4 text-black"
         >
           ×
         </button>
 
-        {/* CONTENT */}
-        <div className="flex-1 overflow-y-auto pr-1 mt-6">
-          <h2 className="text-xl font-semibold text-black">Select Location</h2>
+        {/* STICKY HEADER (MOBILE ONLY) */}
+        <div className="sticky top-0 bg-white z-10 sm:static">
+          <h2 className="text-xl font-semibold text-black">
+            Select Location
+          </h2>
 
-          {/* SEARCH BAR */}
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -168,29 +180,17 @@ export default function LocationModal({
             className="w-full mt-4 border border-zinc-300 px-4 py-3 rounded-xl text-black"
           />
 
-          {/* ⭐ USE CURRENT LOCATION */}
           <button
             onClick={handleUseCurrentLocation}
             className="flex items-center gap-2 text-red-600 font-medium mt-4"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#FF3B30"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 21c4-4 6-7 6-10a6 6 0 1 0-12 0c0 3 2 6 6 10z" />
-              <circle cx="12" cy="11" r="2.5" />
-            </svg>
             Use Current Location
           </button>
+        </div>
 
-          {/* COUNTRY SELECT */}
-          <h3 className="text-lg font-semibold text-black mt-6 mb-3">
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-1 overflow-y-auto pr-1 mt-6">
+          <h3 className="text-lg font-semibold text-black mb-3">
             Countries
           </h3>
 
@@ -213,7 +213,6 @@ export default function LocationModal({
                   alt={country}
                   className="w-12 h-12 object-contain mb-2"
                 />
-
                 <span
                   className={`text-sm font-semibold ${
                     activeCountry === country ? "text-red-600" : "text-black"
@@ -225,7 +224,6 @@ export default function LocationModal({
             ))}
           </div>
 
-          {/* CITY LIST */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 pb-12">
             {FILTERED_CITIES.map((item) => {
               const isSelected = selectedCity === item.city;
