@@ -21,6 +21,7 @@ type DiningBooking = {
   amount: string;
   location: string;
   status: string;
+  bookingId: string;
 };
 
 type EventBooking = {
@@ -48,16 +49,170 @@ type MovieBooking = {
   qr: string;
 };
 
-/* ================= COMPONENT ================= */
+/* ================= MODAL ================= */
+
+type BookingModalProps = {
+  item: DiningBooking | null;
+  onClose: () => void;
+};
+
+const BookingModal = ({ item, onClose }: BookingModalProps) => {
+  if (!item) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60">
+      <div className="bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-xl font-bold"
+        >
+          ✕
+        </button>
+
+        <div className="relative w-full h-40 rounded-xl overflow-hidden mb-4">
+          <Image src={item.image} alt={item.name} fill className="object-cover" />
+        </div>
+
+        <h3 className="text-lg font-semibold">{item.name}</h3>
+        <p className="text-sm text-zinc-600">{item.location}</p>
+
+        <div className="flex flex-wrap gap-2 mt-3 text-xs">
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.date}</span>
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.time}</span>
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">
+            {item.guests} Guests
+          </span>
+        </div>
+
+        <div className="mt-6 border-t pt-4 text-sm space-y-3">
+          <div className="flex justify-between">
+            <span className="text-zinc-500">Booking ID</span>
+            <span className="font-semibold">{item.bookingId}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-zinc-500">Status</span>
+            <span className="text-red-600 font-medium">{item.status}</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mt-6 text-lg font-semibold">
+          <span>Total Paid</span>
+          <span>{item.amount}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ================= CARDS ================= */
+
+const DiningCard = ({
+  item,
+  onView,
+}: {
+  item: DiningBooking;
+  onView: () => void;
+}) => (
+  <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-4 flex flex-col md:flex-row gap-4">
+    <div className="relative w-full md:w-40 h-40 md:h-32 rounded-xl overflow-hidden">
+      <Image src={item.image} alt={item.name} fill className="object-cover" />
+    </div>
+
+    <div className="flex flex-col justify-between flex-1">
+      <div>
+        <h3 className="text-lg font-semibold">{item.name}</h3>
+        <p className="text-sm text-zinc-600 mt-1">{item.location}</p>
+
+        <div className="flex flex-wrap gap-2 mt-3 text-xs">
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.date}</span>
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">{item.time}</span>
+          <span className="bg-zinc-100 px-3 py-1 rounded-full">
+            {item.guests} Guests
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-4">
+        <p className="font-semibold">{item.amount}</p>
+        <span className="text-red-600 text-sm">{item.status}</span>
+        <button
+          onClick={onView}
+          className="px-4 py-2 rounded-full bg-black text-white text-sm"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const EventCard = ({ item }: { item: EventBooking }) => (
+  <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-5">
+    <div className="flex gap-4">
+      <div className="relative w-28 h-36 rounded-xl overflow-hidden">
+        <Image src={item.poster} alt={item.title} fill className="object-cover" />
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold">{item.title}</h3>
+        <p className="text-sm text-zinc-600">{item.dateTime}</p>
+        <p className="text-sm text-zinc-600">{item.venue}</p>
+      </div>
+    </div>
+
+    <div className="flex justify-center py-4">
+      <Image src={item.qr} alt="QR" width={110} height={110} />
+    </div>
+
+    <p className="text-sm">
+      Booking ID: <b>{item.bookingId}</b>
+    </p>
+    <p className="text-sm">
+      Seats: <b>{item.seats}</b>
+    </p>
+    <p className="mt-2">
+      Amount: <b>{item.amount}</b>
+    </p>
+  </div>
+);
+
+const MovieCard = ({ item }: { item: MovieBooking }) => (
+  <div className="w-full max-w-lg mx-auto mb-8">
+    <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
+      <div className="p-5">
+        <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
+        <p className="text-sm text-zinc-600">{item.format}</p>
+        <p className="text-sm text-zinc-600">{item.dateTime}</p>
+        <p className="text-sm text-zinc-600">{item.theatre}</p>
+      </div>
+
+      <div className="flex justify-center py-4">
+        <Image src={item.qr} alt="QR" width={120} height={120} />
+      </div>
+
+      <div className="px-5 pb-5 text-sm">
+        Seats: <b>{item.seats}</b>
+        <br />
+        Booking ID: <b>{item.bookingId}</b>
+      </div>
+
+      <div className="border-t px-5 py-4 flex justify-between font-semibold">
+        <span>Total</span>
+        <span>{item.totalAmount}</span>
+      </div>
+    </div>
+  </div>
+);
+
+/* ================= MAIN COMPONENT ================= */
 
 const Book = () => {
-  const [activeTab, setActiveTab] = useState("dining");
+  const [activeTab, setActiveTab] = useState<TabType>("dining");
   const [showModal, setShowModal] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] =
+    useState<DiningBooking | null>(null);
 
-  /* -------------------------------------------------------
-   * STATIC DATA
-   * ----------------------------------------------------- */
+  /* ================= STATIC DATA ================= */
 
   const diningBookings: DiningBooking[] = [
     {
@@ -101,238 +256,47 @@ const Book = () => {
       totalAmount: "₹5332.86",
       qr: "/qr-sample.png",
     },
-    {
-      id: 302,
-      title: "Kis Kisko Pyaar Karoon 2",
-      format: "Hindi, 2D",
-      dateTime: "Sun, 12 Dec | 6:45 PM",
-      theatre: "INOX: R City Mall, Ghatkopar",
-      poster: "/movies/a4.jpg",
-      bookingId: "MOV8821K",
-      seats: "C4, C5, C6",
-      totalAmount: "₹1280.00",
-      qr: "/qr-sample.png",
-    },
   ];
 
-  /* -------------------------------------------------------
-   * MODAL (DINING ONLY)
-   * ----------------------------------------------------- */
-
-  const BookingModal = ({ item }: any) => {
-    if (!item) return null;
-
-    return (
-      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60">
-        <div className="bg-white w-full md:max-w-md rounded-t-3xl md:rounded-3xl p-6 relative">
-          <button
-            onClick={() => setShowModal(false)}
-            className="absolute right-4 top-4 text-xl font-bold"
-          >
-            ✕
-          </button>
-
-          <div className="relative w-full h-40 rounded-xl overflow-hidden mb-4">
-            <Image src={item.image} alt={item.name} fill className="object-cover" />
-          </div>
-
-          <h3 className="text-lg font-semibold">{item.name}</h3>
-          <p className="text-sm text-zinc-600">{item.location}</p>
-
-          <div className="flex flex-wrap gap-2 mt-3 text-xs">
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.date}
-            </span>
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.time}
-            </span>
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.guests} Guests
-            </span>
-          </div>
-
-          <div className="mt-6 border-t pt-4 text-sm space-y-3">
-            <div className="flex justify-between">
-              <span className="text-zinc-500">Booking ID</span>
-              <span className="font-semibold">{item.bookingId}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-zinc-500">Status</span>
-              <span className="text-red-600 font-medium">
-                {item.status}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center mt-6 text-lg font-semibold">
-            <span>Total Paid</span>
-            <span>{item.amount}</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  /* -------------------------------------------------------
-   * CARD COMPONENTS (UNCHANGED)
-   * ----------------------------------------------------- */
-
-  const DiningCard = ({ item }: { item: DiningBooking }) => (
-    <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-4 flex flex-col md:flex-row gap-4">
-      <div className="relative w-full md:w-40 h-40 md:h-32 rounded-xl overflow-hidden">
-        <Image src={item.image} alt={item.name} fill className="object-cover" />
-      </div>
-
-      <div className="flex flex-col justify-between flex-1">
-        <div>
-          <h3 className="text-lg font-semibold">{item.name}</h3>
-          <p className="text-sm text-zinc-600 mt-1">{item.location}</p>
-
-          <div className="flex flex-wrap gap-2 mt-3 text-xs">
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.date}
-            </span>
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.time}
-            </span>
-            <span className="bg-zinc-100 px-3 py-1 rounded-full">
-              {item.guests} Guests
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-4">
-          <p className="font-semibold">{item.amount}</p>
-          <span className="text-red-600 text-sm">{item.status}</span>
-          <button
-            onClick={() => {
-              setSelectedBooking(item);
-              setShowModal(true);
-            }}
-            className="px-4 py-2 rounded-full bg-black text-white text-sm"
-          >
-            View Details
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const EventCard = ({ item }: any) => (
-    <div className="w-full max-w-xl mx-auto bg-white rounded-2xl mb-8 shadow-md border p-5">
-      <div className="flex gap-4">
-        <div className="relative w-28 h-36 rounded-xl overflow-hidden">
-          <Image src={item.poster} alt={item.title} fill className="object-cover" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold">{item.title}</h3>
-          <p className="text-sm text-zinc-600">{item.dateTime}</p>
-          <p className="text-sm text-zinc-600">{item.venue}</p>
-        </div>
-      </div>
-
-      <div className="flex justify-center py-4">
-        <Image src={item.qr} alt="QR" width={110} height={110} />
-      </div>
-
-      <p className="text-sm">
-        Booking ID: <b>{item.bookingId}</b>
-      </p>
-      <p className="text-sm">
-        Seats: <b>{item.seats}</b>
-      </p>
-      <p className="mt-2">
-        Amount: <b>{item.amount}</b>
-      </p>
-    </div>
-  );
-
-  const MovieCard = ({ item }: any) => (
-    <div className="w-full max-w-lg mx-auto mb-8">
-      <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-        <div className="p-5">
-          <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
-          <p className="text-sm text-zinc-600">{item.format}</p>
-          <p className="text-sm text-zinc-600">{item.dateTime}</p>
-          <p className="text-sm text-zinc-600">{item.theatre}</p>
-        </div>
-
-        <div className="flex justify-center py-4">
-          <Image src={item.qr} alt="QR" width={120} height={120} />
-        </div>
-
-        <div className="px-5 pb-5 text-sm">
-          Seats: <b>{item.seats}</b>
-          <br />
-          Booking ID: <b>{item.bookingId}</b>
-        </div>
-
-        <div className="border-t px-5 py-4 flex justify-between font-semibold">
-          <span>Total</span>
-          <span>{item.totalAmount}</span>
-        </div>
-      </div>
-    </div>
-  );
-
-  /* -------------------------------------------------------
-   * CONTENT SWITCH (FIXED)
-   * ----------------------------------------------------- */
-
-  const renderContent = () => {
-    if (activeTab === "dining")
-      return diningBookings.map((item) => (
-        <DiningCard key={item.id} item={item} />
-      ));
-
-    if (activeTab === "events")
-      return eventBookings.map((item) => (
-        <EventCard key={item.id} item={item} />
-      ));
-
-    if (activeTab === "movies")
-      return movieBookings.map((item) => (
-        <MovieCard key={item.id} item={item} />
-      ));
-  };
-
-  /* -------------------------------------------------------
-   * FINAL UI
-   * ----------------------------------------------------- */
-
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <SlimHeader
         title="Review your bookings"
         subtitle="Dining, events & movie tickets"
       />
 
-      <div className="flex justify-center mt-6 px-4">
-        <div className="flex gap-3 bg-zinc-100 rounded-full px-2 py-2">
-          {["dining", "events", "movies"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                activeTab === tab
-                  ? "bg-red-500 text-white shadow"
-                  : "text-zinc-700"
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
+      <main className="flex-1 px-4 mt-8 max-w-3xl mx-auto">
+        {activeTab === "dining" &&
+          diningBookings.map((item) => (
+            <DiningCard
+              key={item.id}
+              item={item}
+              onView={() => {
+                setSelectedBooking(item);
+                setShowModal(true);
+              }}
+            />
           ))}
-        </div>
-      </div>
 
-      <main className="flex-1 px-4 mt-8">
-        <div className="max-w-3xl mx-auto">{renderContent()}</div>
+        {activeTab === "events" &&
+          eventBookings.map((item) => (
+            <EventCard key={item.id} item={item} />
+          ))}
+
+        {activeTab === "movies" &&
+          movieBookings.map((item) => (
+            <MovieCard key={item.id} item={item} />
+          ))}
       </main>
 
       <Footer />
 
-      {showModal && <BookingModal item={selectedBooking} />}
+      {showModal && (
+        <BookingModal
+          item={selectedBooking}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
