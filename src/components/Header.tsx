@@ -5,10 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/assets/hayyalogo.png";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/shub-dev-v2
 
 import ProfileLoginModal from "@/components/ProfileLogin";
 import ProfileDrawer from "@/components/ProfileDrawer";
@@ -418,4 +414,3 @@ export default function Header({
     </header>
   );
 }
-

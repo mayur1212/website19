@@ -40,33 +40,44 @@ const MOVIES: Movie[] = [
 export default function HitsFromPreviousWeeks() {
   return (
     <section className="w-full bg-white py-10">
-      
-        <div className="mx-auto w-[85%] px-8">
-
-        <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">
+      <div className="mx-auto w-[85%] px-8">
+        <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
           Hits from previous weeks
         </h2>
 
-        {/* 2 Cards per row on mobile + tablet */}
         <div className="grid grid-cols-2 gap-5 md:grid-cols-2 lg:grid-cols-4">
           {MOVIES.map((movie) => (
             <article
               key={movie.id}
-              className="flex flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
+              className="
+                group
+                flex flex-col
+                overflow-hidden
+                rounded-[24px]
+                bg-white
+                shadow-[0_10px_25px_rgba(15,23,42,0.08)]
+                transition-all duration-300 ease-out
+                hover:-translate-y-[3px]
+                hover:shadow-[0_20px_40px_rgba(15,23,42,0.14)]
+              "
             >
               {/* Poster */}
-              <div className="relative w-full aspect-[3/4]">
+              <div className="relative w-full aspect-[3/4] overflow-hidden">
                 <Image
                   src={movie.image}
                   alt={movie.title}
                   fill
-                  className="object-cover"
+                  className="
+                    object-cover
+                    transition-transform duration-500 ease-out
+                    group-hover:scale-[1.05]
+                  "
                 />
               </div>
 
               {/* Text */}
               <div className="flex flex-col px-4 pb-4 pt-3">
-                <h3 className="text-sm font-semibold leading-snug text-zinc-900">
+                <h3 className="text-sm font-semibold text-zinc-900">
                   {movie.title}
                 </h3>
                 <p className="mt-1 text-xs font-medium text-zinc-500">

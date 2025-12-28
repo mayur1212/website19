@@ -7,7 +7,7 @@ import { ChevronDown } from "lucide-react";
 
 
 import React, { useMemo, useState, useEffect } from "react";
-import Footer from "@/components/Footer";
+
 import Image from "next/image";
 import { useParams, useSearchParams } from "next/navigation";
 
@@ -342,25 +342,46 @@ const [showCheckout, setShowCheckout] = useState(false);
       lg:px-10
     "
   >
-    {/* LEFT — LOGO */}
-   <Link href="/" className="relative shrink-0">
-  <Image
-    src="/movies/logored.png"
-    alt="Logo"
-    width={110}
-    height={33}
-    priority
-    className="
-      rounded-xl
-      w-[80px] h-auto
-      sm:w-[95px]
-      lg:w-[110px]
-      cursor-pointer
-    "
-  />
-</Link>
+    {/* ================= LEFT — LOGO (DESKTOP ONLY) ================= */}
+    <Link href="/" className="relative shrink-0 hidden md:block">
+      <Image
+        src="/movies/hayyalogo.png"
+        alt="Logo"
+        width={110}
+        height={33}
+        priority
+        className="
+          rounded-xl
+          w-[80px] h-auto
+          sm:w-[95px]
+          lg:w-[110px]
+          cursor-pointer
+        "
+      />
+    </Link>
 
-    {/* CENTER — TITLE */}
+    {/* ================= MOBILE BACK BUTTON ================= */}
+    <button
+      onClick={() => window.history.back()}
+      className="flex md:hidden h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5 text-zinc-800"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
+
+    {/* ================= CENTER — TITLE (ALL DEVICES) ================= */}
     <div
       className="
         absolute left-1/2 top-1/2
@@ -371,11 +392,9 @@ const [showCheckout, setShowCheckout] = useState(false);
       <h1
         className="
           truncate font-semibold text-zinc-900
-          text-xs
-          sm:text-sm
-          lg:text-sm
-          max-w-[140px]
-          sm:max-w-[180px]
+          text-sm
+          max-w-[200px]
+          sm:max-w-[240px]
           lg:max-w-none
         "
       >
@@ -383,13 +402,14 @@ const [showCheckout, setShowCheckout] = useState(false);
       </h1>
     </div>
 
-    {/* RIGHT — PROFILE */}
+    {/* ================= RIGHT — PROFILE (DESKTOP ONLY) ================= */}
     <button
       onClick={() =>
         isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
       }
       className="
-        flex h-8 w-8 sm:h-9 sm:w-9
+        hidden md:flex
+        h-8 w-8 sm:h-9 sm:w-9
         items-center justify-center
         rounded-full bg-slate-900 text-white
         text-xs sm:text-sm
@@ -400,6 +420,7 @@ const [showCheckout, setShowCheckout] = useState(false);
     </button>
   </div>
 </header>
+
 
 
       {/* TOP TIMER STRIP */}
@@ -773,7 +794,7 @@ const [showCheckout, setShowCheckout] = useState(false);
 
 
 
-      <Footer />
+      
     </>
   );
 }

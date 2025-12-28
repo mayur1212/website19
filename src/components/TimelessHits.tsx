@@ -40,7 +40,7 @@ const TIMELESS_MOVIES: TimelessMovie[] = [
 export default function TimelessHits() {
   return (
     <section className="w-full bg-white py-10">
-  <div className="mx-auto w-[85%] px-8">
+      <div className="mx-auto w-[85%] px-8">
 
         {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
@@ -48,47 +48,57 @@ export default function TimelessHits() {
         </h2>
 
         {/* Cards Container */}
-        {/* Cards Container */}
-<div
-  className="
-    grid grid-cols-2 gap-5
-    md:grid-cols-2
-    lg:flex lg:flex-nowrap lg:gap-5 lg:overflow-x-auto lg:pb-3
-    scroll-smooth no-scrollbar
-  "
->
-  {TIMELESS_MOVIES.map((movie) => (
-    <article
-      key={movie.id}
-      className="
-        bg-white rounded-[24px] overflow-hidden
-        shadow-[0_6px_20px_rgba(0,0,0,0.1)]
-        w-full
-        lg:w-[230px] lg:flex-shrink-0
-      "
-    >
-      {/* Poster */}
-      <div className="relative h-[220px] sm:h-[260px] md:h-[280px] w-full">
-        <Image
-          src={movie.image}
-          alt={movie.title}
-          fill
-          className="object-cover"
-        />
-      </div>
+        <div
+          className="
+            grid grid-cols-2 gap-5
+            md:grid-cols-2
+            lg:flex lg:flex-nowrap lg:gap-5
+            lg:overflow-x-auto lg:pb-3
+            scroll-smooth no-scrollbar
+          "
+        >
+          {TIMELESS_MOVIES.map((movie) => (
+            <article
+              key={movie.id}
+              className="
+                group
+                w-full
+                lg:w-[230px] lg:flex-shrink-0
+                bg-white
+                overflow-hidden
+                rounded-[24px]
+                shadow-[0_6px_20px_rgba(0,0,0,0.1)]
+                transition-all duration-300 ease-out
+                hover:-translate-y-[3px]
+                hover:shadow-[0_18px_36px_rgba(0,0,0,0.18)]
+              "
+            >
+              {/* Poster */}
+              <div className="relative h-[220px] sm:h-[260px] md:h-[280px] w-full overflow-hidden">
+                <Image
+                  src={movie.image}
+                  alt={movie.title}
+                  fill
+                  className="
+                    object-cover
+                    transition-transform duration-500 ease-out
+                    group-hover:scale-[1.05]
+                  "
+                />
+              </div>
 
-      {/* Text */}
-      <div className="rounded-b-[24px] bg-white px-4 pb-4 pt-3">
-        <h3 className="text-sm font-semibold leading-snug text-zinc-900">
-          {movie.title}
-        </h3>
-        <p className="mt-1 text-xs font-medium text-zinc-500">
-          {movie.meta}
-        </p>
-      </div>
-    </article>
-  ))}
-</div>
+              {/* Text */}
+              <div className="bg-white px-4 pb-4 pt-3">
+                <h3 className="text-sm font-semibold leading-snug text-zinc-900">
+                  {movie.title}
+                </h3>
+                <p className="mt-1 text-xs font-medium text-zinc-500">
+                  {movie.meta}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
 
       </div>
     </section>

@@ -59,7 +59,7 @@ export default function BestInComedy() {
       <div className="relative mx-auto w-[85%] px-8">
 
         {/* Heading */}
-        <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">
+        <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
           Best in Comedy
         </h2>
 
@@ -72,25 +72,39 @@ export default function BestInComedy() {
             {SHOWS.map((show) => (
               <article
                 key={show.id}
-                className="flex w-[290px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+                className="
+                  group
+                  flex w-[290px] flex-shrink-0 flex-col
+                  overflow-hidden
+                  rounded-[24px]
+                  bg-white
+                  shadow-[0_10px_30px_rgba(15,23,42,0.12)]
+                  transition-all duration-300 ease-out
+                  hover:-translate-y-[3px]
+                  hover:shadow-[0_20px_40px_rgba(15,23,42,0.18)]
+                "
               >
                 {/* Poster */}
-                <div className="relative h-[360px] w-full">
+                <div className="relative h-[360px] w-full overflow-hidden">
                   <Image
                     src={show.image}
                     alt={show.title}
                     fill
-                    className="object-cover"
+                    className="
+                      object-cover
+                      transition-transform duration-500 ease-out
+                      group-hover:scale-[1.05]
+                    "
                   />
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-1 flex-col rounded-b-[24px] bg-white px-4 pb-4 pt-3">
+                <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#b89c3c]">
                     {show.schedule}
                   </p>
 
-                  <h3 className="mt-1 text-sm font-semibold leading-snug text-zinc-900">
+                  <h3 className="mt-1 text-sm font-semibold text-zinc-900">
                     {show.title}
                   </h3>
 
@@ -103,11 +117,11 @@ export default function BestInComedy() {
               </article>
             ))}
 
-            {/* extra spacer so last card isn’t hidden behind arrow */}
+            {/* spacer */}
             <div className="w-16 flex-shrink-0" />
           </div>
 
-          {/* Right arrow like screenshot */}
+          {/* Right arrow */}
           <button
             type="button"
             onClick={scrollRight}

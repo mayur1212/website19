@@ -72,15 +72,27 @@ export default function BestMusicEvents() {
             {MUSIC_EVENTS.map((event) => (
               <article
                 key={event.id}
-                className="flex w-[290px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+                className="
+                  group
+                  flex w-[290px] flex-shrink-0 flex-col
+                  overflow-hidden rounded-[24px] bg-white
+                  shadow-[0_10px_30px_rgba(15,23,42,0.12)]
+                  transition-all duration-300 ease-out
+                  hover:-translate-y-[3px]
+                  hover:shadow-[0_20px_40px_rgba(15,23,42,0.18)]
+                "
               >
                 {/* Poster */}
-                <div className="relative h-[360px] w-full">
+                <div className="relative h-[360px] w-full overflow-hidden">
                   <Image
                     src={event.image}
                     alt={event.title}
                     fill
-                    className="object-cover"
+                    className="
+                      object-cover
+                      transition-transform duration-500 ease-out
+                      group-hover:scale-[1.05]
+                    "
                   />
                 </div>
 

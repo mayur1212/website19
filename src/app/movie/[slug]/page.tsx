@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MobileHeader from "@/components/MobileHeader";
 
 type SeatType = {
   label: string;
@@ -31,15 +32,16 @@ type Amenity = {
 
 type Theatre = {
   id: number;
-  slug?: string;
+  slug: string;
   name: string;
   distance: string;
   meta: string;
-  logoText: string;
-  address?: string;
-  amenities?: Amenity[];
+  logo: string; // 👈 image path
+  address: string;
+  amenities: Amenity[];
   times: ShowTime[];
 };
+
 
 type ShowTimeBucket =
   | "EARLY_MORNING"
@@ -47,6 +49,15 @@ type ShowTimeBucket =
   | "AFTERNOON"
   | "EVENING"
   | "NIGHT";
+
+
+  type QuickChipId =
+  | "AFTER5"
+  | "MORNING"
+  | "IMAX 2D"
+  | "RECLINERS"
+  | "WHEELCHAIR"
+  | "PREMIUM";
 
 type DetailsTab = "REVIEWS" | "SYNOPSIS" | "CAST" | "VIDEOS" | "POSTERS";
 
@@ -99,9 +110,13 @@ const THEATRES: Theatre[] = [
     name: "Cinepolis Grand View High Street, Gurugram",
     distance: "1.6 km away",
     meta: "Non-cancellable",
-    logoText: "cinepolis",
+
+    // ✅ IMAGE LOGO PATH
+    logo: "/movies/pvr.png",
+
     address:
       "Grand View High Street, Sector 82A, Gurugram, Haryana 122004, India",
+
     amenities: [
       { id: "cancel", label: "Allows cancellation", icon: "↩️" },
       { id: "parking", label: "Parking", icon: "🅿️" },
@@ -112,6 +127,7 @@ const THEATRES: Theatre[] = [
       { id: "wheelchair", label: "Wheelchair Friendly", icon: "♿" },
       { id: "ac", label: "Air Conditioning", icon: "❄️" },
     ],
+
     times: [
       {
         time: "05:15 PM",
@@ -155,14 +171,19 @@ const THEATRES: Theatre[] = [
       },
     ],
   },
+
   {
     id: 2,
     slug: "inox-world-mark-sector-65-gurugram",
     name: "INOX World Mark, Sector 65, Gurugram",
     distance: "4.4 km away",
     meta: "Allows cancellation",
-    logoText: "INOX",
+
+    // ✅ IMAGE LOGO PATH
+    logo: "/movies/maxus.png",
+
     address: "World Mark, Sector 65, Gurugram, Haryana 122018, India",
+
     amenities: [
       { id: "cancel", label: "Allows cancellation", icon: "↩️" },
       { id: "parking", label: "Parking", icon: "🅿️" },
@@ -173,6 +194,7 @@ const THEATRES: Theatre[] = [
       { id: "wheelchair", label: "Wheelchair Friendly", icon: "♿" },
       { id: "ac", label: "Air Conditioning", icon: "❄️" },
     ],
+
     times: [
       {
         time: "04:20 PM",
@@ -226,6 +248,7 @@ const THEATRES: Theatre[] = [
   },
 ];
 
+
 const TRAILER_EMBED_URL = "https://www.youtube.com/embed/9AJsFRNJGZ8";
 
 // --------- SMALL HELPERS ---------- //
@@ -273,6 +296,7 @@ function hasAmenity(theatre: Theatre, id: string) {
 export default function MoviePage({}: { params: { slug: string } }) {
   // DATE STRIP: today + next 3 days
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
+  const [wishlist, setWishlist] = useState<Set<number>>(new Set());
 
   const dateOptions = React.useMemo(() => {
     const today = new Date();
@@ -334,6 +358,19 @@ export default function MoviePage({}: { params: { slug: string } }) {
     setSelectedShowTimes([]);
     setSelectedPriceRanges([]);
     setSelectedOthers([]);
+  };
+
+
+    const toggleWishlist = (theatreId: number) => {
+    setWishlist((prev) => {
+      const next = new Set(prev);
+      if (next.has(theatreId)) {
+        next.delete(theatreId);
+      } else {
+        next.add(theatreId);
+      }
+      return next;
+    });
   };
 
   // remove single chip helper (keeps old API, but we also use custom removal for quick-group "AFTER5")
@@ -548,22 +585,48 @@ export default function MoviePage({}: { params: { slug: string } }) {
   };
 
   // Helper to remove a quick chip (handles AFTER5 special case)
-  const removeQuickChip = (id: string) => {
-    if (id === "AFTER5") {
-      // remove both EVENING and NIGHT
-      setSelectedShowTimes((prev) => prev.filter((x) => x !== "EVENING" && x !== "NIGHT"));
-    } else if (id === "MORNING") {
-      setSelectedShowTimes((prev) => prev.filter((x) => x !== "MORNING"));
-    } else if (id === "IMAX 2D") {
-      setSelectedFormats((prev) => prev.filter((x) => x !== "IMAX 2D"));
-    } else if (id === "RECLINERS" || id === "WHEELCHAIR" || id === "PREMIUM") {
-      setSelectedOthers((prev) => prev.filter((x) => x !== id));
-    }
-  };
+ const removeQuickChip = (id: QuickChipId) => {
+  if (id === "AFTER5") {
+    setSelectedShowTimes((prev) =>
+      prev.filter(
+        (x): x is ShowTimeBucket =>
+          x !== "EVENING" && x !== "NIGHT"
+      )
+    );
+    return;
+  }
+
+  if (id === "MORNING") {
+    setSelectedShowTimes((prev) =>
+      prev.filter(
+        (x): x is ShowTimeBucket => x !== "MORNING"
+      )
+    );
+    return;
+  }
+
+  if (id === "IMAX 2D") {
+    setSelectedFormats((prev) => prev.filter((x) => x !== "IMAX 2D"));
+    return;
+  }
+
+  setSelectedOthers((prev) => prev.filter((x) => x !== id));
+};
+
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <Header />
+      
+      {/* DESKTOP HEADER ONLY */}
+<div className="hidden md:block">
+  <Header />
+</div>
+
+{/* MOBILE + TABLET HEADER ONLY */}
+<div className="block md:hidden">
+  <MobileHeader />
+</div>
+
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 lg:px-0">
         {/* TOP HERO */}
@@ -599,239 +662,393 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
         {/* DATE STRIP */}
         <section className="mt-4 border-b border-zinc-200 pb-4">
-          <div className="flex items-stretch gap-4">
-            {/* Left vertical month pill */}
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
-              <span className="uppercase">{dateOptions[selectedDateIndex]?.month || ""}</span>
-            </div>
+  <div className="flex items-center gap-3">
+    {/* LEFT MONTH PILL */}
+    <div className="flex h-[56px] flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
+      <span className="uppercase">
+        {dateOptions[selectedDateIndex]?.month || ""}
+      </span>
+    </div>
 
-            {/* Dates: today + next 3 days */}
-            <div className="flex flex-1 items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
-              {dateOptions.map((d, idx) => {
-                const active = idx === selectedDateIndex;
-                return (
-                  <React.Fragment key={d.key}>
-                    <button
-                      onClick={() => setSelectedDateIndex(idx)}
-                      className={
-                        active
-                          ? "flex h-[64px] w-[60px] flex-shrink-0 flex-col items-center justify-center rounded-2xl bg-black text-white"
-                          : "flex flex-shrink-0 flex-col items-center justify-center px-1"
-                      }
-                    >
-                      <span className={`text-[17px] font-semibold ${active ? "text-white" : "text-zinc-900"}`}>{d.dayNum}</span>
-                      <span className={`text-[11px] font-medium ${active ? "text-zinc-300" : "text-zinc-500"}`}>{d.dayLabel}</span>
-                    </button>
+    {/* DATES ROW */}
+    <div className="flex flex-1 items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+      {dateOptions.map((d, idx) => {
+        const active = idx === selectedDateIndex;
 
-                    {/* vertical divider between days (except last) */}
-                    {idx < dateOptions.length - 1 && <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* FILTER BAR – SINGLE HORIZONTAL SCROLLABLE LINE */}
-          <div className="mt-4">
-            {/* single-line scrollable row — no wrapping */}
-            <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
-              {/* Filters button */}
-              <button
-                type="button"
-                onClick={() => setIsFilterOpen(true)}
-                className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800"
+        return (
+          <React.Fragment key={d.key}>
+            {/* DATE BUTTON */}
+            <button
+              onClick={() => setSelectedDateIndex(idx)}
+              className={`
+                flex h-[56px] w-[48px] flex-shrink-0
+                flex-col items-center justify-center
+                rounded-xl transition-colors duration-150
+                ${active ? "bg-black text-white" : "bg-transparent"}
+              `}
+            >
+              <span
+                className={`text-[16px] font-semibold leading-none ${
+                  active ? "text-white" : "text-zinc-900"
+                }`}
               >
-                <span className="text-lg leading-none">
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 5h16M7 5a2 2 0 1 0 4 0M4 12h16M13 12a2 2 0 1 0 4 0M4 19h16M6 19a2 2 0 1 0 4 0" />
-                  </svg>
-                </span>
-                <span>Filters</span>
-                <span className="text-xs">▼</span>
-              </button>
+                {d.dayNum}
+              </span>
 
-              {/* Active chips from popup filters — medium corners (rounded-lg) */}
-              {activeFilterChips.map((chip) => (
-                <button
-                  key={chip.key}
-                  type="button"
-                  onClick={() => {
-                    // special handling for AFTER5
-                    if (chip.id === "AFTER5") {
-                      removeQuickChip("AFTER5");
-                    } else if (chip.group === "FORMAT" && chip.id === "IMAX 2D") {
-                      removeQuickChip("IMAX 2D");
-                    } else {
-                      // use generic removal for others
-                      handleRemoveFilter(chip.group, chip.id);
-                    }
-                  }}
-                  className="flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]"
-                >
-                  <span>{chip.label}</span>
-                </button>
-              ))}
+              <span
+                className={`mt-[2px] text-[11px] font-medium ${
+                  active ? "text-zinc-300" : "text-zinc-500"
+                }`}
+              >
+                {d.dayLabel}
+              </span>
+            </button>
 
-              {/* Small divider between popup filters & quick toggles */}
-              <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
+            {/* DIVIDER */}
+            {idx < dateOptions.length - 1 && (
+              <span className="h-7 w-px flex-shrink-0 bg-zinc-200 opacity-80" />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  </div>
 
-              {/* QUICK TOGGLES: only render if NOT already active (prevent duplicates) */}
-              {/* IMAX */}
-              {!activeQuickSet.has("IMAX 2D") && (
-                <button
-                  onClick={() => setSelectedFormats((prev) => toggleFromArray(prev, "IMAX 2D"))}
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${imaxActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  IMAX 2D
-                </button>
-              )}
+  {/* FILTER BAR */}
+  <div className="mt-4">
+    <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
+      {/* Filters button */}
+      <button
+        type="button"
+        onClick={() => setIsFilterOpen(true)}
+        className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M4 5h16M7 5a2 2 0 1 0 4 0M4 12h16M13 12a2 2 0 1 0 4 0M4 19h16M6 19a2 2 0 1 0 4 0" />
+        </svg>
+        <span>Filters</span>
+        <span className="text-xs">▼</span>
+      </button>
 
-              {/* Morning */}
-              {!activeQuickSet.has("MORNING") && (
-                <button
-                  onClick={() => setSelectedShowTimes((prev) => toggleFromArray(prev, "MORNING"))}
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${morningActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  Morning
-                </button>
-              )}
+      {/* ACTIVE FILTER CHIPS */}
+      {activeFilterChips.map((chip) => (
+        <button
+          key={chip.key}
+          onClick={() =>
+  chip.id === "AFTER5" ||
+  chip.id === "MORNING" ||
+  chip.id === "IMAX 2D" ||
+  chip.id === "RECLINERS" ||
+  chip.id === "WHEELCHAIR" ||
+  chip.id === "PREMIUM"
+    ? removeQuickChip(chip.id as QuickChipId)
+    : handleRemoveFilter(chip.group, chip.id)
+}
 
-              {/* After 5 PM (maps to EVENING+NIGHT) */}
-              {!activeQuickSet.has("AFTER5") && (
-                <button
-                  onClick={() =>
-                    setSelectedShowTimes((prev) => {
-                      let next = [...prev];
-                      if (after5Active) {
-                        next = next.filter((id) => id !== "EVENING" && id !== "NIGHT");
-                      } else {
-                        if (!next.includes("EVENING")) next.push("EVENING");
-                        if (!next.includes("NIGHT")) next.push("NIGHT");
-                      }
-                      return next;
-                    })
-                  }
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${after5Active ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  After 5 PM
-                </button>
-              )}
+          className="flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]"
+        >
+          {chip.label}
+        </button>
+      ))}
 
-              {/* Recliners */}
-              {!activeQuickSet.has("RECLINERS") && (
-                <button
-                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "RECLINERS"))}
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${reclinersActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  Recliners
-                </button>
-              )}
+      <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
 
-              {/* Wheelchair */}
-              {!activeQuickSet.has("WHEELCHAIR") && (
-                <button
-                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "WHEELCHAIR"))}
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${wheelchairActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  Wheelchair Friendly
-                </button>
-              )}
+      {/* QUICK TOGGLES */}
+      {!activeQuickSet.has("IMAX 2D") && (
+        <button
+          onClick={() =>
+            setSelectedFormats((p) => toggleFromArray(p, "IMAX 2D"))
+          }
+          className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+            imaxActive
+              ? "border-black bg-black text-white"
+              : "border-zinc-300 bg-white text-zinc-800"
+          }`}
+        >
+          IMAX 2D
+        </button>
+      )}
 
-              {/* Premium */}
-              {!activeQuickSet.has("PREMIUM") && (
-                <button
-                  onClick={() => setSelectedOthers((prev) => toggleFromArray(prev, "PREMIUM"))}
-                  className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${premiumActive ? "border-black bg-black text-white" : "border-zinc-300 bg-white text-zinc-800"}`}
-                >
-                  Premium Seats
-                </button>
-              )}
-            </div>
-          </div>
+      {!activeQuickSet.has("MORNING") && (
+        <button
+          onClick={() =>
+            setSelectedShowTimes((p) => toggleFromArray(p, "MORNING"))
+          }
+          className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+            morningActive
+              ? "border-black bg-black text-white"
+              : "border-zinc-300 bg-white text-zinc-800"
+          }`}
+        >
+          Morning
+        </button>
+      )}
 
-          {/* LEGEND BAR */}
-          <div className="mt-4 flex gap-6 rounded-md bg-zinc-100 px-4 py-2 text-xs text-zinc-600">
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-zinc-900" />
-              Available
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-yellow-500" />
-              Filling fast
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-red-500" />
-              Almost full
-            </span>
-          </div>
-        </section>
+      {!activeQuickSet.has("AFTER5") && (
+  <button
+    onClick={() =>
+      setSelectedShowTimes((prev) => {
+        if (after5Active) {
+          return prev.filter(
+            (id) => id !== "EVENING" && id !== "NIGHT"
+          );
+        }
+
+        const next: ShowTimeBucket[] = [...prev];
+        if (!next.includes("EVENING")) next.push("EVENING");
+        if (!next.includes("NIGHT")) next.push("NIGHT");
+        return next;
+      })
+    }
+    className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+      after5Active
+        ? "border-black bg-black text-white"
+        : "border-zinc-300 bg-white text-zinc-800"
+    }`}
+  >
+    After 5 PM
+  </button>
+)}
+
+
+      {!activeQuickSet.has("RECLINERS") && (
+        <button
+          onClick={() =>
+            setSelectedOthers((p) => toggleFromArray(p, "RECLINERS"))
+          }
+          className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+            reclinersActive
+              ? "border-black bg-black text-white"
+              : "border-zinc-300 bg-white text-zinc-800"
+          }`}
+        >
+          Recliners
+        </button>
+      )}
+
+      {!activeQuickSet.has("WHEELCHAIR") && (
+        <button
+          onClick={() =>
+            setSelectedOthers((p) => toggleFromArray(p, "WHEELCHAIR"))
+          }
+          className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+            wheelchairActive
+              ? "border-black bg-black text-white"
+              : "border-zinc-300 bg-white text-zinc-800"
+          }`}
+        >
+          Wheelchair Friendly
+        </button>
+      )}
+
+      {!activeQuickSet.has("PREMIUM") && (
+        <button
+          onClick={() =>
+            setSelectedOthers((p) => toggleFromArray(p, "PREMIUM"))
+          }
+          className={`flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-medium ${
+            premiumActive
+              ? "border-black bg-black text-white"
+              : "border-zinc-300 bg-white text-zinc-800"
+          }`}
+        >
+          Premium Seats
+        </button>
+      )}
+    </div>
+  </div>
+
+  {/* LEGEND */}
+  <div className="mt-4 flex gap-6 rounded-md bg-zinc-100 px-4 py-2 text-xs text-zinc-600">
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-zinc-900" />
+      Available
+    </span>
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-yellow-500" />
+      Filling fast
+    </span>
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-red-500" />
+      Almost full
+    </span>
+  </div>
+</section>
+
 
         {/* THEATRES + SHOWTIMES */}
-        <section className="mt-4 space-y-6">
-          {filteredTheatres.map((theatre) => (
-            <div key={theatre.id} className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                {/* LEFT: logo + name - CLICKABLE for info modal */}
-                <button type="button" onClick={() => setInfoTheatre(theatre)} className="flex flex-1 items-start gap-4 text-left">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-[10px] font-bold uppercase text-zinc-700">
-                    {theatre.logoText}
-                  </div>
+       <section className="mt-4 space-y-6">
+  {filteredTheatres.map((theatre) => (
+    <div
+      key={theatre.id}
+      className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 shadow-sm"
+    >
+      <div className="flex items-start justify-between gap-4">
+        {/* LEFT: LOGO IMAGE + NAME */}
+        <button
+          type="button"
+          onClick={() => setInfoTheatre(theatre)}
+          className="flex flex-1 items-start gap-4 text-left"
+        >
+          {/* LOGO IMAGE (FIXED – NO WHITE ISSUE) */}
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white overflow-hidden">
+  <Image
+    src={theatre.logo}
+    alt={theatre.name}
+    width={48}
+    height={48}
+    className="h-full w-full rounded-full object-cover scale-[1.15]"
+  />
+</div>
 
-                  <div className="flex flex-col gap-1">
-                    <h3 className="text-[15px] font-semibold text-zinc-900 md:text-base">{theatre.name}</h3>
-                    <p className="text-xs text-zinc-500">{theatre.distance} • {theatre.meta}</p>
-                  </div>
-                </button>
 
-                {/* Favourite heart */}
-                <button className="mt-1 flex h-12 w-12 items-center justify-center rounded-full hover:bg-zinc-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 stroke-[2] text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z" />
-                  </svg>
-                </button>
-              </div>
 
-              {/* showtimes → link to seat-layout page */}
-              <div className="mt-4 flex flex-wrap gap-3">
-                {theatre.times.map((slot, idx) => (
-                  <div key={idx} className="group relative">
-                    {/* HOVER POPUP */}
-                    {slot.seats && slot.seats.length > 0 && (
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden -translate-x-1/2 transform rounded-2xl bg-[#f3f3f3] px-7 py-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] group-hover:flex">
-                        <div className="flex gap-8">
-                          {slot.seats.map((s, i) => (
-                            <div key={i} className="min-w-[90px] text-center">
-                              <div className="text-[11px] font-semibold tracking-wide text-zinc-500">{s.label.toUpperCase()}</div>
-                              <div className="mt-1 text-[15px] font-semibold text-zinc-900">₹{s.price}</div>
-                              <div className={`mt-1 text-[11px] font-semibold ${s.status === "AVAILABLE" ? "text-emerald-600" : s.status === "FILLING" ? "text-yellow-600" : "text-red-600"}`}>
-                                {s.status === "AVAILABLE" ? "AVAILABLE" : s.status === "FILLING" ? "FILLING FAST" : "ALMOST FULL"}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+          {/* NAME + META */}
+          <div className="flex flex-col gap-1">
+            <h3 className="text-[15px] font-semibold text-zinc-900 md:text-base">
+              {theatre.name}
+            </h3>
+            <p className="text-xs text-zinc-500">
+              {theatre.distance} • {theatre.meta}
+            </p>
+          </div>
+        </button>
 
-                        {/* notch-style arrow */}
-                        <div className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 -translate-y-[1px]">
-                          <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-[#f3f3f3]" />
-                        </div>
-                      </div>
-                    )}
+        {/* Favourite heart */}
+        <button
+  type="button"
+  onClick={() => toggleWishlist(theatre.id)}
+  className="mt-1 flex h-12 w-12 items-center justify-center rounded-full "
+>
+  {wishlist.has(theatre.id) ? (
+    // ❤️ FILLED (LIKED)
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6 fill-red-500 stroke-red-500"
+      viewBox="0 0 24 24"
+    >
+      <path d="M12 21l-7.682-7.682a4.5 4.5 0 010-6.364 4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 016.364 6.364L12 21z" />
+    </svg>
+  ) : (
+    // 🤍 OUTLINE (NOT LIKED)
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6 stroke-[2] text-zinc-700"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"
+      />
+    </svg>
+  )}
+</button>
 
-                    {/* TIME CARD */}
-                    <Link href={`/movies/seat-layout/${slot.sessionId}`} className="flex h-[56px] w-[160px] flex-col items-center justify-center rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 hover:border-zinc-900">
-                      <span>{slot.time}</span>
-                      {slot.tag && <span className="mt-1 text-[10px] uppercase tracking-wide text-zinc-500">{slot.tag}</span>}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+      </div>
 
-          {filteredTheatres.length === 0 && (
-            <div className="mt-8 text-center text-sm text-zinc-600">No shows match the selected filters.</div>
-          )}
-        </section>
+      {/* SHOWTIMES */}
+      <div
+  className="
+    mt-4
+    grid grid-cols-3 gap-2
+    sm:grid-cols-4
+    md:flex md:flex-wrap md:gap-3
+  "
+>
+
+        {theatre.times.map((slot, idx) => (
+          <div key={idx} className="group relative">
+            {/* HOVER POPUP */}
+            
+              {slot.seats && slot.seats.length > 0 && (
+  <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden -translate-x-1/2 rounded-2xl bg-[#f3f3f3] px-7 py-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)] md:group-hover:flex">
+    <div className="flex gap-8">
+      {slot.seats.map((s, i) => (
+        <div key={i} className="min-w-[90px] text-center">
+          <div className="text-[11px] font-semibold tracking-wide text-zinc-500">
+            {s.label.toUpperCase()}
+          </div>
+
+          <div className="mt-1 text-[15px] font-semibold text-zinc-900">
+            ₹{s.price}
+          </div>
+
+          <div
+            className={`mt-1 text-[11px] font-semibold ${
+              s.status === "AVAILABLE"
+                ? "text-emerald-600"
+                : s.status === "FILLING"
+                ? "text-yellow-600"
+                : "text-red-600"
+            }`}
+          >
+            {s.status === "AVAILABLE"
+              ? "AVAILABLE"
+              : s.status === "FILLING"
+              ? "FILLING FAST"
+              : "ALMOST FULL"}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* ARROW */}
+    <div className="absolute left-1/2 top-full -translate-x-1/2">
+      <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[14px] border-l-transparent border-r-transparent border-t-[#f3f3f3]" />
+    </div>
+  </div>
+)}
+
+
+            {/* TIME CARD */}
+            <Link
+  href={`/movies/seat-layout/${slot.sessionId}`}
+  className="
+    flex
+    h-[48px] w-full
+    flex-col items-center justify-center
+    rounded-xl
+    border border-zinc-300
+    bg-white
+    text-sm font-semibold
+    text-zinc-900
+    hover:border-zinc-900
+    md:h-[56px] md:w-[160px]
+  "
+>
+  <span className="leading-none">{slot.time}</span>
+
+  {slot.tag && (
+    <span className="mt-0.5 text-[9px] uppercase tracking-wide text-zinc-500 md:text-[10px]">
+      {slot.tag}
+    </span>
+  )}
+</Link>
+
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+
+  {filteredTheatres.length === 0 && (
+    <div className="mt-8 text-center text-sm text-zinc-600">
+      No shows match the selected filters.
+    </div>
+  )}
+</section>
+
       </main>
 
       {/* TRAILER MODAL */}
@@ -854,42 +1071,79 @@ export default function MoviePage({}: { params: { slug: string } }) {
 
       {/* MOVIE DETAILS MODAL (View details) */}
       {isDetailsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md" onClick={() => setIsDetailsOpen(false)}>
-          <div className="relative w-full max-w-5xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-7" onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => setIsDetailsOpen(false)} className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800">✕</button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
+          onClick={() => setIsDetailsOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-5xl rounded-3xl bg-white px-8 py-6 shadow-2xl md:px-10 md:py-7"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsDetailsOpen(false)}
+              className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800"
+            >
+              ✕
+            </button>
 
             <div>
-              <h2 className="text-xl font-semibold text-zinc-900 md:text-2xl">Movie details</h2>
-              <p className="mt-1 text-xs font-medium text-zinc-500 md:text-sm">Tere Ishk Mein</p>
+              <h2 className="text-xl font-semibold text-zinc-900 md:text-2xl">
+                Movie details
+              </h2>
+              <p className="mt-1 text-xs font-medium text-zinc-500 md:text-sm">
+                Tere Ishk Mein
+              </p>
             </div>
 
             {/* Tabs */}
             <div className="mt-6 flex gap-6 border-b border-zinc-200 text-sm md:text-base">
               {detailsTabs.map((tab) => (
-                <button key={tab.id} type="button" onClick={() => handleDetailsTabClick(tab.id)} className={`relative px-1 pb-3 text-sm font-medium md:px-2 md:text-base ${activeDetailsTab === tab.id ? "text-zinc-900" : "text-zinc-500 hover:text-zinc-800"}`}>
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleDetailsTabClick(tab.id)}
+                  className={`relative px-1 pb-3 text-sm font-medium md:px-2 md:text-base ${
+                    activeDetailsTab === tab.id ? "text-zinc-900" : "text-zinc-500 hover:text-zinc-800"
+                  }`}
+                >
                   {tab.label}
-                  {activeDetailsTab === tab.id && <span className="absolute bottom-0 left-0 right-0 mx-auto h-[2px] w-full max-w-[70px] rounded-full bg-[#6c4bff]" />}
+                  {activeDetailsTab === tab.id && (
+                    <span className="absolute bottom-0 left-0 right-0 mx-auto h-[2px] w-full max-w-[70px] rounded-full bg-[#6c4bff]" />
+                  )}
                 </button>
               ))}
             </div>
 
             {/* Scrollable content */}
-            <div ref={detailsScrollRef} onScroll={handleDetailsScroll} className="mt-5 max-h-[60vh] overflow-y-auto pr-2">
+            <div
+              ref={detailsScrollRef}
+              onScroll={handleDetailsScroll}
+              className="mt-5 max-h-[60vh] overflow-y-auto pr-2"
+            >
               {/* REVIEWS */}
               <section ref={reviewsRef} className="pb-10">
-                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Reviews</h3>
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">
+                  Reviews
+                </h3>
 
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-orange-100" />
                       <div>
-                        <p className="text-xs font-semibold text-zinc-800">Bollywood Hungama</p>
+                        <p className="text-xs font-semibold text-zinc-800">
+                          Bollywood Hungama
+                        </p>
                         <p className="text-[11px] text-zinc-500">critic review</p>
                       </div>
-                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">3.0/5 ★</span>
+                      <span className="ml-auto rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                        3.0/5 ★
+                      </span>
                     </div>
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">An emotional love story with strong performances and a soundtrack that stays with you long after the film ends.</p>
+                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
+                      An emotional love story with strong performances and a soundtrack that stays with you long after the film ends.
+                    </p>
                   </div>
 
                   <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
@@ -899,14 +1153,68 @@ export default function MoviePage({}: { params: { slug: string } }) {
                         <p className="text-xs font-semibold text-zinc-800">Taran Adarsh</p>
                         <p className="text-[11px] text-zinc-500">film critic</p>
                       </div>
-                      <span className="ml-auto rounded-full bg-emerald-0100 px-2 py-1 text-[11px] font-semibold text-emerald-700">3.5/5 ★</span>
+                      <span className="ml-auto rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                        3.5/5 ★
+                      </span>
                     </div>
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">Relies heavily on its lead pair's chemistry and delivers a visually rich, emotionally charged experience.</p>
+                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
+                      Relies heavily on its lead pair&apos;s chemistry and delivers a visually rich, emotionally charged experience.
+                    </p>
                   </div>
                 </div>
               </section>
 
-              
+              {/* SYNOPSIS */}
+              <section ref={synopsisRef} className="pb-10">
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Synopsis</h3>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-700">
+                  Set in an urban landscape where modern love meets old–school devotion, <b>Tere Ishk Mein</b> follows two young adults drawn together by an unexpected encounter. As their relationship deepens, they must face external obstacles, internal doubts and the clash between passion and expectation.
+                </p>
+
+                <div className="mt-6 space-y-3 text-sm text-zinc-700">
+                  <div className="flex items-center gap-3"><span className="text-lg">🎬</span><span>UA16+</span></div>
+                  <div className="flex items-center gap-3"><span className="text-lg">🌐</span><span>Hindi, Tamil, Telugu</span></div>
+                  <div className="flex items-center gap-3"><span className="text-lg">🎭</span><span>Drama, Romance</span></div>
+                </div>
+              </section>
+
+              {/* CAST */}
+              <section ref={castRef} className="pb-10">
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Cast &amp; Crew</h3>
+                <div className="mt-5 grid grid-cols-3 gap-y-6 gap-x-4 md:grid-cols-5">
+                  {["Dhanush","Kriti Sanon","Priyanshu","Prakash Raj","Paramvir","Jaya B.","Vineet K.","Zeeshan A."].map((name, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2">
+                      <div className="h-16 w-16 rounded-full bg-zinc-200" />
+                      <span className="text-[11px] font-medium text-zinc-800 text-center">{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* VIDEOS */}
+              <section ref={videosRef} className="pb-10">
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Videos</h3>
+                <div className="mt-5 grid gap-5 md:grid-cols-2">
+                  {[1,2].map((i)=>(
+                    <div key={i} className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-900">
+                      <Image src="/movies/d4.jpg" alt="Trailer" fill className="object-cover" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-xl shadow-lg">▶</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* POSTERS */}
+              <section ref={postersRef} className="pb-4">
+                <h3 className="text-sm font-semibold text-zinc-900 md:text-base">Posters &amp; wallpapers</h3>
+                <div className="mt-5 flex justify-center">
+                  <div className="relative max-w-md overflow-hidden rounded-3xl bg-zinc-900">
+                    <Image src="/movies/d4.jpg" alt="Poster" width={600} height={800} className="h-auto w-full object-cover"/>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>
@@ -919,7 +1227,16 @@ export default function MoviePage({}: { params: { slug: string } }) {
             <button type="button" onClick={() => setInfoTheatre(null)} className="absolute right-6 top-6 text-xl font-semibold text-zinc-500 hover:text-zinc-800">✕</button>
 
             <div className="flex flex-col gap-4 pr-10 md:flex-row md:items-start">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-200 bg-white text-xs font-bold uppercase text-zinc-700">{infoTheatre.logoText}</div>
+              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-white overflow-hidden border border-zinc-200">
+  <Image
+    src={infoTheatre.logo}
+    alt={infoTheatre.name}
+    width={64}
+    height={64}
+    className="h-full w-full rounded-full object-cover scale-[1.15]"
+  />
+</div>
+
 
               <div className="flex flex-1 flex-col gap-2">
                 <h2 className="text-lg font-semibold text-zinc-900 md:text-xl">{infoTheatre.name}</h2>

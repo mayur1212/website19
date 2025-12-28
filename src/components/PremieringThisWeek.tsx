@@ -29,20 +29,34 @@ export default function PremieringThisWeek() {
           Premiering this week
         </h2>
 
-        {/* Cards row (right now only 1, but ready for more) */}
+        {/* Cards row */}
         <div className="flex flex-wrap gap-6">
           {PREMIERING.map((movie) => (
             <article
               key={movie.id}
-              className="w-[230px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.1)]"
+              className="
+                group
+                w-[230px] flex-shrink-0
+                overflow-hidden
+                rounded-[24px]
+                bg-white
+                shadow-[0_6px_20px_rgba(0,0,0,0.1)]
+                transition-all duration-300 ease-out
+                hover:-translate-y-[3px]
+                hover:shadow-[0_18px_36px_rgba(0,0,0,0.18)]
+              "
             >
               {/* Poster */}
-              <div className="relative h-[300px] w-full">
+              <div className="relative h-[300px] w-full overflow-hidden">
                 <Image
                   src={movie.image}
                   alt={movie.title}
                   fill
-                  className="object-cover"
+                  className="
+                    object-cover
+                    transition-transform duration-500 ease-out
+                    group-hover:scale-[1.05]
+                  "
                 />
               </div>
 
@@ -58,6 +72,7 @@ export default function PremieringThisWeek() {
             </article>
           ))}
         </div>
+
       </div>
     </section>
   );

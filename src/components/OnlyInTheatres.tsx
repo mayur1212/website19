@@ -54,11 +54,34 @@ export default function OnlyInTheatres() {
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
 
+  // ✅ APPLIED STATES (FINAL FILTERS)
+const [appliedGenres, setAppliedGenres] = useState<string[]>([]);
+const [appliedLanguages, setAppliedLanguages] = useState<string[]>([]);
+const [appliedFormats, setAppliedFormats] = useState<string[]>([]);
+const [appliedQuickFilters, setAppliedQuickFilters] = useState<string[]>([]);
+
+
   const toggleQuickFilter = (value: string) => {
-    setQuickFilters(prev =>
-      prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
-    );
-  };
+  // UI chips
+  setQuickFilters(prev =>
+    prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
+  );
+
+  // 🔥 APPLY IMMEDIATELY
+  setAppliedQuickFilters(prev =>
+    prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
+  );
+
+  // 🔄 Sync modal checkboxes (for Language / Format quick filters)
+  setSelectedLanguages(prev =>
+    prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
+  );
+
+  setSelectedFormats(prev =>
+    prev.includes(value) ? prev.filter(x => x !== value) : [...prev, value]
+  );
+};
+
 
   const QUICK_VALUES = QUICK_FILTERS.map(f => f.value);
 
@@ -109,20 +132,29 @@ export default function OnlyInTheatres() {
 
   // Filter movies using quickFilters and the selected sets
   const filteredMovies = MOVIES.filter(movie => {
-    const quickOk =
-      quickFilters.length === 0 ||
-      quickFilters.includes(movie.language) ||
-      movie.tags.some(t => quickFilters.includes(t));
+  const quickOk =
+    appliedQuickFilters.length === 0 ||
+    appliedQuickFilters.includes(movie.language) ||
+    movie.tags.some(t => appliedQuickFilters.includes(t));
 
-    const langOk = selectedLanguages.length === 0 || selectedLanguages.includes(movie.language);
-    const formatOk = selectedFormats.length === 0 || movie.tags.some(tag => selectedFormats.includes(tag));
-    const genreOk = selectedGenres.length === 0 || movie.genres.some(g => selectedGenres.includes(g));
+  const langOk =
+    appliedLanguages.length === 0 ||
+    appliedLanguages.includes(movie.language);
 
-    return quickOk && langOk && formatOk && genreOk;
-  });
+  const formatOk =
+    appliedFormats.length === 0 ||
+    movie.tags.some(tag => appliedFormats.includes(tag));
+
+  const genreOk =
+    appliedGenres.length === 0 ||
+    movie.genres.some(g => appliedGenres.includes(g));
+
+  return quickOk && langOk && formatOk && genreOk;
+});
+
 
   return (
-    <section className="w-full px-4 pt-10 pb-16 md:px-6 lg:px-6 lg:pt-16 lg:pb-16">
+    <section className="w-full px-0 pt-10 pb-16 md:px-6 lg:px-6 lg:pt-16 lg:pb-16">
 
   <div className="w-full max-w-none">
 
@@ -134,7 +166,14 @@ export default function OnlyInTheatres() {
 
             {/* FILTER BUTTON (medium corners) */}
             <button
-              onClick={() => setShowFilterModal(true)}
+              onClick={() => {
+  setSelectedGenres(appliedGenres);
+  setSelectedLanguages(appliedLanguages);
+  setSelectedFormats(appliedFormats);
+  setQuickFilters(appliedQuickFilters);
+  setShowFilterModal(true);
+}}
+
               className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm"
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -151,19 +190,38 @@ export default function OnlyInTheatres() {
                   <button
                     key={chip.key}
                     onClick={() => {
-                      // if modal selected it may not be in quickFilters; toggling should remove it from whichever state holds it.
-                      // Prioritize removing from quickFilters; if not present there, remove from selectedLanguages/selectedFormats appropriately.
-                      if (quickFilters.includes(chip.value)) {
-                        toggleQuickFilter(chip.value);
-                      } else if (selectedLanguages.includes(chip.value)) {
-                        setSelectedLanguages(prev => prev.filter(x => x !== chip.value));
-                      } else if (selectedFormats.includes(chip.value)) {
-                        setSelectedFormats(prev => prev.filter(x => x !== chip.value));
-                      } else {
-                        // fallback: toggle quickFilters
-                        toggleQuickFilter(chip.value);
-                      }
-                    }}
+  // 🔹 QUICK chips (Hindi / English / 3D etc.)
+  if (chip.group === "Quick") {
+    setAppliedQuickFilters(prev => prev.filter(x => x !== chip.value));
+    setQuickFilters(prev => prev.filter(x => x !== chip.value));
+
+    // 🔥 IMPORTANT: also remove from applied + selected languages & formats
+    setAppliedLanguages(prev => prev.filter(x => x !== chip.value));
+    setAppliedFormats(prev => prev.filter(x => x !== chip.value));
+    setSelectedLanguages(prev => prev.filter(x => x !== chip.value));
+    setSelectedFormats(prev => prev.filter(x => x !== chip.value));
+  }
+
+  // 🔹 GENRE
+  if (chip.group === "Genre") {
+    setAppliedGenres(prev => prev.filter(x => x !== chip.value));
+    setSelectedGenres(prev => prev.filter(x => x !== chip.value));
+  }
+
+  // 🔹 LANGUAGE
+  if (chip.group === "Language") {
+    setAppliedLanguages(prev => prev.filter(x => x !== chip.value));
+    setSelectedLanguages(prev => prev.filter(x => x !== chip.value));
+  }
+
+  // 🔹 FORMAT
+  if (chip.group === "Format") {
+    setAppliedFormats(prev => prev.filter(x => x !== chip.value));
+    setSelectedFormats(prev => prev.filter(x => x !== chip.value));
+  }
+}}
+
+
                     className={`flex-shrink-0 px-4 py-2 text-sm font-medium border transition rounded-lg
                       ${selected ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white border-zinc-300 text-zinc-700"}`}
                   >
@@ -228,19 +286,21 @@ export default function OnlyInTheatres() {
 
         {/* MOVIE GRID */}
         <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-2 md:grid-cols-6">
-
   {filteredMovies.map(movie => (
     <div
       key={movie.id}
       onClick={() =>
         router.push(`/movie/${movie.title.toLowerCase().replace(/ /g, "-")}`)
       }
-      className="cursor-pointer w-full rounded-2xl bg-white shadow-md
-                 hover:-translate-y-1 hover:shadow-lg
-                 transition-all duration-200"
+      className="
+        cursor-pointer
+        w-full
+        rounded-2xl bg-white shadow-md
+        hover:-translate-y-1 hover:shadow-lg
+        transition-all duration-200
+      "
     >
       <div className="h-[260px] md:h-[300px] overflow-hidden rounded-t-2xl">
-        {/* image with rounded top corners */}
         <img
           src={movie.image}
           alt={movie.title}
@@ -261,6 +321,8 @@ export default function OnlyInTheatres() {
 </div>
 
 
+
+
         {/* FILTER MODAL */}
         {showFilterModal && (
           <div className="fixed inset-0 bg-white/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
@@ -270,9 +332,10 @@ export default function OnlyInTheatres() {
                 <button onClick={() => setShowFilterModal(false)}>✕</button>
               </div>
 
-              <div className="flex gap-6">
+              <div className="flex ">
                 {/* Left Tabs */}
-                <div className="w-40 border-r pr-4">
+                <div className="w-40 pr-4">
+
                   {["Genre", "Language", "Format"].map(tab => (
                     <button
                       key={tab}
@@ -285,7 +348,8 @@ export default function OnlyInTheatres() {
                 </div>
 
                 {/* Right Options */}
-                <div className="flex-1 h-[350px] overflow-y-auto pr-4">
+                
+                  <div className="flex-1 h-[350px] overflow-y-auto bg-[#e4e4e7] rounded-2xl p-4">
                   {activeTab === "Genre" &&
                     GENRES.map(g => (
                       <label key={g} className="flex items-center gap-3 py-2">
@@ -369,22 +433,35 @@ export default function OnlyInTheatres() {
               <div className="flex justify-between mt-6">
                 <button
                   onClick={() => {
-                    setSelectedGenres([]);
-                    setSelectedLanguages([]);
-                    setSelectedFormats([]);
-                    setQuickFilters([]);
-                  }}
+  setSelectedGenres([]);
+  setSelectedLanguages([]);
+  setSelectedFormats([]);
+  setQuickFilters([]);
+
+  // 🔥 ALSO CLEAR APPLIED STATES
+  setAppliedGenres([]);
+  setAppliedLanguages([]);
+  setAppliedFormats([]);
+  setAppliedQuickFilters([]);
+}}
                   className="text-sm underline text-zinc-600"
                 >
                   Clear Filters
                 </button>
 
                 <button
-                  onClick={() => setShowFilterModal(false)}
-                  className="bg-black text-white px-6 py-3 rounded-full"
-                >
-                  Apply Filters
-                </button>
+  onClick={() => {
+    setAppliedGenres(selectedGenres);
+    setAppliedLanguages(selectedLanguages);
+    setAppliedFormats(selectedFormats);
+    setAppliedQuickFilters(quickFilters);
+    setShowFilterModal(false);
+  }}
+  className="bg-black text-white px-6 py-3 rounded-full"
+>
+  Apply Filters
+</button>
+
               </div>
             </div>
           </div>

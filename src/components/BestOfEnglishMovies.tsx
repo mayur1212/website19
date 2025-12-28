@@ -47,12 +47,10 @@ export default function BestOfEnglishMovies() {
     <section className="w-full bg-white py-10">
       <div className="mx-auto w-[85%] px-8">
 
-        {/* Heading */}
         <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
           Best of English movies
         </h2>
 
-        {/* Cards Row */}
         <div
           className="
             flex gap-5 flex-nowrap overflow-x-auto pb-3
@@ -63,25 +61,34 @@ export default function BestOfEnglishMovies() {
             <article
               key={movie.id}
               className="
+                group
                 flex-shrink-0 w-[220px]
-                bg-white rounded-[20px] shadow-[0_6px_20px_rgba(0,0,0,0.1)] overflow-hidden
+                bg-white rounded-[20px] overflow-hidden
+                shadow-[0_6px_20px_rgba(0,0,0,0.1)]
+                transition-all duration-300 ease-out
+                hover:-translate-y-[3px]
+                hover:shadow-[0_18px_36px_rgba(0,0,0,0.18)]
                 sm:w-[230px]
                 lg:w-[250px] lg:flex-shrink
               "
             >
               {/* Image */}
-              <div className="relative h-[320px] w-full lg:h-[350px]">
+              <div className="relative h-[320px] w-full lg:h-[350px] overflow-hidden">
                 <Image
                   src={movie.image}
                   alt={movie.title}
                   fill
-                  className="object-cover"
+                  className="
+                    object-cover
+                    transition-transform duration-500 ease-out
+                    group-hover:scale-[1.05]
+                  "
                 />
               </div>
 
               {/* Content */}
               <div className="p-4">
-                <h3 className="text-base font-semibold leading-snug text-zinc-900">
+                <h3 className="text-base font-semibold text-zinc-900">
                   {movie.title}
                 </h3>
                 <p className="mt-1 text-xs text-zinc-600">

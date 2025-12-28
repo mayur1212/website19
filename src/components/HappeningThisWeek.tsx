@@ -10,7 +10,7 @@ type WeekEvent = {
   venue: string;
   price: string;
   image: string;
-  offer?: string; // optional purple strip
+  offer?: string;
 };
 
 const HAPPENING_EVENTS: WeekEvent[] = [
@@ -75,15 +75,29 @@ export default function HappeningThisWeek() {
             {HAPPENING_EVENTS.map((event) => (
               <article
                 key={event.id}
-                className="flex w-[290px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+                className="
+                  group
+                  flex w-[290px] flex-shrink-0 flex-col
+                  overflow-hidden
+                  rounded-[24px]
+                  bg-white
+                  shadow-[0_10px_30px_rgba(15,23,42,0.12)]
+                  transition-all duration-300 ease-out
+                  hover:-translate-y-[3px]
+                  hover:shadow-[0_20px_40px_rgba(15,23,42,0.18)]
+                "
               >
                 {/* Poster */}
-                <div className="relative h-[360px] w-full">
+                <div className="relative h-[360px] w-full overflow-hidden">
                   <Image
                     src={event.image}
                     alt={event.title}
                     fill
-                    className="object-cover"
+                    className="
+                      object-cover
+                      transition-transform duration-500 ease-out
+                      group-hover:scale-[1.05]
+                    "
                   />
                 </div>
 
@@ -91,11 +105,7 @@ export default function HappeningThisWeek() {
                 {event.offer && (
                   <div className="flex items-center gap-2 bg-[#7b2cff] px-4 py-2 text-xs font-medium text-white">
                     <span className="flex h-4 w-4 items-center justify-center rounded-[4px] bg-white/15">
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="h-3 w-3"
-                        fill="none"
-                      >
+                      <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none">
                         <path
                           d="M5 5h8l6 6-8 8-6-6V5z"
                           stroke="currentColor"
@@ -118,7 +128,9 @@ export default function HappeningThisWeek() {
                     {event.title}
                   </h3>
 
-                  <p className="mt-1 text-xs text-zinc-500">{event.venue}</p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {event.venue}
+                  </p>
 
                   <p className="mt-1 text-xs font-medium text-zinc-800">
                     {event.price}

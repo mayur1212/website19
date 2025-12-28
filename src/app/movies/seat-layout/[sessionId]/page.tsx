@@ -246,55 +246,29 @@ export default function TheatrePage() {
   return (
     <>
       {/* HEADER */}
-      {/* HEADER — SAME AS MAIN HEADER */}
-<header className="w-full border-b border-zinc-200 bg-white">
-  <div
-    className="
-      relative flex w-full items-center justify-between
-      px-3 py-2
-      sm:px-4
-      lg:px-10
-    "
-  >
-    {/* LEFT — LOGO (CLICKABLE) */}
-    <Link href="/" className="relative shrink-0">
+      <header className="w-full border-b border-zinc-200 bg-white">
+  {/* ================= DESKTOP HEADER ================= */}
+  <div className="hidden md:flex relative w-full items-center justify-between px-6 py-3 lg:px-10">
+    {/* LEFT — LOGO */}
+    <Link href="/" className="shrink-0">
       <Image
-        src="/movies/logored.png"
+        src="/movies/hayyalogo.png"
         alt="Logo"
         width={110}
         height={33}
         priority
-        className="
-          rounded-xl
-          w-[80px] h-auto
-          sm:w-[95px]
-          lg:w-[110px]
-          cursor-pointer
-        "
+        className="w-[110px] h-auto cursor-pointer"
       />
     </Link>
 
-    {/* CENTER — TITLE */}
-    <div
-      className="
-        absolute left-1/2 top-1/2
-        -translate-x-1/2 -translate-y-1/2
-        text-center
-      "
-    >
-      <h1
-        className="
-          truncate font-semibold text-zinc-900
-          text-xs
-          sm:text-sm
-          lg:text-sm
-          max-w-[140px]
-          sm:max-w-[180px]
-          lg:max-w-none
-        "
-      >
-        Review your booking
+    {/* CENTER — MOVIE INFO */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+      <h1 className="text-sm font-semibold text-zinc-900 truncate max-w-[280px]">
+        Dhurandhar
       </h1>
+      <p className="mt-0.5 text-xs text-zinc-500 truncate max-w-[360px]">
+        22 Dec, 01:45 PM at Miraj Cinemas : City Pulse, Ahmedabad
+      </p>
     </div>
 
     {/* RIGHT — PROFILE */}
@@ -302,18 +276,47 @@ export default function TheatrePage() {
       onClick={() =>
         isLoggedIn ? setOpenDrawer(true) : setOpenLogin(true)
       }
-      className="
-        flex h-8 w-8 sm:h-9 sm:w-9
-        items-center justify-center
-        rounded-full bg-slate-900 text-white
-        text-xs sm:text-sm
-        font-semibold shadow-sm shrink-0
-      "
+      className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white text-sm font-semibold shadow-sm"
     >
       U
     </button>
   </div>
+
+  {/* ================= MOBILE + TABLET HEADER ================= */}
+  <div className="flex md:hidden items-center gap-3 px-3 py-2">
+    {/* BACK BUTTON */}
+    <button
+      onClick={() => window.history.back()}
+      className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-zinc-100"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5 text-zinc-800"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
+
+    {/* TITLE + ADDRESS */}
+    <div className="flex flex-col min-w-0">
+      <h1 className="text-sm font-semibold text-zinc-900 truncate">
+        Dhurandhar
+      </h1>
+      <p className="text-xs text-zinc-500 truncate">
+        Miraj Cinemas : City Pulse, Ahmedabad
+      </p>
+    </div>
+  </div>
 </header>
+
 
 
 
@@ -421,7 +424,7 @@ export default function TheatrePage() {
                                     "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400";
                                 else if (seat.status === "selected")
   stateClasses =
-    "border-[#fd3f01] bg-[#fd3f01] text-white shadow-md";
+    "border-[#634adf] bg-[#634adf] text-white shadow-md";
 
 
 
@@ -528,7 +531,7 @@ export default function TheatrePage() {
     "sm:w-auto sm:px-6 sm:py-3 sm:text-base",
     selectedSeats.length === 0
       ? "cursor-not-allowed bg-zinc-300 text-zinc-600 scale-100"
-      : "bg-[#fd3f00] text-white hover:bg-[red] hover:scale-[1.015]",
+      : "bg-[#6e52fa] text-white hover:bg-[#634adf] hover:scale-[1.015]",
   ].join(" ")}
 >
   Pay ₹{totalAmount}

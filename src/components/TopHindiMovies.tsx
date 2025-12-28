@@ -50,9 +50,18 @@ export default function TopHindiMovies() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {MOVIES.map((movie) => (
             <div
-              key={movie.id}
-              className="overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]"
-            >
+  key={movie.id}
+  className="
+    overflow-hidden
+    rounded-[24px]
+    bg-white
+    shadow-[0_10px_30px_rgba(15,23,42,0.08)]
+    transition-all duration-300 ease-out
+    hover:-translate-y-[3px]
+    hover:shadow-[0_20px_40px_rgba(15,23,42,0.14)]
+  "
+>
+
               <Link href={movie.herf}>
                 {/* Poster */}
                 <div className="relative w-full aspect-[3/4]">
@@ -60,7 +69,8 @@ export default function TopHindiMovies() {
                     src={movie.poster}
                     alt={movie.title}
                     fill
-                    className="object-cover"
+                   className="object-cover transition-transform duration-500 ease-out hover:scale-[1.05]"
+
                   />
                 </div>
 

@@ -57,7 +57,6 @@ const ACTIVITIES: Activity[] = [
   },
 ];
 
-
 export default function CrowdFavouriteActivities() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -71,40 +70,38 @@ export default function CrowdFavouriteActivities() {
 
   return (
     <section className="w-full bg-white py-10">
-      <div className="mx-auto w-[85%] px-8 relative">
-
+      <div className="relative mx-auto w-[85%] px-8">
 
         {/* Heading */}
-        <h2 className="mb-6 text-2xl font-semibold leading-tight text-zinc-900">
+        <h2 className="mb-6 text-2xl font-semibold text-zinc-900">
           Crowd Favourite Activities
         </h2>
 
         {/* LEFT ARROW */}
-<button
-  onClick={scrollLeft}
-  className="
-    absolute left-0 top-[55%] z-20 hidden md:flex
-    -translate-y-1/2 items-center justify-center
-    bg-transparent shadow-none rounded-none
-    hover:scale-125 transition-transform duration-200
-  "
->
-  <span className="text-3xl font-light text-black">&lsaquo;</span>
-</button>
+        <button
+          onClick={scrollLeft}
+          className="
+            absolute left-0 top-[55%] z-20 hidden md:flex
+            -translate-y-1/2 items-center justify-center
+            bg-transparent
+            hover:scale-125 transition-transform duration-200
+          "
+        >
+          <span className="text-3xl font-light text-black">&lsaquo;</span>
+        </button>
 
-{/* RIGHT ARROW */}
-<button
-  onClick={scrollRight}
-  className="
-    absolute right-0 top-[55%] z-20 hidden md:flex
-    -translate-y-1/2 items-center justify-center
-    bg-transparent shadow-none rounded-none
-    hover:scale-125 transition-transform duration-200
-  "
->
-  <span className="text-3xl font-light text-black">&rsaquo;</span>
-</button>
-
+        {/* RIGHT ARROW */}
+        <button
+          onClick={scrollRight}
+          className="
+            absolute right-0 top-[55%] z-20 hidden md:flex
+            -translate-y-1/2 items-center justify-center
+            bg-transparent
+            hover:scale-125 transition-transform duration-200
+          "
+        >
+          <span className="text-3xl font-light text-black">&rsaquo;</span>
+        </button>
 
         {/* Cards Row */}
         <div
@@ -114,15 +111,29 @@ export default function CrowdFavouriteActivities() {
           {ACTIVITIES.map((activity) => (
             <article
               key={activity.id}
-              className="flex w-[290px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.12)]"
+              className="
+                group
+                flex w-[290px] flex-shrink-0 flex-col
+                overflow-hidden
+                rounded-[24px]
+                bg-white
+                shadow-[0_10px_30px_rgba(15,23,42,0.12)]
+                transition-all duration-300 ease-out
+                hover:-translate-y-[3px]
+                hover:shadow-[0_20px_40px_rgba(15,23,42,0.18)]
+              "
             >
               {/* Image */}
-              <div className="relative h-[360px] w-full">
+              <div className="relative h-[360px] w-full overflow-hidden">
                 <Image
                   src={activity.image}
                   alt={activity.title}
                   fill
-                  className="object-cover"
+                  className="
+                    object-cover
+                    transition-transform duration-500 ease-out
+                    group-hover:scale-[1.05]
+                  "
                 />
               </div>
 
@@ -142,16 +153,18 @@ export default function CrowdFavouriteActivities() {
               </div>
 
               {/* Content */}
-              <div className="flex flex-1 flex-col rounded-b-[24px] bg-white px-4 pb-4 pt-3">
+              <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-[#8F8E21]">
                   {activity.schedule}
                 </p>
 
-                <h3 className="mt-1 text-sm font-semibold leading-snug text-zinc-900">
+                <h3 className="mt-1 text-sm font-semibold text-zinc-900">
                   {activity.title}
                 </h3>
 
-                <p className="mt-1 text-xs text-zinc-500">{activity.subtitle}</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  {activity.subtitle}
+                </p>
 
                 <p className="mt-1 text-xs font-medium text-zinc-700">
                   {activity.price}

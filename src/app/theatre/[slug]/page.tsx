@@ -547,27 +547,55 @@ export default function TheatrePage() {
 
       <main className="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-6">
         {/* header */}
-        <header className="flex items-start gap-6">
-          <div className="relative h-20 w-20 flex-shrink-0">
-            <Image src={cinema.logo} alt="logo" fill className="object-contain rounded-full" />
-          </div>
+       <section
+  className="
+    flex items-start justify-between gap-4
+    sm:flex-row sm:items-start sm:gap-6
+  "
+>
+  {/* LEFT CONTENT */}
+  <div className="flex-1 min-w-0">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <h1 className="text-lg sm:text-2xl font-semibold text-zinc-900 leading-snug sm:leading-tight">
+          {cinema.name}
+        </h1>
 
-          <div className="flex-1">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-semibold text-zinc-900 leading-tight">{cinema.name}</h1>
-                <p className="text-sm text-zinc-500 mt-1">{cinema.distance}</p>
-                <p className="text-sm text-zinc-500 mt-1">{cinema.address}</p>
-              </div>
+        <p className="text-sm text-zinc-500 mt-1">
+          {cinema.distance}
+        </p>
 
-              <div className="ml-4 flex items-start gap-3">
-                <button aria-label="favourite" className="p-2 rounded-full border border-zinc-200 hover:bg-zinc-50">
-                  <Heart className="w-5 h-5 text-zinc-700" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+        <p className="text-sm text-zinc-500 mt-1 leading-relaxed">
+          {cinema.address}
+        </p>
+      </div>
+
+      {/* ❤️ stays right ONLY on desktop (UNCHANGED) */}
+      <div className="hidden sm:flex ml-4 items-start gap-3">
+        <button
+          aria-label="favourite"
+          className="p-2 rounded-full border border-zinc-200 hover:bg-zinc-50"
+        >
+          <Heart className="w-5 h-5 text-zinc-700" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {/* RIGHT LOGO */}
+  <div className="flex-shrink-0">
+    <div className="relative h-14 w-14 sm:h-20 sm:w-20">
+      <Image
+        src={cinema.logo}
+        alt="logo"
+        fill
+        className="object-contain rounded-full"
+      />
+    </div>
+  </div>
+</section>
+
+
 
         {/* Services & amenities */}
         <section className="mt-8">
@@ -625,193 +653,246 @@ export default function TheatrePage() {
         </section>
 
         {/* Dates + filters */}
-        <section className="mt-10">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
-              {/* Left vertical month pill */}
-              <div className="flex flex-col items-center justify-center rounded-2xl bg-zinc-100 px-3 text-[10px] font-semibold tracking-[0.16em] text-zinc-500">
-                <span className="uppercase">{dateOptions[selectedDateIndex]?.month || ""}</span>
-              </div>
+        <section className="mt-6 border-b border-zinc-200 pb-4">
+  {/* DATE STRIP */}
+  <div className="flex items-center gap-2">
+  {/* LEFT MONTH PILL */}
+  <div className="flex h-[48px] w-[36px] flex-col items-center justify-center rounded-lg bg-zinc-100 text-[10px] font-semibold tracking-[0.14em] text-zinc-500">
+    <span className="uppercase">
+      {dateOptions[selectedDateIndex]?.month || ""}
+    </span>
+  </div>
 
-              {/* Dates */}
-              <div className="flex flex-1 items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
-                {dateOptions.map((d, idx) => {
-                  const active = idx === selectedDateIndex;
-                  return (
-                    <React.Fragment key={d.key}>
-                      <button
-                        onClick={() => {
-                          setSelectedDateIndex(idx);
-                          setSelectedDate(d.date.getDate());
-                        }}
-                        className={
-                          active
-                            ? "flex h-[64px] w-[60px] flex-shrink-0 flex-col items-center justify-center rounded-2xl bg-black text-white"
-                            : "flex flex-shrink-0 flex-col items-center justify-center px-1"
-                        }
-                      >
-                        <span className={`text-[17px] font-semibold ${active ? "text-white" : "text-zinc-900"}`}>{d.dayNum}</span>
-                        <span className={`text-[11px] font-medium ${active ? "text-zinc-300" : "text-zinc-500"}`}>{d.dayLabel}</span>
-                      </button>
+  {/* DATES */}
+  <div className="flex flex-1 items-center gap-2 overflow-x-auto no-scrollbar">
+    {dateOptions.map((d, idx) => {
+      const active = idx === selectedDateIndex;
 
-                      {idx < dateOptions.length - 1 && <span className="h-8 w-px flex-shrink-0 bg-zinc-200" />}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+      return (
+        <React.Fragment key={d.key}>
+          {/* DATE BUTTON */}
+          <button
+            onClick={() => {
+              setSelectedDateIndex(idx);
+              setSelectedDate(d.date.getDate());
+            }}
+            className={`
+              flex h-[48px] w-[48px] flex-shrink-0
+              flex-col items-center justify-center
+              rounded-lg
+              ${active ? "bg-black" : "bg-transparent"}
+            `}
+          >
+            {/* DAY NUMBER */}
+            <span
+              className={`text-[15px] font-semibold leading-tight ${
+                active ? "text-white" : "text-zinc-900"
+              }`}
+            >
+              {d.dayNum}
+            </span>
 
-          <div className="mt-6">
-            <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
-              <button
-                onClick={() => setShowFilterModal(true)}
-                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-zinc-300 bg-white text-sm font-medium text-zinc-800"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                <span>Filters</span>
-              </button>
+            {/* DAY LABEL (NO EXTRA GAP) */}
+            <span
+              className={`text-[10px] leading-tight ${
+                active ? "text-zinc-300" : "text-zinc-500"
+              }`}
+            >
+              {d.dayLabel}
+            </span>
+          </button>
 
-              {combinedChips.map((chip) => (
-                <button
-                  key={chip.key}
-                  onClick={() => handleRemoveChip(chip.group as any, chip.id)}
-                  className="flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium border transition bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]"
-                >
-                  {chip.label}
-                </button>
-              ))}
+          {/* DIVIDER */}
+          {idx < dateOptions.length - 1 && (
+            <span className="h-7 w-px flex-shrink-0 bg-zinc-200" />
+          )}
+        </React.Fragment>
+      );
+    })}
+  </div>
+</div>
 
-              <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
 
-              {["Hindi", "Gujarati", "Malayalam", "3D", "Morning", "After 5 PM", "New Release"].map((f, idx) => {
-                if (activeQuickSet.has(f)) return null;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => toggleQuickFilter(f)}
-                    className={`flex-shrink-0 rounded-md px-4 py-2 text-sm font-medium border transition ${
-                      quickFilterActive(f) ? "bg-[#eae5ff] border-[#7c3aed] text-[#4b1fa8]" : "bg-white text-zinc-800 border-zinc-300"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+  {/* FILTER BAR */}
+  <div className="mt-4">
+    <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
+      <button
+        onClick={() => setShowFilterModal(true)}
+        className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800"
+      >
+        <SlidersHorizontal className="h-4 w-4" />
+        Filters
+      </button>
 
-        {/* Legend */}
-        <section className="mt-6">
-          <div className="bg-zinc-100 rounded-md p-4">
-            <div className="flex items-center gap-6 text-sm text-zinc-600">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-black inline-block" />
-                <span>Available</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" />
-                <span>Filling fast</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
-                <span>Almost full</span>
-              </div>
-              <div className="ml-auto text-sm text-zinc-500">English subtitle</div>
-            </div>
-          </div>
-        </section>
+      {combinedChips.map((chip) => (
+        <button
+          key={chip.key}
+          onClick={() => handleRemoveChip(chip.group as any, chip.id)}
+          className="flex-shrink-0 rounded-full border border-[#7c3aed] bg-[#eae5ff] px-4 py-2 text-sm font-medium text-[#4b1fa8]"
+        >
+          {chip.label}
+        </button>
+      ))}
+
+      <div className="flex-shrink-0 h-6 w-px bg-zinc-200" />
+
+      {["Hindi", "Gujarati", "Malayalam", "3D", "Morning", "After 5 PM", "New Release"].map(
+        (f, idx) => {
+          if (activeQuickSet.has(f)) return null;
+
+          return (
+            <button
+              key={idx}
+              onClick={() => toggleQuickFilter(f)}
+              className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium border ${
+                quickFilterActive(f)
+                  ? "bg-black text-white border-black"
+                  : "bg-white text-zinc-800 border-zinc-300"
+              }`}
+            >
+              {f}
+            </button>
+          );
+        }
+      )}
+    </div>
+  </div>
+
+  {/* LEGEND */}
+  <div className="mt-4 flex gap-6 rounded-md bg-zinc-100 px-4 py-2 text-xs text-zinc-600">
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-black" />
+      Available
+    </span>
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-yellow-400" />
+      Filling fast
+    </span>
+    <span className="flex items-center gap-2">
+      <span className="h-2 w-2 rounded-full bg-rose-500" />
+      Almost full
+    </span>
+  </div>
+</section>
+
+
+
+
+        
 
         {/* Movie list */}
         <section className="mt-10">
-          <div className="space-y-12">
-            {visibleMovies.map((movie) => {
-              const movieSlug = (movie as any).slug ? (movie as any).slug : slugify(movie.title);
-              return (
-                <article key={movie.id}>
-                  {/* top row: poster + details */}
-                  <div className="flex flex-col sm:flex-row items-start gap-6">
-                    {/* Poster + language under poster */}
-                    <div className="flex flex-col items-start gap-2 shrink-0">
-                      <div className="h-24 w-20 relative rounded-md overflow-hidden shadow-sm border border-zinc-100">
-                        <Link href={`/movie/${movieSlug}`} prefetch={false} aria-label={`Open ${movie.title} details`}>
-                          <div className="w-full h-full">
-                            <Image src={movie.poster} alt={movie.title} fill className="object-cover" />
-                          </div>
-                        </Link>
-                      </div>
+  <div className="space-y-10">
+    {visibleMovies.map((movie) => {
+      const movieSlug =
+        (movie as any).slug || slugify(movie.title);
 
-                      {/* language under poster */}
-                      <div className="text-sm font-medium text-zinc-900 mt-1">{movie.language}</div>
-                    </div>
+      return (
+        <article key={movie.id}>
+          {/* TOP ROW */}
+          <div className="flex items-start gap-4 sm:gap-6">
+            {/* POSTER */}
+            <div className="shrink-0">
+              <div className="h-24 w-20 sm:h-28 sm:w-24 relative rounded-lg overflow-hidden border">
+                <Link href={`/movie/${movieSlug}`}>
+                  <Image
+                    src={movie.poster}
+                    alt={movie.title}
+                    fill
+                    className="object-cover"
+                  />
+                </Link>
+              </div>
+            </div>
 
-                    {/* Title, certificate, genre etc */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h2 className="text-lg font-semibold text-zinc-900">
-                            <Link href={`/movie/${movieSlug}`} prefetch={false}>
-                              <span className="hover:underline cursor-pointer">{movie.title}</span>
-                            </Link>
-                          </h2>
+            {/* DETAILS */}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-zinc-900 leading-snug">
+                {movie.title}
+              </h2>
 
-                          <p className="text-sm text-zinc-500 mt-1">{movie.certificate}</p>
-                          <p className="text-sm text-zinc-500 mt-2">{movie.genre}</p>
-                        </div>
+              <p className="text-sm text-zinc-500 mt-0.5">
+                {movie.certificate} | {movie.language}
+              </p>
 
-                        {/* intentionally removed seatType & price on right */}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SHOWTIMES — placed directly under (spanning whole width) so they appear below the poster's language */}
-                  <div className="mt-6">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                      {movie.showtimes.map((time, idx) => {
-                        const id = `${movie.id}|${time}`;
-                        const tiers = computeTiers(movie);
-                        return (
-                          <div
-                            key={idx}
-                            className="relative"
-                            onMouseEnter={() => handleMouseEnterShow(id)}
-                            onMouseLeave={() => handleMouseLeaveHide(id)}
-                            onFocus={() => handleMouseEnterShow(id)}
-                            onBlur={() => handleMouseLeaveHide(id)}
-                          >
-                            <button
-                              onClick={() => {
-                                const sessionId = `${movie.id}-${time.replace(/ |:/g, "")}`;
-                                window.location.href = `/movies/seat-layout/${sessionId}`;
-                              }}
-                              className="w-full h-14 rounded-xl border border-zinc-200 text-sm font-medium text-zinc-900 hover:shadow hover:bg-zinc-50 transition flex items-center justify-center"
-                            >
-                              <span>{time}</span>
-                            </button>
-
-                            {/* show popover anchored to the showtime */}
-                            {hoveredShowtime === id && (
-                              <ShowtimePopover
-                                tiers={tiers.map((t) => ({
-                                  label: t.label,
-                                  price: t.price,
-                                  status: "available",
-                                }))}
-                              />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <hr className="my-6 border-zinc-100" />
-                </article>
-              );
-            })}
+              <p className="text-sm text-zinc-500 mt-1">
+                {movie.genre}
+              </p>
+            </div>
           </div>
-        </section>
+
+          {/* LANGUAGE LABEL (MOBILE STYLE) */}
+          <div className="mt-4 text-sm font-medium text-zinc-900">
+            {movie.language}
+          </div>
+
+          {/* SHOWTIMES */}
+          <div className="mt-3">
+  <div
+    className="
+      grid grid-cols-3        /* ✅ MOBILE: 3 per row */
+      sm:grid-cols-3
+      md:grid-cols-4
+      lg:grid-cols-6
+      gap-3
+    "
+  >
+    {movie.showtimes.map((time, idx) => {
+      const id = `${movie.id}|${time}`;
+
+      return (
+        <div
+          key={idx}
+          className="relative"
+          onMouseEnter={() => handleMouseEnterShow(id)}
+          onMouseLeave={() => handleMouseLeaveHide(id)}
+        >
+          <button
+            onClick={() => {
+              const sessionId = `${movie.id}-${time.replace(/ |:/g, "")}`;
+              window.location.href = `/movies/seat-layout/${sessionId}`;
+            }}
+            className="
+              w-full
+              h-12 sm:h-14
+              rounded-xl
+              border border-zinc-300
+              text-sm font-medium
+              text-zinc-900
+              bg-white
+              hover:border-zinc-900
+              flex items-center justify-center
+            "
+          >
+            {time}
+          </button>
+
+          {/* POPOVER – DESKTOP ONLY */}
+          {hoveredShowtime === id && (
+            <div className="hidden md:block">
+              <ShowtimePopover
+                tiers={computeTiers(movie).map((t) => ({
+                  label: t.label,
+                  price: t.price,
+                  status: "available",
+                }))}
+              />
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+
+          <hr className="my-6 border-zinc-100" />
+        </article>
+      );
+    })}
+  </div>
+</section>
+
       </main>
 
       <Footer />
