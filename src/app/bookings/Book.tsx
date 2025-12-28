@@ -21,8 +21,9 @@ type DiningBooking = {
   amount: string;
   location: string;
   status: string;
-  bookingId: string;
+  bookingId: string; // ✅ ADD THIS
 };
+
 
 type EventBooking = {
   id: number;
